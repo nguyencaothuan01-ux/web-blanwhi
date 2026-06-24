@@ -22,7 +22,6 @@
       .menu-toggle { position: absolute; z-index: 3; left: 16px; top: 43px; width: 38px; height: 38px; display: grid; place-items: center; border: 0; background: transparent; color: #111; cursor: pointer; }
       .menu-toggle svg { width: 23px; height: 23px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
       .menu-toggle:hover { background: #111; color: #fff; }
-      .nav-left a:first-child { border-bottom: 2px solid #111; padding-bottom: 8px; }
       .nav-right { justify-content: flex-end; gap: 22px; }
       .icons { display: flex; gap: 16px; align-items: center; color: #111; }
       .icon { font-size: 22px; line-height: 1; }
@@ -36,9 +35,26 @@
       .nav-icon-button { width: 34px; height: 34px; display: grid; place-items: center; padding: 0; color: #111; cursor: pointer; }
       .nav-icon-button svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.85; stroke-linecap: round; stroke-linejoin: round; }
       .nav-icon-button:hover, .search-toggle:hover { background: #111; color: #fff; }
-      .cart { position: relative; }
-      .cart-count { position: absolute; right: -4px; top: -4px; min-width: 16px; height: 16px; display: grid; place-items: center; border-radius: 999px; background: #111; color: #fff; font-size: 10px; font-weight: 700; line-height: 1; }
-      .cart:hover .cart-count { background: #fff; color: #111; }
+      .cart {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        z-index: 19;
+        width: 56px;
+        height: 56px;
+        border: 1px solid #111;
+        background: #111;
+        color: #fff;
+        box-shadow: 0 12px 30px rgba(0,0,0,.2);
+        transition: transform .2s ease, background .2s ease, color .2s ease;
+      }
+      .cart.nav-icon-button svg { width: 24px; height: 24px; }
+      .cart:hover { background: #fff; color: #111; transform: translateY(-2px); }
+      .cart-count { position: absolute; right: -6px; top: -6px; min-width: 20px; height: 20px; padding: 0 5px; display: grid; place-items: center; border: 2px solid #fff; border-radius: 999px; background: #fff; color: #111; font-size: 10px; font-weight: 800; line-height: 1; box-shadow: 0 3px 10px rgba(0,0,0,.18); }
+      .cart:hover .cart-count { background: #111; color: #fff; }
+      .home-shortcut { position: fixed; left: 24px; bottom: 24px; z-index: 18; min-height: 44px; padding: 0 16px; border: 1px solid #111; background: #fff; color: #111; display: inline-flex; align-items: center; gap: 9px; font-size: 11px; font-weight: 800; text-transform: uppercase; cursor: pointer; box-shadow: 0 10px 24px rgba(0,0,0,.12); }
+      .home-shortcut:hover { background: #111; color: #fff; }
+      .home-shortcut svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
       .search-panel { position: sticky; top: 0; z-index: 6; display: none; grid-template-columns: 1fr auto; gap: 14px; align-items: center; padding: 18px 58px; border-block: 1px solid var(--line); background: rgba(255,255,255,.96); backdrop-filter: blur(14px); }
       .search-panel.open { display: grid; }
       .search-box { min-height: 46px; display: grid; grid-template-columns: 24px 1fr auto; gap: 10px; align-items: center; border: 1px solid #111; background: #fff; padding: 0 14px; }
@@ -123,17 +139,17 @@
       .cta a { border: 1px solid #000; padding: 13px 26px; font-size: 12px; text-transform: uppercase; }
       .cta a:first-child { background: #000; color: #fff; }
       .wrap { padding: 0 58px; }
-      .feature { padding: 52px 0 44px; display: grid; grid-template-columns: .78fr 1.22fr; gap: 50px; align-items: center; }
-      .feature h2 { font-size: 30px; line-height: 1.12; margin: 0; }
-      .feature p { margin-top: 18px; max-width: 310px; color: var(--muted); line-height: 1.65; font-size: 13px; }
-      .feature a { display: inline-flex; margin-top: 20px; border-radius: 999px; background: #f2f2f2; padding: 9px 22px; font-size: 12px; }
-      .feature-board { width: 100%; aspect-ratio: 16 / 10; background: #f5f5f5; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; padding: 28px; align-items: center; }
       .intro { padding: 54px 0 28px; display: grid; grid-template-columns: 1fr 380px; gap: 34px; align-items: end; }
       .intro h2 { font-size: clamp(44px, 5.4vw, 78px); line-height: 1.06; margin: 10px 0 0; }
       .intro p { color: var(--muted); line-height: 1.75; font-size: 14px; }
       .filters { border-block: 1px solid var(--line); padding: 16px 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
       select { height: 44px; border: 1px solid var(--line); background: #fff; padding: 0 12px; color: #111; }
       .grid { padding: 30px 0 64px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 44px 20px; }
+      .pagination { margin: -28px 0 64px; display: none; align-items: center; justify-content: center; gap: 8px; }
+      .pagination.visible { display: flex; }
+      .pagination button { min-width: 40px; height: 40px; padding: 0 13px; border: 1px solid var(--line); background: #fff; color: #111; font-size: 11px; font-weight: 700; text-transform: uppercase; cursor: pointer; }
+      .pagination button:hover, .pagination button.active { border-color: #111; background: #111; color: #fff; }
+      .pagination button:disabled { opacity: .35; cursor: default; background: #fff; color: #111; border-color: var(--line); }
       .product-visual { position: relative; width: 100%; border: 0; padding: 0; cursor: pointer; aspect-ratio: 4 / 5; overflow: hidden; background: linear-gradient(135deg, #fafafa, #ededed); display: grid; place-items: center; transition: transform .55s ease, opacity .55s ease; }
       .card:hover .product-visual { transform: scale(1.018); opacity: .94; }
       .color-arrow { position: absolute; top: 50%; z-index: 2; width: 30px; height: 30px; border: 1px solid rgba(0,0,0,.18); border-radius: 999px; background: rgba(255,255,255,.78); transform: translateY(-50%); display: grid; place-items: center; font-size: 18px; }
@@ -162,14 +178,28 @@
       .mock.jacket .left { left: 7%; transform: rotate(10deg); }
       .mock.jacket .right { right: 7%; transform: rotate(-10deg); }
       .mock.jacket .zip { left: 50%; top: 25%; width: 1px; height: 55%; background: rgba(255,255,255,.45); border: 0; }
+      .mock.gift-box .body { left: 18%; top: 34%; width: 64%; height: 46%; border-radius: 5px; box-shadow: 0 22px 38px rgba(0,0,0,.12); }
+      .mock.gift-box .left { left: 14%; top: 26%; width: 72%; height: 14%; border-radius: 5px; }
+      .mock.gift-box .right { left: 47%; top: 26%; width: 6%; height: 54%; background: rgba(255,255,255,.45); border: 0; }
+      .mock.gift-card .body { left: 16%; top: 25%; width: 68%; height: 52%; border-radius: 4px; box-shadow: 0 22px 38px rgba(0,0,0,.1); transform: rotate(-4deg); }
+      .mock.gift-card .left { left: 24%; top: 38%; width: 52%; height: 1px; background: rgba(255,255,255,.55); border: 0; transform: rotate(-4deg); }
+      .mock.gift-card .right { left: 32%; top: 48%; width: 36%; height: 1px; background: rgba(255,255,255,.55); border: 0; transform: rotate(-4deg); }
+      .mock.gift-bag .body { left: 22%; top: 28%; width: 56%; height: 56%; border-radius: 3px 3px 9px 9px; box-shadow: 0 22px 38px rgba(0,0,0,.12); }
+      .mock.gift-bag .left, .mock.gift-bag .right { top: 17%; width: 22%; height: 23%; border-radius: 999px 999px 0 0; background: transparent; border: 3px solid var(--garment); border-bottom: 0; }
+      .mock.gift-bag .left { left: 28%; }
+      .mock.gift-bag .right { right: 28%; }
       .meta { display: flex; justify-content: space-between; gap: 14px; padding-top: 12px; font-size: 13px; }
+      .price-stack { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: 6px; white-space: nowrap; }
+      .sale-price { color: #111; font-weight: 700; }
+      .original-price { color: #999; font-size: .82em; font-weight: 500; text-decoration: line-through; text-decoration-thickness: 1px; }
+      .detail-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 9px; font-size: 18px; }
       .muted { color: var(--muted); font-size: 12px; margin-top: 4px; }
       .product-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
       .product-tag { border: 1px solid #111; padding: 4px 7px; font-size: 10px; font-weight: 800; line-height: 1; text-transform: uppercase; color: #111; background: #fff; }
       .product-tag.sale { background: #111; color: #fff; }
       .swatches { display: flex; gap: 5px; margin-top: 10px; }
-      .swatches span { width: 14px; height: 14px; border: 1px solid #bbb; display: block; }
-      .swatches span.active { outline: 2px solid #111; outline-offset: 2px; }
+      .swatches button { width: 18px; height: 18px; padding: 0; border: 1px solid #aaa; display: block; cursor: pointer; }
+      .swatches button.active { outline: 2px solid #111; outline-offset: 2px; }
       .sizes { display: flex; gap: 4px; margin-top: 10px; }
       .sizes button { border: 1px solid var(--line); background: #fff; min-width: 27px; height: 27px; display: grid; place-items: center; font-size: 11px; }
       .sizes button.active { border-color: #000; background: #000; color: #fff; }
@@ -178,9 +208,9 @@
       .mini-link { border: 0; background: transparent; padding: 0; text-align: left; font-size: 12px; text-decoration: underline; }
       .quick { width: 100%; margin-top: 12px; height: 38px; border: 1px solid #000; background: transparent; text-transform: uppercase; font-size: 12px; }
       .quick:hover { background: #000; color: #fff; }
-      .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+      .card-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
       .card-actions .quick { margin-top: 0; }
-      .card-actions .quick:last-child { background: #000; color: #fff; }
+      .card-actions [data-add] { background: #000; color: #fff; }
       .cart-overlay { position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,.24); opacity: 0; pointer-events: none; transition: opacity .25s ease; }
       .cart-overlay.open { opacity: 1; pointer-events: auto; }
       .cart-drawer { position: fixed; right: 0; top: 0; z-index: 21; width: min(440px, 100vw); height: 100vh; background: #fff; transform: translateX(100%); transition: transform .3s ease; display: flex; flex-direction: column; box-shadow: -24px 0 70px rgba(0,0,0,.12); }
@@ -195,12 +225,60 @@
       .cart-row .product-visual { width: 72px; aspect-ratio: 4 / 5; }
       .cart-row h3 { margin: 0; font-size: 13px; }
       .cart-row p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+      .cart-message-label { display: block; margin-top: 10px; color: #777; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+      .cart-message { width: 100%; min-height: 58px; margin-top: 5px; border: 1px solid var(--line); padding: 8px; resize: vertical; color: #333; background: #fafafa; font: inherit; font-size: 12px; line-height: 1.45; }
+      .cart-item-actions { display: grid; justify-items: end; gap: 8px; }
       .qty { display: flex; align-items: center; border: 1px solid var(--line); }
       .qty button { width: 28px; height: 30px; border: 0; background: #fff; }
-      .qty span { width: 24px; text-align: center; font-size: 12px; }
-      .cart-foot { border-top: 1px solid var(--line); padding: 18px 22px 22px; display: grid; gap: 10px; }
+      .qty input { width: 46px; height: 30px; border: 0; border-inline: 1px solid var(--line); background: #fff; color: #111; padding: 0 4px; text-align: center; font-size: 12px; font-weight: 700; }
+      .cart-remove { width: 30px; height: 30px; padding: 0; border: 1px solid var(--line); background: #fff; color: #111; display: grid; place-items: center; cursor: pointer; }
+      .cart-remove:hover { border-color: #111; background: #111; color: #fff; }
+      .cart-remove svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+      .cart-foot { border-top: 1px solid var(--line); padding: 14px 22px 20px; display: grid; gap: 8px; }
       .line { display: flex; justify-content: space-between; gap: 16px; font-size: 14px; }
-      .voucher-note { background: #f6f6f6; padding: 12px; font-size: 12px; color: #555; }
+      .voucher-entry { width: 100%; min-height: 42px; border: 1px solid var(--line); padding: 0 12px; background: #fff; color: #111; font: inherit; font-size: 11px; font-weight: 800; text-align: left; text-transform: uppercase; cursor: pointer; }
+      .voucher-entry:hover { border-color: #111; background: #f7f7f7; }
+      .voucher-note { background: #f7f7f7; padding: 7px 9px; font-size: 10px; color: #777; }
+      .voucher-modal { position: fixed; inset: 0; z-index: 40; display: none; background: #f5f5f3; overflow: auto; }
+      .voucher-modal.open { display: block; }
+      .voucher-page { width: min(760px, 100%); min-height: 100vh; margin: 0 auto; padding: 28px 22px 60px; background: #fff; }
+      .voucher-page-head { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+      .voucher-page-head h2 { margin: 0; font-size: clamp(26px, 5vw, 44px); }
+      .voucher-page-summary { margin: 18px 0; padding: 14px 16px; background: #111; color: #fff; display: flex; justify-content: space-between; gap: 16px; }
+      .voucher-list { display: grid; gap: 14px; }
+      .voucher-card { position: relative; display: grid; grid-template-columns: 110px 1fr auto; gap: 16px; align-items: center; min-height: 132px; padding: 16px; border: 1px solid #111; background: #fff; }
+      .voucher-card.locked { opacity: .38; filter: grayscale(1); }
+      .voucher-value { min-height: 98px; display: grid; place-items: center; align-content: center; gap: 3px; background: #111; color: #fff; text-align: center; }
+      .voucher-value strong { font-size: 24px; }
+      .voucher-value span { font-size: 9px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+      .voucher-copy h3 { margin: 0 0 7px; font-size: 17px; }
+      .voucher-copy p { margin: 3px 0; color: #666; font-size: 12px; line-height: 1.45; }
+      .voucher-copy .voucher-code { color: #111; font-weight: 800; }
+      .voucher-apply { min-width: 98px; min-height: 40px; border: 1px solid #111; background: #111; color: #fff; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+      .voucher-apply:disabled { cursor: not-allowed; }
+      .voucher-card.selected { outline: 3px solid #111; outline-offset: 3px; }
+      .voucher-card.selected .voucher-apply { background: #fff; color: #111; }
+      .cart-note { width: 100%; min-height: 38px; max-height: 70px; border: 0; border-bottom: 1px solid var(--line); padding: 8px 2px; resize: vertical; background: transparent; color: #666; font: inherit; font-size: 10px; line-height: 1.4; }
+      .cart-note::placeholder { color: #aaa; }
+      .shipping-picker { border: 1px solid var(--line); }
+      .shipping-trigger { width: 100%; min-height: 46px; border: 0; background: #fff; padding: 8px 11px; display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; cursor: pointer; }
+      .shipping-trigger-main { display: flex; align-items: center; gap: 10px; }
+      .shipping-logo { min-width: 34px; height: 25px; padding: 0 6px; display: inline-grid; place-items: center; border-radius: 4px; background: #111; color: #fff; font-size: 9px; font-weight: 900; letter-spacing: .5px; }
+      .shipping-trigger small { display: block; margin-top: 2px; color: #888; font-size: 9px; }
+      .shipping-options { display: none; border-top: 1px solid var(--line); padding: 8px; gap: 8px; background: #fafafa; }
+      .shipping-options.open { display: grid; }
+      .shipping-option { width: 100%; border: 1px solid var(--line); background: #fff; padding: 11px; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; text-align: left; cursor: pointer; }
+      .shipping-option.active { border-color: #111; outline: 1px solid #111; }
+      .shipping-option strong { display: block; font-size: 12px; }
+      .shipping-option small { display: block; margin-top: 3px; color: #888; font-size: 10px; line-height: 1.4; }
+      .shipping-check { font-size: 16px; }
+      .zoom-modal { position: fixed; inset: 0; z-index: 45; display: none; place-items: center; padding: 22px; background: rgba(0,0,0,.82); }
+      .zoom-modal.open { display: grid; }
+      .zoom-card { position: relative; width: min(680px, 94vw); background: #fff; padding: 20px; }
+      .zoom-card .product-visual { width: 100%; min-height: min(72vh, 700px); cursor: default; }
+      .zoom-card .icon-button { position: absolute; right: 12px; top: 12px; z-index: 2; }
+      .zoom-caption { display: flex; justify-content: space-between; gap: 12px; padding-top: 12px; font-size: 13px; }
+      .zoom-action { width: 100%; border: 0; background: transparent; padding: 0; cursor: zoom-in; }
       .primary { height: 46px; border: 1px solid #000; background: #000; color: #fff; text-transform: uppercase; font-size: 12px; }
       .secondary { height: 42px; border: 1px solid #000; background: #fff; color: #000; text-transform: uppercase; font-size: 12px; }
       .checkout-modal { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.28); display: none; place-items: center; padding: 18px; }
@@ -209,14 +287,34 @@
       .detail-modal.open { display: grid; }
       .variant-modal { position: fixed; inset: 0; z-index: 28; background: rgba(0,0,0,.28); display: none; place-items: center; padding: 18px; }
       .variant-modal.open { display: grid; }
+      .wholesale-modal { position: fixed; inset: 0; z-index: 32; background: rgba(0,0,0,.28); display: none; place-items: center; padding: 18px; }
+      .wholesale-modal.open { display: grid; }
+      .wholesale-card { width: min(620px, 100%); max-height: 92vh; overflow: auto; background: #fff; padding: 24px; }
+      .wholesale-product { display: grid; grid-template-columns: 120px 1fr; gap: 18px; align-items: center; padding-bottom: 20px; }
+      .wholesale-product .product-visual { cursor: default; }
+      .wholesale-product h3 { margin: 0 0 6px; font-size: 20px; }
+      .wholesale-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #111; }
+      .wholesale-column { min-height: 190px; padding: 24px; display: grid; align-content: center; gap: 12px; }
+      .wholesale-column:first-child { border-right: 1px solid #111; }
+      .wholesale-column label { color: var(--muted); font-size: 11px; font-weight: 800; text-transform: uppercase; }
+      .wholesale-quantity { width: 140px; border: 1px solid #111; }
+      .wholesale-quantity input { width: 100%; height: 44px; border: 0; background: #fff; color: #111; padding: 0 12px; font-size: 16px; font-weight: 800; text-align: center; }
+      .wholesale-price strong { display: block; font-size: 28px; }
+      .wholesale-price span { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; }
+      .wholesale-tiers { margin: 16px 0 0; color: #555; font-size: 12px; line-height: 1.7; }
+      .wholesale-add { width: 100%; min-height: 48px; margin-top: 20px; border: 1px solid #111; background: #111; color: #fff; font-size: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+      .wholesale-add:hover { background: #fff; color: #111; }
       .integration-modal { position: fixed; inset: 0; z-index: 31; background: rgba(0,0,0,.28); display: none; place-items: center; padding: 18px; }
       .integration-modal.open { display: grid; }
       .checkout-card { width: min(900px, 100%); max-height: 92vh; overflow: auto; background: #fff; padding: 24px; }
       .detail-card { width: min(980px, 100%); max-height: 92vh; overflow: auto; background: #fff; padding: 24px; }
       .variant-card { width: min(560px, 100%); max-height: 92vh; overflow: auto; background: #fff; padding: 24px; }
-      .quantity-picker { display: inline-flex; align-items: center; border: 1px solid var(--line); }
-      .quantity-picker button { width: 42px; height: 42px; border: 0; background: #fff; font-size: 18px; }
-      .quantity-picker span { width: 44px; text-align: center; }
+      .quantity-picker { width: 140px; display: grid; grid-template-columns: 38px 1fr 38px; border: 1px solid #111; }
+      .quantity-picker button { height: 42px; border: 0; background: #fff; color: #111; font-size: 18px; cursor: pointer; }
+      .quantity-picker button:hover { background: #111; color: #fff; }
+      .quantity-picker input { width: 100%; height: 42px; border: 0; border-inline: 1px solid var(--line); background: #fff; color: #111; padding: 0 4px; font-size: 15px; font-weight: 800; text-align: center; appearance: textfield; -moz-appearance: textfield; }
+      .quantity-picker input::-webkit-outer-spin-button,
+      .quantity-picker input::-webkit-inner-spin-button { margin: 0; appearance: none; -webkit-appearance: none; }
       .variant-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
       .detail-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 24px; }
       .detail-card .product-visual { cursor: default; }
@@ -226,6 +324,7 @@
       .detail-section > button { width: 100%; min-height: 44px; border: 0; background: #fff; display: flex; justify-content: space-between; align-items: center; padding: 0 12px; font-weight: 600; text-align: left; }
       .detail-panel { display: none; border-top: 1px solid var(--line); padding: 12px; color: #555; font-size: 13px; line-height: 1.6; }
       .detail-panel.open { display: grid; gap: 10px; }
+      .gift-message { width: 100%; min-height: 130px; border: 1px solid var(--line); padding: 14px; resize: vertical; font: inherit; line-height: 1.6; }
       .suggestion-actions { display: flex; flex-wrap: wrap; gap: 8px; }
       .suggestion-chip { border: 1px solid #111; background: #fff; padding: 8px 10px; font-size: 12px; }
       .suggestion-chip:hover { background: #111; color: #fff; }
@@ -240,8 +339,6 @@
       .size-advisor-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
       .size-advisor-form input { border: 1px solid var(--line); min-height: 40px; padding: 9px; }
       .size-result { background: #f6f6f6; padding: 12px; color: #111; }
-      .video-box { display: none; aspect-ratio: 16 / 9; background: linear-gradient(135deg, #111, #555); color: #fff; place-items: center; text-align: center; padding: 18px; }
-      .video-box.open { display: grid; }
       .checkout-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 16px; margin-bottom: 18px; }
       .checkout-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 24px; }
       .checkout-card.quick-checkout { width: min(620px, 100%); }
@@ -256,6 +353,19 @@
       .pay-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
       .pay-grid label { border: 1px solid var(--line); padding: 12px; font-size: 13px; }
       .order-box { background: #f7f7f7; padding: 16px; display: grid; gap: 10px; align-content: start; }
+      .custom-confirm-area { display: grid; gap: 10px; }
+      .custom-confirm-title { margin: 4px 0 0; font-size: 13px; text-transform: uppercase; }
+      .custom-confirm-card { border: 1px solid #111; background: #fff; padding: 12px; display: grid; gap: 12px; }
+      .custom-confirm-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .custom-confirm-side { display: grid; gap: 6px; }
+      .custom-confirm-side > span { color: #666; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+      .custom-confirm-view { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #eee; display: grid; place-items: center; }
+      .custom-confirm-view .mock { width: 78%; height: 80%; }
+      .custom-confirm-view img { position: absolute; z-index: 4; width: 24%; height: 25%; transform: translate(-50%, -50%); object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,.12)); }
+      .custom-confirm-text { position: absolute; z-index: 5; max-width: 42%; transform: translate(-50%, -50%); font-size: 12px; font-weight: 700; line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
+      .custom-confirm-meta { margin: 0; color: #666; font-size: 11px; line-height: 1.5; }
+      .custom-confirm-check { border: 1px solid #111; padding: 11px; display: flex; gap: 9px; align-items: flex-start; background: #fff; font-size: 12px; line-height: 1.45; }
+      .custom-confirm-check input { width: 17px; min-height: 17px; margin: 0; padding: 0; flex: 0 0 auto; }
       .empty { color: var(--muted); text-align: center; padding: 40px 0; }
       .order-list { flex: 1; overflow: auto; padding: 20px 22px; display: grid; gap: 16px; align-content: start; }
       .order-card { border: 1px solid var(--line); padding: 16px; display: grid; gap: 12px; }
@@ -264,6 +374,70 @@
       .status-step { border-top: 2px solid #ddd; padding-top: 7px; font-size: 11px; color: #888; }
       .status-step.active { border-color: #000; color: #000; font-weight: 600; }
       .ticker { border-block: 1px solid var(--line); padding: 16px; text-align: center; text-transform: uppercase; font-size: 13px; color: #555; }
+      .service-links { display: grid; grid-template-columns: repeat(2, 1fr); border-bottom: 1px solid #111; }
+      .service-link { min-height: 76px; border: 0; border-right: 1px solid #111; background: #fff; color: #111; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; font-size: 13px; font-weight: 800; text-align: left; text-transform: uppercase; cursor: pointer; transition: background .2s ease, color .2s ease; }
+      .service-link:last-child { border-right: 0; }
+      .service-link:hover { background: #111; color: #fff; }
+      .service-link svg { width: 20px; height: 20px; flex: 0 0 auto; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+      .hero-copy .service-links { margin-top: 28px; border: 1px solid #111; }
+      .hero-copy .service-link { min-height: 62px; padding: 0 16px; font-size: 10px; line-height: 1.45; }
+      .custom-section { padding: 90px 0; border-bottom: 1px solid var(--line); scroll-margin-top: 24px; }
+      .custom-section .eyebrow { margin-bottom: 14px; font-weight: 700; }
+      .custom-section h2 { margin: 0; font-size: clamp(56px, 8vw, 104px); line-height: .95; text-transform: uppercase; }
+      .custom-intro { max-width: 760px; margin: 28px 0 0; color: #555; font-size: 15px; line-height: 1.75; }
+      .custom-points { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 10px; }
+      .custom-points li { position: relative; padding-left: 28px; color: #111; font-size: 14px; font-weight: 600; line-height: 1.55; }
+      .custom-points li::before { content: "✓"; position: absolute; left: 0; top: 0; font-weight: 800; }
+      .custom-layout { margin-top: 36px; display: grid; grid-template-columns: .9fr 1.1fr; gap: 58px; align-items: start; }
+      .custom-product { position: relative; display: grid; gap: 16px; }
+      .custom-shirt-view { position: relative; aspect-ratio: 4 / 5; background: #f3f3f3; display: grid; place-items: center; overflow: hidden; }
+      .custom-shirt-view .mock { width: 78%; height: 80%; }
+      .custom-design-preview { position: absolute; z-index: 4; left: 50%; top: 42%; width: 24%; height: 25%; transform: translate(-50%, -50%); object-fit: contain; cursor: grab; touch-action: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,.12)); }
+      .custom-design-preview:active, .custom-text-preview:active { cursor: grabbing; }
+      .custom-text-preview { position: absolute; z-index: 5; left: 50%; top: 58%; max-width: 42%; transform: translate(-50%, -50%); color: #fff; font-family: Arial, sans-serif; font-size: 14px; font-weight: 700; line-height: 1.15; text-align: center; overflow-wrap: anywhere; cursor: grab; touch-action: none; user-select: none; }
+      .custom-shirt-view.back .mock.tee::after { top: 18%; height: 7%; }
+      .custom-side-label { position: absolute; left: 14px; top: 14px; z-index: 7; padding: 6px 9px; background: rgba(255,255,255,.88); color: #111; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+      .custom-rotate { position: absolute; right: 14px; top: 14px; z-index: 8; width: 36px; height: 36px; padding: 0; border: 1px solid rgba(0,0,0,.2); background: rgba(255,255,255,.72); color: #111; display: grid; place-items: center; cursor: pointer; opacity: .72; }
+      .custom-rotate:hover { opacity: 1; background: #fff; }
+      .custom-rotate svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+      .custom-rotate span { display: none; }
+      .custom-start { min-height: 50px; border: 1px solid #111; background: #111; color: #fff; font-size: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+      .custom-start:hover { background: #fff; color: #111; }
+      .custom-config { display: none; border-top: 1px solid #111; }
+      .custom-config.open { display: block; }
+      .custom-field { padding: 22px 0; border-bottom: 1px solid var(--line); }
+      .custom-field-label { display: block; margin-bottom: 14px; color: #555; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+      .custom-upload { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+      .custom-upload input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+      .custom-upload-label, .custom-upload-remove { min-height: 40px; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #111; background: #fff; color: #111; font-size: 11px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+      .custom-upload-label:hover { background: #111; color: #fff; }
+      .custom-upload-remove { display: none; border-color: var(--line); }
+      .custom-upload-remove.visible { display: inline-flex; }
+      .custom-upload-name { flex: 1 1 100%; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+      .custom-text-controls { display: grid; grid-template-columns: 1fr 180px; gap: 10px; }
+      .custom-text-controls input, .custom-text-controls select { width: 100%; min-height: 42px; border: 1px solid var(--line); background: #fff; color: #111; padding: 0 12px; }
+      .custom-text-extras { margin-top: 10px; display: grid; gap: 10px; }
+      .custom-text-color-label, .custom-size-label { color: #666; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+      .custom-text-colors { display: flex; flex-wrap: wrap; gap: 8px; }
+      .custom-text-color { width: 28px; height: 28px; padding: 0; border: 1px solid #aaa; background: var(--text-color); cursor: pointer; }
+      .custom-text-color.active { outline: 2px solid #111; outline-offset: 2px; }
+      .custom-size-tools { display: grid; gap: 10px; }
+      .custom-size-row { display: grid; grid-template-columns: 112px 1fr 44px; align-items: center; gap: 10px; font-size: 12px; color: #333; }
+      .custom-size-row input[type="range"] { width: 100%; accent-color: #111; cursor: pointer; }
+      .custom-size-value { color: #777; font-size: 11px; text-align: right; }
+      .custom-design-hint { margin: 10px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+      .custom-colors, .custom-sizes { display: flex; flex-wrap: wrap; gap: 10px; }
+      .custom-color { width: 34px; height: 34px; padding: 0; border: 1px solid #aaa; background: var(--custom-color); cursor: pointer; }
+      .custom-color.active { outline: 2px solid #111; outline-offset: 3px; }
+      .custom-size { min-width: 48px; height: 40px; border: 1px solid var(--line); background: #fff; color: #111; font-weight: 700; cursor: pointer; }
+      .custom-size.active { border-color: #111; background: #111; color: #fff; }
+      .custom-quantity { width: 140px; border: 1px solid #111; }
+      .custom-quantity input { width: 100%; height: 42px; border: 0; background: #fff; color: #111; padding: 0 12px; font-size: 15px; font-weight: 800; text-align: center; }
+      .custom-price { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; }
+      .custom-price strong { font-size: 26px; }
+      .custom-price span { color: var(--muted); font-size: 12px; }
+      .custom-add { width: 100%; min-height: 48px; margin-top: 20px; border: 1px solid #111; background: #111; color: #fff; font-size: 12px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+      .custom-add:hover { background: #fff; color: #111; }
       .split { padding: 72px 0; display: grid; grid-template-columns: 1.1fr .9fr; gap: 52px; align-items: center; border-bottom: 1px solid var(--line); }
       .split img { width: 100%; aspect-ratio: 5/4; object-fit: cover; filter: grayscale(1); }
       .split h2 { font-size: clamp(58px, 7vw, 96px); line-height: 1.02; margin: 0; }
@@ -289,7 +463,7 @@
         .brand strong { font-size: 18px; letter-spacing: 4px; }
         .brand span { font-size: 9px; letter-spacing: 2px; }
         .hero { margin-top: -126px; padding-top: 170px; padding-bottom: 330px; min-height: 900px; }
-        .hero-top, .feature { grid-template-columns: 1fr; }
+        .hero-top { grid-template-columns: 1fr; }
         .hero-copy { padding-top: 0; }
         .stack-scene { min-height: 320px; }
         .back-panel { width: 150px; height: 250px; }
@@ -307,7 +481,7 @@
         .shirt .left, .shirt .right { width: 44px; height: 104px; }
         .category-nav { gap: 18px; flex-wrap: wrap; }
         .brand span { display: none; }
-        .intro, .split, .footer-grid { grid-template-columns: 1fr; }
+        .intro, .split, .footer-grid, .custom-layout { grid-template-columns: 1fr; }
         .vertical { display: none; }
         .filters, .grid { grid-template-columns: repeat(2, 1fr); }
       }
@@ -316,23 +490,33 @@
         .hero { min-height: 66vh; }
         .checkout-grid { grid-template-columns: 1fr; }
         .detail-grid, .size-advisor-form { grid-template-columns: 1fr; }
+        .cart { right: 16px; bottom: 16px; width: 52px; height: 52px; }
+        .home-shortcut { left: 16px; bottom: 16px; width: 44px; min-height: 44px; padding: 0; justify-content: center; }
+        .home-shortcut span { display: none; }
+        .service-links { grid-template-columns: 1fr; }
+        .service-link { min-height: 68px; border-right: 0; border-bottom: 1px solid #111; padding: 0 18px; }
+        .service-link:last-child { border-bottom: 0; }
+        .custom-section { padding: 64px 0; }
+        .custom-layout { gap: 28px; margin-top: 28px; }
+        .custom-text-controls { grid-template-columns: 1fr; }
+        .card-actions { grid-template-columns: 1fr; }
+        .wholesale-grid { grid-template-columns: 1fr; }
+        .wholesale-column:first-child { border-right: 0; border-bottom: 1px solid #111; }
       }
     </style>
   </head>
   <body>
+    <button class="home-shortcut" type="button" id="homeShortcut" aria-label="Về trang chính" title="Về trang chính">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
+      <span>Trang chính</span>
+    </button>
     <div class="page">
       <header>
         <div class="nav">
           <button class="menu-toggle" id="menuToggle" aria-label="Mở menu" aria-controls="mobileMenu" aria-expanded="false">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>
           </button>
-          <nav class="nav-left">
-            <a href="#">Trang chủ</a>
-            <a href="#shop">Sản phẩm</a>
-            <a href="#shop">Bộ sưu tập</a>
-            <a href="#footer">Về chúng tôi</a>
-            <a href="#footer">Liên hệ</a>
-          </nav>
+          <div class="nav-left" aria-hidden="true"></div>
           <a class="brand" href="#">
             <img src="/public/umbrella-logo.png" alt="BLANWHI umbrella logo" />
             <strong>BLANWHI</strong>
@@ -371,6 +555,7 @@
             <li><a href="#shop" data-menu-filter="new">New Items <span class="mobile-menu-mark">&gt;</span></a></li>
             <li><a href="#shop" data-menu-filter="best">Best Sellers</a></li>
             <li><a href="#shop" data-menu-filter="sale">Sale</a></li>
+            <li><a href="#shop" data-menu-filter="gift">Gift Packaging <span class="mobile-menu-mark">&gt;</span></a></li>
           </ul>
         </div>
         <div class="mobile-menu-panel support-panel" data-menu-panel="support">
@@ -403,6 +588,16 @@
             <div class="rule"></div>
             <h1>Đơn giản.<br />Chất riêng.</h1>
             <p>BLANWHI là shop áo thun basic & minimal, chất liệu chọn lọc, form chuẩn, dành cho mọi phong cách.</p>
+            <div class="service-links" aria-label="Dịch vụ BLANWHI">
+              <button class="service-link" type="button" id="contactShortcut">
+                <span>Liên hệ</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m14 7 5 5-5 5"/></svg>
+              </button>
+              <a class="service-link" href="#custom">
+                <span>Tạo chất riêng của bạn</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="m7 14 5 5 5-5"/></svg>
+              </a>
+            </div>
           </div>
           <div class="stack-scene" aria-label="Chồng áo thun BLANWHI">
             <div class="back-panel"></div>
@@ -446,15 +641,128 @@
 
       <main class="wrap">
       <section class="grid" id="shop"><div id="productGrid" style="display:contents"></div></section>
-      <section class="feature">
-        <div><h2>Package<br />with a degree in simplicity</h2><p>BLANWHI chọn ít sản phẩm, nhiều khoảng trắng và thao tác mua cực nhanh. Minimal không phải là thiếu, mà là bỏ bớt thứ không cần.</p><a href="#shop">Discover</a></div>
-        <div class="feature-board">
-          <div class="product-visual"><div class="mock tee" style="--garment:#fff;--garment-border:1px solid #d8d8d8;--neck-border:1px solid #d8d8d8"><span class="left"></span><span class="right"></span><span class="body"></span></div></div>
-          <div class="product-visual"><div class="mock hoodie" style="--garment:#050505;--garment-border:0;--neck-border:1px solid rgba(255,255,255,.18)"><span class="hood"></span><span class="left"></span><span class="right"></span><span class="body"></span><span class="zip"></span></div></div>
-          <div class="product-visual"><div class="mock pants" style="--garment:#777;--garment-border:0;--neck-border:0"><span class="body"></span><span class="leg-a"></span><span class="leg-b"></span></div></div>
-        </div>
-      </section>
+      <nav class="pagination" id="productPagination" aria-label="Phân trang sản phẩm"></nav>
       <div class="ticker">BLANWHI / WHITE SPACE / BLACK TYPE / 20 PRODUCTS / FAST CHECKOUT / QUIET LAYERS</div>
+        <section class="custom-section" id="custom">
+          <div class="eyebrow">Thiết kế theo yêu cầu</div>
+          <h2>Custom</h2>
+          <p class="custom-intro">Không chỉ là thời trang - Chúng tôi còn đồng hành cùng doanh nghiệp trong việc xây dựng hình ảnh thương hiệu thông qua dịch vụ in ấn đồng phục và áo sự kiện theo yêu cầu.</p>
+          <ul class="custom-points">
+            <li>In sỉ cho công ty, doanh nghiệp, trường học, đội nhóm.</li>
+            <li>Thiết kế riêng theo nhận diện thương hiệu.</li>
+            <li>Chất lượng đảm bảo - Giá thành tối ưu.</li>
+          </ul>
+          <div class="custom-layout">
+            <div class="custom-product">
+              <div class="custom-shirt-view" id="customShirtView" aria-label="Áo thun trơn custom">
+                <span class="custom-side-label" id="customSideLabel">Mặt trước</span>
+                <div class="mock tee" id="customShirt" style="--garment:#111;--garment-border:0;--neck-border:1px solid rgba(255,255,255,.22)">
+                  <span class="left"></span><span class="right"></span><span class="body"></span>
+                  <img class="custom-design-preview" id="customDesignPreview" alt="Hình thiết kế trên áo" hidden />
+                  <span class="custom-text-preview" id="customTextPreview" hidden></span>
+                </div>
+              </div>
+              <button class="custom-rotate" type="button" id="customRotate">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M18.5 9A7 7 0 0 0 6.8 6.8L4 9"/><path d="M5.5 15A7 7 0 0 0 17.2 17.2L20 15"/></svg>
+                <span id="customRotateText">Xoay sang mặt sau</span>
+              </button>
+              <button class="custom-start" type="button" id="customStart" aria-expanded="false">Bắt đầu</button>
+            </div>
+            <div class="custom-config" id="customConfig">
+              <div class="custom-field">
+                <span class="custom-field-label">Thiết kế</span>
+                <div class="custom-upload">
+                  <input id="customDesignFile" type="file" accept="image/png,image/jpeg,image/webp" />
+                  <label class="custom-upload-label" for="customDesignFile">Tải logo / hình ảnh</label>
+                  <button class="custom-upload-remove" type="button" id="customDesignRemove">Xóa ảnh</button>
+                  <span class="custom-upload-name" id="customDesignName">Chưa có hình ảnh được tải lên.</span>
+                </div>
+                <p class="custom-design-hint">Kéo trực tiếp hình ảnh trên áo để đặt đúng vị trí mong muốn.</p>
+              </div>
+              <div class="custom-field">
+                <span class="custom-field-label">Thiết kế chữ</span>
+                <div class="custom-text-controls">
+                  <input id="customTextInput" type="text" maxlength="40" placeholder="Nhập nội dung muốn in..." />
+                  <select id="customFont">
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="Georgia, serif">Georgia</option>
+                    <option value="'Courier New', monospace">Courier New</option>
+                    <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                    <option value="Verdana, sans-serif">Verdana</option>
+                  </select>
+                </div>
+                <div class="custom-text-extras">
+                  <span class="custom-text-color-label">Màu chữ</span>
+                  <div class="custom-text-colors">
+                    <button class="custom-text-color active" type="button" data-custom-text-color="#050505" style="--text-color:#050505" aria-label="Chọn màu chữ đen"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#303030" style="--text-color:#303030" aria-label="Chọn màu chữ xám đậm"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#59614c" style="--text-color:#59614c" aria-label="Chọn màu chữ olive"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#1f2937" style="--text-color:#1f2937" aria-label="Chọn màu chữ navy"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#8c8c88" style="--text-color:#8c8c88" aria-label="Chọn màu chữ xám"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#c9c5bd" style="--text-color:#c9c5bd" aria-label="Chọn màu chữ be"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#dedbd4" style="--text-color:#dedbd4" aria-label="Chọn màu chữ kem"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#f4f4f2" style="--text-color:#f4f4f2" aria-label="Chọn màu chữ trắng ngà"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#ffffff" style="--text-color:#ffffff" aria-label="Chọn màu chữ trắng"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#f9a8d4" style="--text-color:#f9a8d4" aria-label="Chọn màu chữ hồng nhạt"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#c4b5fd" style="--text-color:#c4b5fd" aria-label="Chọn màu chữ tím nhạt"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#bae6fd" style="--text-color:#bae6fd" aria-label="Chọn màu chữ xanh biển nhạt"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#b91c1c" style="--text-color:#b91c1c" aria-label="Chọn màu chữ đỏ"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#1d4ed8" style="--text-color:#1d4ed8" aria-label="Chọn màu chữ xanh dương"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#15803d" style="--text-color:#15803d" aria-label="Chọn màu chữ xanh lá"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#ca8a04" style="--text-color:#ca8a04" aria-label="Chọn màu chữ vàng"></button>
+                    <button class="custom-text-color" type="button" data-custom-text-color="#7e22ce" style="--text-color:#7e22ce" aria-label="Chọn màu chữ tím"></button>
+                  </div>
+                  <div class="custom-size-tools">
+                    <span class="custom-size-label">Kích cỡ</span>
+                    <label class="custom-size-row" for="customImageSizeInput">
+                      <span>Hình ảnh</span>
+                      <input id="customImageSizeInput" type="range" min="60" max="160" step="5" value="100" />
+                      <span class="custom-size-value" id="customImageSizeValue">100%</span>
+                    </label>
+                    <label class="custom-size-row" for="customTextSizeInput">
+                      <span>Chữ</span>
+                      <input id="customTextSizeInput" type="range" min="10" max="36" step="1" value="14" />
+                      <span class="custom-size-value" id="customTextSizeValue">14px</span>
+                    </label>
+                  </div>
+                </div>
+                <p class="custom-design-hint">Chữ cũng có thể kéo trong phạm vi thân áo và được lưu riêng cho từng mặt.</p>
+              </div>
+              <div class="custom-field">
+                <span class="custom-field-label">Màu sắc</span>
+                <div class="custom-colors">
+                  <button class="custom-color active" type="button" style="--custom-color:#111" data-custom-color="#111" aria-label="Màu đen"></button>
+                  <button class="custom-color" type="button" style="--custom-color:#f4f4f2" data-custom-color="#f4f4f2" aria-label="Màu trắng"></button>
+                  <button class="custom-color" type="button" style="--custom-color:#8c8c88" data-custom-color="#8c8c88" aria-label="Màu xám"></button>
+                  <button class="custom-color" type="button" style="--custom-color:#1f2937" data-custom-color="#1f2937" aria-label="Màu xanh navy"></button>
+                  <button class="custom-color" type="button" style="--custom-color:#59614c" data-custom-color="#59614c" aria-label="Màu xanh olive"></button>
+                </div>
+              </div>
+              <div class="custom-field">
+                <span class="custom-field-label">Size</span>
+                <div class="custom-sizes">
+                  <button class="custom-size" type="button" data-custom-size="XS">XS</button>
+                  <button class="custom-size" type="button" data-custom-size="S">S</button>
+                  <button class="custom-size active" type="button" data-custom-size="M">M</button>
+                  <button class="custom-size" type="button" data-custom-size="L">L</button>
+                  <button class="custom-size" type="button" data-custom-size="XL">XL</button>
+                </div>
+              </div>
+              <div class="custom-field">
+                <span class="custom-field-label">Số lượng</span>
+                <div class="custom-quantity">
+                  <input id="customQtyInput" type="number" min="20" max="999" value="20" inputmode="numeric" aria-label="Số lượng áo custom" />
+                </div>
+              </div>
+              <div class="custom-field custom-price">
+                <div><span class="custom-field-label">Giá theo số lượng</span><span id="customUnitPrice">162.000đ / áo · Giảm 10%</span></div>
+                <strong id="customPrice">3.240.000đ</strong>
+              </div>
+              <p class="wholesale-tiers">Tối thiểu 20 áo · 20-29 áo: giảm 10% · 30-49: giảm 15% · 50-99: giảm 20% · Từ 100: giảm 25%.</p>
+              <button class="custom-add" type="button" id="customAdd">Thêm vào giỏ hàng</button>
+            </div>
+          </div>
+        </section>
         <section class="footer-grid" id="footer">
           <div><h3>Company</h3><p>About Us</p><p>Join Us</p><p>Store Locator</p></div>
           <div><h3>Customer Care</h3><p>FAQ</p><p>Return Policy</p><p>Promotion Terms</p></div>
@@ -469,6 +777,27 @@
       <div class="cart-head"><h2>Giỏ hàng</h2><button class="icon-button" id="closeCart">×</button></div>
       <div class="cart-items" id="cartItems"></div>
       <div class="cart-foot">
+        <button class="voucher-entry" id="openVoucherPage" type="button">Áp voucher giảm giá tại đây →</button>
+        <input id="voucherCode" type="hidden" value="" />
+        <textarea class="cart-note" id="cartNote" maxlength="500" placeholder="Ghi chú cho đơn hàng..."></textarea>
+        <div class="shipping-picker">
+          <button class="shipping-trigger" id="shippingTrigger" type="button">
+            <span class="shipping-trigger-main"><span class="shipping-logo" id="shippingLogo">GHN</span><span><b>Vận chuyển</b><small id="shippingSelectedText">Giao nhanh · Toàn quốc</small></span></span>
+            <span>⌄</span>
+          </button>
+          <div class="shipping-options" id="shippingOptions">
+            <button class="shipping-option" type="button" data-shipping-method="express">
+              <span class="shipping-logo">BOOK</span>
+              <span><strong>Hỏa tốc</strong><small>Địa chỉ dưới 25 km từ kho · Phí theo ứng dụng book giao hàng.<br />Có ngay trong ngày, tối đa 4h.</small></span>
+              <span class="shipping-check"></span>
+            </button>
+            <button class="shipping-option active" type="button" data-shipping-method="fast">
+              <span class="shipping-logo">GHN</span>
+              <span><strong>Giao nhanh</strong><small>Giao đến tất cả địa chỉ trên Việt Nam.</small></span>
+              <span class="shipping-check">✓</span>
+            </button>
+          </div>
+        </div>
         <div class="voucher-note" id="voucherNote">Voucher sẽ tự gợi ý theo tổng đơn và số lượng sản phẩm.</div>
         <div class="line"><span>Tạm tính</span><strong id="subtotalText">0đ</strong></div>
         <div class="line"><span>Giảm giá</span><strong id="discountText">-0đ</strong></div>
@@ -478,6 +807,16 @@
         <button class="secondary" id="continueBtn">Tiếp tục mua</button>
       </div>
     </aside>
+    <section class="voucher-modal" id="voucherModal" aria-label="Voucher của bạn">
+      <div class="voucher-page">
+        <div class="voucher-page-head">
+          <div><p class="muted" style="margin:0 0 5px">Ưu đãi dành cho bạn</p><h2>Voucher của tôi</h2></div>
+          <button class="icon-button" id="closeVoucherPage" type="button" aria-label="Đóng trang voucher">×</button>
+        </div>
+        <div class="voucher-page-summary"><span>Giá trị sản phẩm hợp lệ</span><strong id="voucherOrderValue">0đ</strong></div>
+        <div class="voucher-list" id="voucherList"></div>
+      </div>
+    </section>
     <aside class="orders-drawer" id="ordersDrawer" aria-label="Đơn hàng của tôi">
       <div class="cart-head"><h2>Đơn hàng của tôi</h2><button class="icon-button" id="closeOrders">×</button></div>
       <div class="order-list" id="orderList"></div>
@@ -490,7 +829,7 @@
             <input required placeholder="Họ tên" />
             <input required placeholder="Số điện thoại" />
             <input required placeholder="Địa chỉ giao hàng" />
-            <textarea placeholder="Ghi chú giao hàng"></textarea>
+            <div class="custom-confirm-area" id="customConfirmArea"></div>
             <div class="pay-grid">
               <label><input type="radio" name="pay" checked /> COD</label>
               <label><input type="radio" name="pay" /> Thẻ</label>
@@ -513,6 +852,18 @@
       <div class="variant-card">
         <div class="checkout-top"><h2 style="margin:0">Chọn sản phẩm</h2><button class="icon-button" id="closeVariant">×</button></div>
         <div id="variantContent"></div>
+      </div>
+    </div>
+    <div class="zoom-modal" id="zoomModal" aria-label="Ảnh sản phẩm phóng to">
+      <div class="zoom-card">
+        <button class="icon-button" id="closeZoom" type="button" aria-label="Đóng ảnh phóng to">×</button>
+        <div id="zoomContent"></div>
+      </div>
+    </div>
+    <div class="wholesale-modal" id="wholesaleModal" aria-label="Mua sỉ">
+      <div class="wholesale-card">
+        <div class="checkout-top"><h2 style="margin:0">Mua sỉ</h2><button class="icon-button" id="closeWholesale">×</button></div>
+        <div id="wholesaleContent"></div>
       </div>
     </div>
     <div class="integration-modal" id="integrationModal" aria-label="Tích hợp POS Pancake và MISA eShop">
@@ -557,7 +908,10 @@
         ["Half Zip Sweat","880.000đ","Rộng nhẹ, vai rũ vừa","hoodie",["#c9c5bd","#303030","#1f2937"]],
         ["Open Collar Shirt","620.000đ","Boxy sạch, dễ mặc","tee",["#111","#f4f4f2","#59614c"]],
         ["Studio Nylon Shorts","480.000đ","Boxy sạch, dễ mặc","pants",["#303030","#c9c5bd","#1f2937"]],
-        ["Monochrome Layer Jacket","1.390.000đ","Boxy sạch, dễ mặc","jacket",["#111","#dedbd4","#8c8c88"]]
+        ["Monochrome Layer Jacket","1.390.000đ","Boxy sạch, dễ mặc","jacket",["#111","#dedbd4","#8c8c88"]],
+        ["Premium Gift Box","85.000đ","Hộp cứng tối giản, kèm giấy gói","gift-box",["#111","#dedbd4","#8c8c88"]],
+        ["Personal Message Card","25.000đ","Thiệp viết lời nhắn theo yêu cầu","gift-card",["#111","#f4f4f2","#59614c"]],
+        ["Signature Gift Bag","45.000đ","Túi quà BLANWHI chắc chắn, thanh lịch","gift-bag",["#111","#dedbd4","#c9c5bd"]]
       ];
 
       const mockMarkup = (kind, color) => {
@@ -566,11 +920,17 @@
         if (kind === "pants") return `<div class="mock pants" style="--garment:${color};--garment-border:${border};--neck-border:${neck}"><span class="body"></span><span class="leg-a"></span><span class="leg-b"></span></div>`;
         if (kind === "hoodie") return `<div class="mock hoodie" style="--garment:${color};--garment-border:${border};--neck-border:${neck}"><span class="hood"></span><span class="left"></span><span class="right"></span><span class="body"></span><span class="zip"></span></div>`;
         if (kind === "jacket") return `<div class="mock jacket" style="--garment:${color};--garment-border:${border};--neck-border:${neck}"><span class="left"></span><span class="right"></span><span class="body"></span><span class="zip"></span></div>`;
+        if (kind.startsWith("gift-")) return `<div class="mock ${kind}" style="--garment:${color};--garment-border:${border};--neck-border:${neck}"><span class="left"></span><span class="right"></span><span class="body"></span></div>`;
         return `<div class="mock tee" style="--garment:${color};--garment-border:${border};--neck-border:${neck}"><span class="left"></span><span class="right"></span><span class="body"></span></div>`;
       };
 
       const parseMoney = (value) => Number(String(value).replace(/\D/g, ""));
       const formatMoney = (value) => new Intl.NumberFormat("vi-VN").format(value) + "đ";
+      const escapeMarkup = (value) => String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
       const salesCounts = [680, 740, 180, 520, 860, 330, 790, 610, 420, 260, 310, 240, 700, 360, 450, 580, 820, 390, 300, 650];
       const newProductIds = new Set(["p15", "p16", "p17", "p18", "p19", "p20"]);
       const saleProductIds = new Set(["p3", "p9", "p10", "p11", "p16", "p19"]);
@@ -585,12 +945,20 @@
         color: swatches[0],
         colorIndex: 0,
         size: "M",
+        orderQty: 1,
+        message: "",
         sold: salesCounts[index] || 0,
         isNew: newProductIds.has(`p${index + 1}`),
         isSale: saleProductIds.has(`p${index + 1}`),
         salePercent: saleProductIds.has(`p${index + 1}`) ? (index % 2 ? 15 : 10) : 0
       }));
+      productData.forEach((product) => {
+        product.originalAmount = product.isSale
+          ? Math.round(product.amount / (1 - product.salePercent / 100) / 1000) * 1000
+          : product.amount;
+      });
       const productGrid = document.getElementById("productGrid");
+      const productPagination = document.getElementById("productPagination");
       const searchPanel = document.getElementById("searchPanel");
       const searchToggle = document.getElementById("searchToggle");
       const productSearch = document.getElementById("productSearch");
@@ -602,6 +970,9 @@
       const mobileMenuOverlay = document.getElementById("mobileMenuOverlay");
       const mobileMenuClose = document.getElementById("mobileMenuClose");
       const cart = [];
+      const productsPerPage = 12;
+      let currentProductPage = 1;
+      let currentProductList = productData;
       const comboText = (kind) => {
         if (kind === "tee") return "Mua kèm quần hoặc 2 áo cùng tone: từ 2 sản phẩm giảm 5%, từ 3 sản phẩm giảm 10%.";
         if (kind === "hoodie") return "Combo Hoodie + Tee: đủ 2 sản phẩm giảm 5%, đủ 3 sản phẩm giảm 10%.";
@@ -644,7 +1015,10 @@
         tee: "tee t-shirt tshirt ao thun ao phong",
         hoodie: "hoodie ao hoodie ao khoac ni sweat",
         pants: "pants quan quan dai shorts short sweatpants cargo trouser",
-        jacket: "jacket ao khoac overshirt coach work layer"
+        jacket: "jacket ao khoac overshirt coach work layer",
+        "gift-box": "gift packaging hop qua goi qua",
+        "gift-card": "gift packaging thiep thu loi nhan",
+        "gift-bag": "gift packaging tui qua"
       };
       const searchText = (product) => normalizeSearch([
         product.name,
@@ -660,28 +1034,62 @@
         product.sold >= 650 ? `<span class="product-tag">Best seller</span>` : "",
         product.isSale ? `<span class="product-tag sale">Sale -${product.salePercent}%</span>` : ""
       ].filter(Boolean).join("");
+      const priceMarkup = (product, detail = false) => `
+        <span class="${detail ? "detail-price" : "price-stack"}">
+          <span class="${product.isSale ? "sale-price" : ""}">${product.price}</span>
+          ${product.isSale ? `<span class="original-price">${formatMoney(product.originalAmount)}</span>` : ""}
+        </span>
+      `;
       const productCardMarkup = (product) => `
         <article class="card">
           ${visualMarkup(product)}
-          <div class="meta"><div><b>${product.name}</b><div class="muted">${product.fit}</div></div><span>${product.price}</span></div>
+          <div class="meta"><div><b>${product.name}</b><div class="muted">${product.fit}</div></div>${priceMarkup(product)}</div>
           <div class="product-tags">${productTags(product)}</div>
-          <div class="swatches" data-swatches="${product.id}">${product.swatches.map((color, index) => `<span class="${index === product.colorIndex ? "active" : ""}" style="background:${color}"></span>`).join("")}</div>
-          <div class="sizes" data-size-group="${product.id}">
-            ${["S", "M", "L", "XL"].map(size => `<button class="${size === "M" ? "active" : ""}" data-size="${product.id}:${size}">${size}</button>`).join("")}
-          </div>
+          <div class="swatches" data-swatches="${product.id}">${product.swatches.map((color, index) => `<button type="button" class="${index === product.colorIndex ? "active" : ""}" data-card-color="${product.id}:${index}" style="background:${color}" aria-label="Chọn màu ${colorLabel(color)} cho ${product.name}" title="${colorLabel(color)}"></button>`).join("")}</div>
+          ${product.kind.startsWith("gift-") ? `<div class="muted">Gói quà tiêu chuẩn BLANWHI</div>` : `
+            <div class="sizes" data-size-group="${product.id}">
+              ${["S", "M", "L", "XL"].map(size => `<button class="${size === "M" ? "active" : ""}" data-size="${product.id}:${size}">${size}</button>`).join("")}
+            </div>
+          `}
           <div class="card-actions">
             <button class="quick" data-buy="${product.id}">Mua ngay</button>
             <button class="quick" data-add="${product.id}">Thêm giỏ</button>
+            <button class="quick" data-wholesale="${product.id}">Mua sỉ</button>
           </div>
         </article>
       `;
-      function renderProducts(list = productData) {
-        productGrid.innerHTML = list.length ? list.map(productCardMarkup).join("") : `
+      function renderProductPagination() {
+        const totalPages = Math.ceil(currentProductList.length / productsPerPage);
+        productPagination.classList.toggle("visible", totalPages > 1);
+        if (totalPages <= 1) {
+          productPagination.innerHTML = "";
+          return;
+        }
+        productPagination.innerHTML = `
+          <button type="button" data-product-page="${currentProductPage - 1}" ${currentProductPage === 1 ? "disabled" : ""}>Trước</button>
+          ${Array.from({ length: totalPages }, (_, index) => {
+            const page = index + 1;
+            return `<button type="button" class="${page === currentProductPage ? "active" : ""}" data-product-page="${page}" aria-label="Trang ${page}">${page}</button>`;
+          }).join("")}
+          <button type="button" data-product-page="${currentProductPage + 1}" ${currentProductPage === totalPages ? "disabled" : ""}>Sau</button>
+        `;
+      }
+      function renderProducts(list = productData, resetPage = true) {
+        currentProductList = list;
+        if (resetPage) currentProductPage = 1;
+        const totalPages = Math.max(1, Math.ceil(list.length / productsPerPage));
+        currentProductPage = Math.min(currentProductPage, totalPages);
+        const pageStart = (currentProductPage - 1) * productsPerPage;
+        const visibleProducts = list.slice(pageStart, pageStart + productsPerPage);
+        productGrid.innerHTML = visibleProducts.length ? visibleProducts.map(productCardMarkup).join("") : `
           <div class="empty-search">
             <div><strong>Không tìm thấy sản phẩm</strong><span>Thử tìm theo Tee, Hoodie, Pants, màu đen, trắng, xám hoặc form boxy.</span></div>
           </div>
         `;
-        searchCount.textContent = list.length === productData.length ? `${productData.length} sản phẩm` : `${list.length}/${productData.length} sản phẩm`;
+        searchCount.textContent = list.length
+          ? `Hiển thị ${pageStart + 1}-${Math.min(pageStart + productsPerPage, list.length)} / ${list.length} sản phẩm`
+          : `0/${productData.length} sản phẩm`;
+        renderProductPagination();
       }
       function filterProducts() {
         const query = normalizeSearch(productSearch.value.trim());
@@ -695,6 +1103,7 @@
         if (type === "new") return productData.filter((product) => product.isNew);
         if (type === "best") return productData.filter((product) => product.sold >= 650).sort((a, b) => b.sold - a.sold);
         if (type === "sale") return productData.filter((product) => product.isSale);
+        if (type === "gift") return productData.filter((product) => product.kind.startsWith("gift-"));
         return productData;
       }
       function applyMenuFilter(type) {
@@ -747,19 +1156,37 @@
       const detailContent = document.getElementById("detailContent");
       const variantModal = document.getElementById("variantModal");
       const variantContent = document.getElementById("variantContent");
+      const wholesaleModal = document.getElementById("wholesaleModal");
+      const wholesaleContent = document.getElementById("wholesaleContent");
       const integrationModal = document.getElementById("integrationModal");
       const ordersDrawer = document.getElementById("ordersDrawer");
       const orderList = document.getElementById("orderList");
       const voucherNote = document.getElementById("voucherNote");
+      const voucherModal = document.getElementById("voucherModal");
+      const voucherList = document.getElementById("voucherList");
+      const voucherOrderValue = document.getElementById("voucherOrderValue");
       const subtotalText = document.getElementById("subtotalText");
       const discountText = document.getElementById("discountText");
       const shippingText = document.getElementById("shippingText");
       const totalText = document.getElementById("totalText");
       const checkoutSummary = document.getElementById("checkoutSummary");
+      const customConfirmArea = document.getElementById("customConfirmArea");
+      const cartNote = document.getElementById("cartNote");
+      const voucherCode = document.getElementById("voucherCode");
+      const shippingOptions = document.getElementById("shippingOptions");
+      const shippingSelectedText = document.getElementById("shippingSelectedText");
+      const shippingLogo = document.getElementById("shippingLogo");
+      const zoomModal = document.getElementById("zoomModal");
+      const zoomContent = document.getElementById("zoomContent");
+      let orderNote = "";
+      let orderVoucherCode = "";
+      let selectedVoucherCode = "";
+      let selectedShippingMethod = "fast";
 
       const cartCount = () => cart.reduce((sum, item) => sum + item.qty, 0);
       const subtotal = () => cart.reduce((sum, item) => sum + item.amount * item.qty, 0);
       let variantState = { productId: null, mode: "cart", colorIndex: 0, size: "M", qty: 1 };
+      let wholesaleState = { productId: null, qty: 10 };
       const loadOrders = () => JSON.parse(localStorage.getItem("blanwhiOrders") || "[]");
       const saveOrders = (orders) => localStorage.setItem("blanwhiOrders", JSON.stringify(orders));
       const defaultIntegrationConfig = {
@@ -772,24 +1199,85 @@
       };
       const loadIntegrationConfig = () => ({ ...defaultIntegrationConfig, ...JSON.parse(localStorage.getItem("blanwhiIntegrationConfig") || "{}") });
       const saveIntegrationConfig = (config) => localStorage.setItem("blanwhiIntegrationConfig", JSON.stringify(config));
-      const bestVoucher = () => {
-        const sub = subtotal();
-        if (sub >= 2000000) return { title: "Freeship + giảm 15%", rate: .15, freeship: true };
-        if (sub >= 1000000) return { title: "Giảm 10%", rate: .1, freeship: false };
-        if (sub >= 500000) return { title: "Giảm 5%", rate: .05, freeship: false };
-        return { title: "Chưa đạt mốc voucher", rate: 0, freeship: false };
+      const customerVouchers = [
+        { code: "BLANWHI5", title: "Giảm 5%", description: "Giảm 5% cho sản phẩm bán lẻ.", min: 500000, rate: .05, freeship: false, label: "-5%" },
+        { code: "BLANWHI10", title: "Giảm 10%", description: "Giảm 10% cho sản phẩm bán lẻ.", min: 1000000, rate: .1, freeship: false, label: "-10%" },
+        { code: "BLANWHI15", title: "Freeship + giảm 15%", description: "Giảm 15% và miễn phí vận chuyển.", min: 2000000, rate: .15, freeship: true, label: "-15%" }
+      ];
+      const bestVoucher = (sub = subtotal()) => {
+        const selected = customerVouchers.find((voucher) => voucher.code === selectedVoucherCode && sub >= voucher.min);
+        if (selected) return selected;
+        return { code: "", title: "Chưa chọn voucher", rate: 0, freeship: false };
       };
       const totals = () => {
         const sub = subtotal();
-        const voucher = bestVoucher();
-        const discount = Math.round(sub * voucher.rate);
-        const shipping = sub === 0 || voucher.freeship ? 0 : 30000;
-        return { sub, voucher, discount, shipping, total: Math.max(sub - discount + shipping, 0) };
+        const retailSub = cart.filter((item) => !item.wholesale).reduce((sum, item) => sum + item.amount * item.qty, 0);
+        const voucher = bestVoucher(retailSub);
+        const discount = Math.round(retailSub * voucher.rate);
+        const shipping = selectedShippingMethod === "express"
+          ? 0
+          : sub === 0 || sub >= 2000000 || voucher.freeship ? 0 : 30000;
+        return { sub, voucher, discount, shipping, shippingPending: selectedShippingMethod === "express", total: Math.max(sub - discount + shipping, 0) };
       };
 
       function openCart() {
         cartOverlay.classList.add("open");
         cartDrawer.classList.add("open");
+      }
+
+      function renderVoucherPage() {
+        const retailSub = cart.filter((item) => !item.wholesale).reduce((sum, item) => sum + item.amount * item.qty, 0);
+        voucherOrderValue.textContent = formatMoney(retailSub);
+        voucherList.innerHTML = customerVouchers.map((voucher) => {
+          const eligible = retailSub >= voucher.min;
+          const selected = selectedVoucherCode === voucher.code;
+          const missing = Math.max(voucher.min - retailSub, 0);
+          return `
+            <article class="voucher-card ${eligible ? "" : "locked"} ${selected ? "selected" : ""}">
+              <div class="voucher-value"><strong>${voucher.label}</strong><span>${voucher.freeship ? "+ Freeship" : "Voucher"}</span></div>
+              <div class="voucher-copy">
+                <h3>${voucher.title}</h3>
+                <p>${voucher.description}</p>
+                <p class="voucher-code">Mã: ${voucher.code} · Đơn từ ${formatMoney(voucher.min)}</p>
+                <p>${eligible ? (selected ? "Voucher đang được áp dụng." : "Đơn hàng đã đủ điều kiện.") : `Mua thêm ${formatMoney(missing)} để sử dụng.`}</p>
+              </div>
+              <button class="voucher-apply" type="button" data-select-voucher="${voucher.code}" ${eligible ? "" : "disabled"}>${selected ? "Đang dùng" : eligible ? "Dùng ngay" : "Chưa đủ"}</button>
+            </article>
+          `;
+        }).join("");
+      }
+
+      function openVoucherPage() {
+        renderVoucherPage();
+        voucherModal.classList.add("open");
+      }
+
+      function closeVoucherPage() {
+        voucherModal.classList.remove("open");
+      }
+
+      function openZoom(product, color = product.color) {
+        zoomContent.innerHTML = `
+          <div class="product-visual">${mockMarkup(product.kind, color)}</div>
+          <div class="zoom-caption"><strong>${product.name}</strong><span>${colorLabel(color)}</span></div>
+        `;
+        zoomModal.classList.add("open");
+      }
+
+      function closeZoom() {
+        zoomModal.classList.remove("open");
+      }
+
+      function renderShippingMethod() {
+        const express = selectedShippingMethod === "express";
+        shippingLogo.textContent = express ? "BOOK" : "GHN";
+        shippingSelectedText.textContent = express ? "Hỏa tốc · Dưới 25 km · Phí theo app" : "Giao nhanh · Toàn quốc";
+        shippingOptions.querySelectorAll("[data-shipping-method]").forEach((button) => {
+          const active = button.dataset.shippingMethod === selectedShippingMethod;
+          button.classList.toggle("active", active);
+          button.querySelector(".shipping-check").textContent = active ? "✓" : "";
+        });
+        renderCartTotals();
       }
 
       function closeCart() {
@@ -860,12 +1348,33 @@
         });
       }
 
+      function mixProducts(product) {
+        const dark = ["#111", "#303030", "#050505", "#1f2937"].includes(product.color);
+        const preferredColors = dark
+          ? ["#f4f4f2", "#dedbd4", "#c9c5bd", "#8c8c88"]
+          : ["#111", "#303030", "#1f2937"];
+        const preferredKinds = product.kind === "pants"
+          ? ["tee", "hoodie", "jacket"]
+          : ["pants"];
+        return productData
+          .filter((item) =>
+            item.id !== product.id &&
+            preferredKinds.includes(item.kind) &&
+            item.swatches.some((color) => preferredColors.includes(color))
+          )
+          .slice(0, 4)
+          .map((item) => ({
+            ...item,
+            color: item.swatches.find((color) => preferredColors.includes(color)) || item.color
+          }));
+      }
+
       function suggestionCards(items) {
         return `<div class="suggestion-grid">${items.map((item) => `
           <article class="suggestion-card">
             <div class="product-visual">${mockMarkup(item.kind, item.color)}</div>
             <h4>${item.name}</h4>
-            <p>${item.price} · ${colorLabel(item.color)}</p>
+            <p>${priceMarkup(item)} · ${colorLabel(item.color)}</p>
             <div class="mini-actions">
               <button data-suggest-add="${item.id}:${item.color}">Thêm giỏ</button>
               <button data-suggest-buy="${item.id}:${item.color}">Mua</button>
@@ -877,20 +1386,30 @@
       function openDetail(id) {
         const product = productData.find((item) => item.id === id);
         if (!product) return;
+        const isGift = product.kind.startsWith("gift-");
+        const isMessageCard = product.kind === "gift-card";
         detailContent.innerHTML = `
           <div class="detail-grid" data-detail-product="${product.id}">
             <div>
-              <div class="product-visual">${mockMarkup(product.kind, product.color)}</div>
-              <div class="sizes" data-size-group="${product.id}" style="margin-top:14px">
-                ${["S", "M", "L", "XL"].map(size => `<button class="${size === product.size ? "active" : ""}" data-size="${product.id}:${size}">${size}</button>`).join("")}
+              <button class="zoom-action" type="button" data-zoom-product="${product.id}" aria-label="Phóng to ảnh ${product.name}">
+                <div class="product-visual">${mockMarkup(product.kind, product.color)}</div>
+              </button>
+              <div class="swatches" data-detail-swatches="${product.id}" style="margin-top:14px">
+                ${product.swatches.map((color, index) => `<button type="button" class="${index === product.colorIndex ? "active" : ""}" data-detail-color="${product.id}:${index}" style="background:${color}" aria-label="Xem màu ${colorLabel(color)} của ${product.name}" title="${colorLabel(color)}"></button>`).join("")}
               </div>
+              ${isGift ? "" : `<div class="sizes" data-size-group="${product.id}" style="margin-top:14px">
+                ${["S", "M", "L", "XL"].map(size => `<button class="${size === product.size ? "active" : ""}" data-size="${product.id}:${size}">${size}</button>`).join("")}
+              </div>`}
               <button class="quick" data-buy="${product.id}">Mua ngay</button>
             </div>
             <div class="detail-info">
               <h2>${product.name}</h2>
-              <strong>${product.price}</strong>
-              <p class="muted">${productDescription(product)}</p>
-              <div class="detail-section">
+              ${priceMarkup(product, true)}
+              ${isMessageCard ? "" : `<p class="muted">${productDescription(product)}</p>`}
+              ${isMessageCard ? `
+                <label class="custom-field-label" for="giftMessage">Lời nhắn bạn gửi</label>
+                <textarea class="gift-message" id="giftMessage" maxlength="300" placeholder="Nhập lời nhắn dành cho người nhận...">${product.message || ""}</textarea>
+              ` : isGift ? "" : `<div class="detail-section">
                 <button data-detail-toggle="voucher">Hiển thị voucher và gợi ý combo <span>+</span></button>
                 <div class="detail-panel" id="detail-voucher">
                   <p><b>Voucher tự động theo tiền đơn:</b> từ 500k giảm 5%, từ 1 triệu giảm 10%, từ 2 triệu freeship + giảm 15%.</p>
@@ -918,7 +1437,11 @@
               </div>
               <div class="detail-section">
                 <button data-detail-toggle="mix">Gợi ý phối màu quần áo <span>+</span></button>
-                <div class="detail-panel" id="detail-mix"><p>${styleText(product.color, product.kind)}</p><p>Set an toàn: áo trắng + quần đen, áo đen + quần xám/stone, hoodie tối + tee trắng bên trong.</p></div>
+                <div class="detail-panel" id="detail-mix">
+                  <p>${styleText(product.color, product.kind)}</p>
+                  <p>Set an toàn: áo trắng + quần đen, áo đen + quần xám/stone, hoodie tối + tee trắng bên trong.</p>
+                  ${suggestionCards(mixProducts(product))}
+                </div>
               </div>
               <div class="detail-section">
                 <button data-detail-toggle="size">Tư vấn chọn size trực tuyến <span>+</span></button>
@@ -929,15 +1452,8 @@
                   </div>
                   <button class="secondary" id="runSizeAdvisor">Tư vấn size</button>
                   <div class="size-result" id="sizeAdvisorResult">Nhập chiều cao và cân nặng để shop tư vấn size tự nhiên hơn.</div>
-                  <button class="secondary" id="showAdviceVideo">Tư vấn bằng video</button>
-                  <div class="video-box" id="adviceVideo">
-                    <div>
-                      <strong>Video tư vấn size BLANWHI</strong>
-                      <p>Demo video: so vai, chiều dài áo và độ rộng form theo size S/M/L/XL.</p>
-                    </div>
-                  </div>
                 </div>
-              </div>
+              </div>`}
             </div>
           </div>
         `;
@@ -950,29 +1466,35 @@
         const color = product.swatches[variantState.colorIndex];
         variantContent.innerHTML = `
           <div class="detail-grid" style="grid-template-columns:.8fr 1.2fr">
-            <div class="product-visual">${mockMarkup(product.kind, color)}</div>
+            <button class="zoom-action" type="button" data-zoom-variant="${product.id}" aria-label="Phóng to ảnh ${product.name}">
+              <div class="product-visual">${mockMarkup(product.kind, color)}</div>
+            </button>
             <div class="detail-info">
               <h2>${product.name}</h2>
-              <strong>${product.price}</strong>
+              ${priceMarkup(product, true)}
               <div>
                 <p class="muted">Màu sắc</p>
                 <div class="swatches" data-variant-colors>
-                  ${product.swatches.map((swatch, index) => `<span class="${index === variantState.colorIndex ? "active" : ""}" data-variant-color="${index}" style="background:${swatch}"></span>`).join("")}
+                  ${product.swatches.map((swatch, index) => `<button type="button" class="${index === variantState.colorIndex ? "active" : ""}" data-variant-color="${index}" style="background:${swatch}" aria-label="Chọn màu ${colorLabel(swatch)}" title="${colorLabel(swatch)}"></button>`).join("")}
                 </div>
               </div>
-              <div>
+              ${product.kind.startsWith("gift-") ? `<div><p class="muted">Loại</p><strong>Gift Packaging</strong></div>` : `<div>
                 <p class="muted">Size</p>
                 <div class="sizes" data-variant-sizes>
                   ${["S", "M", "L", "XL"].map(size => `<button class="${size === variantState.size ? "active" : ""}" data-variant-size="${size}">${size}</button>`).join("")}
                 </div>
-              </div>
+              </div>`}
               <div>
                 <p class="muted">Số lượng</p>
-                <div class="quantity-picker"><button data-variant-qty="-1">−</button><span>${variantState.qty}</span><button data-variant-qty="1">+</button></div>
+                <div class="quantity-picker">
+                  <button type="button" data-variant-qty="-1" aria-label="Giảm số lượng ${product.name}">−</button>
+                  <input id="variantQtyInput" type="number" min="1" max="999" value="${variantState.qty}" inputmode="numeric" aria-label="Số lượng ${product.name}" />
+                  <button type="button" data-variant-qty="1" aria-label="Tăng số lượng ${product.name}">+</button>
+                </div>
               </div>
               <div class="variant-actions">
                 <button class="secondary" id="variantCancel">Huỷ</button>
-                <button class="primary" id="variantConfirm">${variantState.mode === "buy" ? "Tiếp tục thanh toán" : "Thêm vào giỏ hàng"}</button>
+                <button class="primary" id="variantConfirm">${variantState.mode === "buy" ? "Xem giỏ hàng" : "Thêm vào giỏ hàng"}</button>
               </div>
             </div>
           </div>
@@ -982,7 +1504,7 @@
       function openVariant(id, mode) {
         const product = productData.find((item) => item.id === id);
         if (!product) return;
-        variantState = { productId: id, mode, colorIndex: product.colorIndex, size: product.size, qty: 1 };
+        variantState = { productId: id, mode, colorIndex: product.colorIndex, size: product.size, qty: product.orderQty || 1 };
         renderVariantModal();
         variantModal.classList.add("open");
       }
@@ -991,10 +1513,58 @@
         variantModal.classList.remove("open");
       }
 
+      function wholesaleDiscount(qty) {
+        if (qty >= 100) return 0.25;
+        if (qty >= 50) return 0.20;
+        if (qty >= 30) return 0.15;
+        return 0.10;
+      }
+
+      function renderWholesale() {
+        const product = productData.find((item) => item.id === wholesaleState.productId);
+        if (!product) return;
+        const discount = wholesaleDiscount(wholesaleState.qty);
+        const unitPrice = Math.round(product.amount * (1 - discount) / 1000) * 1000;
+        const totalPrice = unitPrice * wholesaleState.qty;
+        wholesaleContent.innerHTML = `
+          <div class="wholesale-product">
+            <div class="product-visual">${mockMarkup(product.kind, product.color)}</div>
+            <div><h3>${product.name}</h3><p class="muted">${colorLabel(product.color)} · Size ${product.size}</p></div>
+          </div>
+          <div class="wholesale-grid">
+            <div class="wholesale-column">
+              <label>Số lượng</label>
+              <div class="wholesale-quantity">
+                <input id="wholesaleQtyInput" type="number" min="10" max="999" value="${wholesaleState.qty}" inputmode="numeric" aria-label="Số lượng mua sỉ" />
+              </div>
+            </div>
+            <div class="wholesale-column wholesale-price">
+              <label>Giá theo số lượng</label>
+              <strong id="wholesaleTotalPrice">${formatMoney(totalPrice)}</strong>
+              <span id="wholesaleUnitPrice">${formatMoney(unitPrice)} / sản phẩm · Giảm ${Math.round(discount * 100)}%</span>
+            </div>
+          </div>
+          <p class="wholesale-tiers">10-29 sản phẩm: giảm 10% · 30-49: giảm 15% · 50-99: giảm 20% · Từ 100: giảm 25%.</p>
+          <button class="wholesale-add" type="button" id="wholesaleAdd">Thêm đơn sỉ vào giỏ</button>
+        `;
+      }
+
+      function openWholesale(id) {
+        const product = productData.find((item) => item.id === id);
+        if (!product) return;
+        wholesaleState = { productId: id, qty: 10 };
+        renderWholesale();
+        wholesaleModal.classList.add("open");
+      }
+
+      function closeWholesale() {
+        wholesaleModal.classList.remove("open");
+      }
+
       function confirmVariant() {
         const product = productData.find((item) => item.id === variantState.productId);
         if (!product) return;
-        const options = { color: product.swatches[variantState.colorIndex], size: variantState.size, qty: variantState.qty };
+        const options = { color: product.swatches[variantState.colorIndex], size: variantState.size, qty: variantState.qty, message: product.message || "" };
         product.colorIndex = variantState.colorIndex;
         product.color = options.color;
         product.size = options.size;
@@ -1027,29 +1597,90 @@
           cartItems.innerHTML = cart.map((item) => `
             <div class="cart-row">
               <div class="product-visual">${mockMarkup(item.kind, item.color)}</div>
-              <div><h3>${item.name}</h3><p>${item.price} · ${item.size}</p></div>
-              <div class="qty"><button data-dec="${item.cartId}">−</button><span>${item.qty}</span><button data-inc="${item.cartId}">+</button></div>
+              <div>
+                <h3>${item.name}</h3>
+                <p>${item.price}${item.kind.startsWith("gift-") ? "" : ` · ${item.size}`}${item.designName ? ` · ${item.designName}` : ""}</p>
+                ${item.customText ? `<p>Chữ thiết kế: ${escapeMarkup(item.customText)}</p>` : ""}
+                ${item.kind === "gift-card" ? `
+                  <label class="cart-message-label" for="cart-message-${item.cartId}">Lời nhắn bạn gửi</label>
+                  <textarea class="cart-message" id="cart-message-${item.cartId}" data-cart-message="${item.cartId}" maxlength="300" placeholder="Nhập lời nhắn...">${escapeMarkup(item.message)}</textarea>
+                ` : ""}
+              </div>
+              <div class="cart-item-actions">
+                <div class="qty">
+                  <button data-dec="${item.cartId}" aria-label="Giảm số lượng ${item.name}">−</button>
+                  <input type="number" min="1" max="999" value="${item.qty}" inputmode="numeric" data-cart-qty="${item.cartId}" aria-label="Số lượng ${item.name}" />
+                  <button data-inc="${item.cartId}" aria-label="Tăng số lượng ${item.name}">+</button>
+                </div>
+                <button class="cart-remove" type="button" data-remove="${item.cartId}" aria-label="Xóa ${item.name} khỏi giỏ hàng" title="Xóa sản phẩm">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="m7 7 1 13h8l1-13"/><path d="M10 11v5"/><path d="M14 11v5"/></svg>
+                </button>
+              </div>
             </div>
           `).join("");
         }
+        renderCartTotals();
+      }
+
+      function renderCartTotals() {
         const next = totals();
-        voucherNote.textContent = next.voucher.rate ? `Đã áp dụng: ${next.voucher.title}.` : "Từ 500k hoặc 2 sản phẩm sẽ tự mở voucher giảm giá.";
+        voucherNote.textContent = next.voucher.rate ? `Đã áp dụng ${next.voucher.code}: ${next.voucher.title}.` : "Nhấn ÁP VOUCHER để xem các ưu đãi hiện có.";
         subtotalText.textContent = formatMoney(next.sub);
         discountText.textContent = "-" + formatMoney(next.discount);
-        shippingText.textContent = formatMoney(next.shipping);
+        shippingText.textContent = next.shippingPending ? "Theo app" : formatMoney(next.shipping);
         totalText.textContent = formatMoney(next.total);
         renderCheckoutSummary();
       }
 
       function renderCheckoutSummary() {
         const next = totals();
+        const customItems = cart.filter((item) => item.customDesign);
+        customConfirmArea.innerHTML = customItems.length ? `
+          <h3 class="custom-confirm-title">Xác nhận thiết kế Custom</h3>
+          ${customItems.map((item) => customConfirmationMarkup(item)).join("")}
+          <label class="custom-confirm-check">
+            <input type="checkbox" id="customDesignConfirmed" required />
+            <span>Tôi đã kiểm tra mặt trước, mặt sau, màu áo, chữ và vị trí thiết kế; tôi xác nhận sản xuất theo mẫu hiển thị.</span>
+          </label>
+        ` : "";
         checkoutSummary.innerHTML = `
           <h3 style="margin:0 0 8px">Đơn hàng</h3>
           ${cart.length ? cart.map((item) => `<div class="line"><span>${item.qty}× ${item.name}</span><strong>${formatMoney(item.amount * item.qty)}</strong></div>`).join("") : `<p class="muted">Chưa có sản phẩm.</p>`}
           <div class="line"><span>Tạm tính</span><strong>${formatMoney(next.sub)}</strong></div>
           <div class="line"><span>${next.voucher.title}</span><strong>-${formatMoney(next.discount)}</strong></div>
-          <div class="line"><span>Ship</span><strong>${formatMoney(next.shipping)}</strong></div>
+          <div class="line"><span>Vận chuyển · ${selectedShippingMethod === "express" ? "Hỏa tốc" : "Giao nhanh"}</span><strong>${next.shippingPending ? "Theo app" : formatMoney(next.shipping)}</strong></div>
           <div class="line" style="font-size:18px"><span>Tổng</span><strong>${formatMoney(next.total)}</strong></div>
+        `;
+      }
+
+      function customDesignSideMarkup(item, side, label) {
+        const design = item.customDesign?.[side] || {};
+        const text = item.customDesign?.texts?.[side] || {};
+        const textColor = text.color || (item.color === "#f4f4f2" ? "#111" : "#fff");
+        const designScale = design.scale || 100;
+        const textSize = text.fontSize || 14;
+        return `
+          <div class="custom-confirm-side">
+            <span>${label}</span>
+            <div class="custom-confirm-view">
+              ${mockMarkup("tee", item.color)}
+              ${design.src ? `<img src="${design.src}" alt="${label} - ${escapeMarkup(design.name || "Hình thiết kế")}" style="left:${design.x || 50}%;top:${design.y || 42}%;width:${24 * designScale / 100}%;height:${25 * designScale / 100}%" />` : ""}
+              ${text.value ? `<span class="custom-confirm-text" style="left:${text.x || 50}%;top:${text.y || 58}%;font-family:${text.font || "Arial, sans-serif"};font-size:${textSize}px;color:${textColor}">${escapeMarkup(text.value)}</span>` : ""}
+            </div>
+          </div>
+        `;
+      }
+
+      function customConfirmationMarkup(item) {
+        return `
+          <article class="custom-confirm-card">
+            <div><strong>${item.name}</strong><p class="custom-confirm-meta">${colorLabel(item.color)} · Size ${item.size} · ${item.qty} áo</p></div>
+            <div class="custom-confirm-grid">
+              ${customDesignSideMarkup(item, "front", "Mặt trước")}
+              ${customDesignSideMarkup(item, "back", "Mặt sau")}
+            </div>
+            <p class="custom-confirm-meta">Hình: ${escapeMarkup(item.designName || "Không có")}<br />Chữ: ${escapeMarkup(item.customText || "Không có")}</p>
+          </article>
         `;
       }
 
@@ -1066,7 +1697,9 @@
               <p class="muted">${order.customer.name} · ${order.customer.phone}</p>
               <p class="muted">${order.customer.address}</p>
             </div>
-            <div>${order.items.map((item) => `<p class="muted">${item.qty}× ${item.name}</p>`).join("")}</div>
+            <div>${order.items.map((item) => `<p class="muted">${item.qty}× ${item.name}${item.message ? ` · Lời nhắn: ${escapeMarkup(item.message)}` : ""}${item.customText ? ` · Chữ: ${escapeMarkup(item.customText)}` : ""}</p>`).join("")}</div>
+            <div class="line"><span>Mã vận đơn</span><strong>${order.trackingCode || "Đang cập nhật"}</strong></div>
+            ${order.note ? `<p class="muted">Ghi chú: ${escapeMarkup(order.note)}</p>` : ""}
             <div class="line"><span>Tổng tiền</span><strong>${formatMoney(order.total)}</strong></div>
             <p class="muted">Đồng bộ: Pancake ${order.sync?.pancake || "chưa bật"} · MISA ${order.sync?.misa || "chưa bật"}</p>
             <div class="status-track">
@@ -1085,8 +1718,11 @@
         const qty = options.qty || 1;
         const cartId = `${id}-${color}-${size}`;
         const existing = cart.find((item) => item.cartId === cartId);
-        if (existing) existing.qty += qty;
-        else cart.push({ ...product, cartId, color, size, qty });
+        if (existing) {
+          existing.qty += qty;
+          if (options.message !== undefined) existing.message = options.message;
+        }
+        else cart.push({ ...product, cartId, color, size, qty, message: options.message || product.message || "" });
         renderCart();
       }
 
@@ -1104,7 +1740,7 @@
           <span class="color-name">${colorLabel(product.color)}</span>
           ${mockMarkup(product.kind, product.color)}
         `;
-        card.querySelectorAll(`[data-swatches="${id}"] span`).forEach((swatch, index) => swatch.classList.toggle("active", index === product.colorIndex));
+        card.querySelectorAll(`[data-swatches="${id}"] button`).forEach((swatch, index) => swatch.classList.toggle("active", index === product.colorIndex));
       }
 
       const buildExternalPayload = (order, provider) => ({
@@ -1120,7 +1756,7 @@
           unit_price: item.price
         })),
         total_amount: order.total,
-        note: "Đơn tạo từ website BLANWHI preview",
+        note: order.note || "Đơn tạo từ website BLANWHI preview",
         created_at: order.updatedAt
       });
 
@@ -1168,10 +1804,23 @@
 
       function buyNow(id, options = {}) {
         addToCart(id, options);
-        openCheckout();
+        openCart();
       }
 
       document.getElementById("productGrid").addEventListener("click", (event) => {
+        const cardColor = event.target.closest("[data-card-color]");
+        if (cardColor) {
+          event.preventDefault();
+          event.stopPropagation();
+          const [id, index] = cardColor.dataset.cardColor.split(":");
+          const product = productData.find((item) => item.id === id);
+          if (product) {
+            product.colorIndex = Number(index);
+            product.color = product.swatches[product.colorIndex];
+            renderProducts(currentProductList, false);
+          }
+          return;
+        }
         const prevColor = event.target.closest("[data-color-prev]");
         if (prevColor) {
           event.preventDefault();
@@ -1197,12 +1846,16 @@
         }
         const button = event.target.closest("[data-add]");
         if (button) openVariant(button.dataset.add, "cart");
+        const wholesaleButton = event.target.closest("[data-wholesale]");
+        if (wholesaleButton) {
+          openWholesale(wholesaleButton.dataset.wholesale);
+          return;
+        }
         const detailButton = event.target.closest("[data-detail]");
         if (detailButton) openDetail(detailButton.dataset.detail);
         const buyButton = event.target.closest("[data-buy]");
         if (buyButton) openDetail(buyButton.dataset.buy);
       });
-
       const swipeStart = {};
       document.getElementById("productGrid").addEventListener("touchstart", (event) => {
         const visual = event.target.closest("[data-swipe]");
@@ -1221,7 +1874,65 @@
         delete swipeStart[visual.dataset.swipe];
       }, { passive: true });
 
+      wholesaleContent.addEventListener("click", (event) => {
+        if (event.target.closest("#wholesaleAdd")) {
+          const product = productData.find((item) => item.id === wholesaleState.productId);
+          if (!product) return;
+          const discount = wholesaleDiscount(wholesaleState.qty);
+          const unitPrice = Math.round(product.amount * (1 - discount) / 1000) * 1000;
+          const cartId = `${product.id}-${product.color}-${product.size}-wholesale-${unitPrice}`;
+          const existing = cart.find((item) => item.cartId === cartId);
+          if (existing) existing.qty += wholesaleState.qty;
+          else cart.push({
+            ...product,
+            cartId,
+            qty: wholesaleState.qty,
+            amount: unitPrice,
+            price: `${formatMoney(unitPrice)} sỉ`,
+            wholesale: true
+          });
+          closeWholesale();
+          renderCart();
+          openCart();
+        }
+      });
+      wholesaleContent.addEventListener("change", (event) => {
+        if (event.target.id !== "wholesaleQtyInput") return;
+        wholesaleState.qty = Math.min(999, Math.max(10, Number(event.target.value) || 10));
+        renderWholesale();
+      });
+      wholesaleContent.addEventListener("input", (event) => {
+        if (event.target.id !== "wholesaleQtyInput") return;
+        const qty = Number(event.target.value);
+        if (qty >= 10 && qty <= 999) {
+          wholesaleState.qty = qty;
+          const product = productData.find((item) => item.id === wholesaleState.productId);
+          if (!product) return;
+          const discount = wholesaleDiscount(qty);
+          const unitPrice = Math.round(product.amount * (1 - discount) / 1000) * 1000;
+          document.getElementById("wholesaleTotalPrice").textContent = formatMoney(unitPrice * qty);
+          document.getElementById("wholesaleUnitPrice").textContent = `${formatMoney(unitPrice)} / sản phẩm · Giảm ${Math.round(discount * 100)}%`;
+        }
+      });
+
       detailContent.addEventListener("click", (event) => {
+        const detailColor = event.target.closest("[data-detail-color]");
+        if (detailColor) {
+          const [id, index] = detailColor.dataset.detailColor.split(":");
+          const product = productData.find((item) => item.id === id);
+          if (product) {
+            product.colorIndex = Number(index);
+            product.color = product.swatches[product.colorIndex];
+            openDetail(id);
+          }
+          return;
+        }
+        const zoomProduct = event.target.closest("[data-zoom-product]");
+        if (zoomProduct) {
+          const product = productData.find((item) => item.id === zoomProduct.dataset.zoomProduct);
+          if (product) openZoom(product);
+          return;
+        }
         const sizeButton = event.target.closest("[data-size]");
         if (sizeButton) {
           const [id, size] = sizeButton.dataset.size.split(":");
@@ -1241,10 +1952,6 @@
           const height = Number(document.getElementById("advisorHeight").value);
           const weight = Number(document.getElementById("advisorWeight").value);
           document.getElementById("sizeAdvisorResult").textContent = height && weight ? adviseSize(height, weight) : "Cậu nhập giúp shop chiều cao và cân nặng trước nha.";
-          return;
-        }
-        if (event.target.closest("#showAdviceVideo")) {
-          document.getElementById("adviceVideo").classList.toggle("open");
           return;
         }
         const combo = event.target.closest("[data-combo-suggest]");
@@ -1281,8 +1988,20 @@
           openVariant(buyButton.dataset.buy, "buy");
         }
       });
+      detailContent.addEventListener("input", (event) => {
+        if (event.target.id !== "giftMessage") return;
+        const detail = event.target.closest("[data-detail-product]");
+        const product = productData.find((item) => item.id === detail?.dataset.detailProduct);
+        if (product) product.message = event.target.value;
+      });
 
       variantContent.addEventListener("click", (event) => {
+        const zoomVariant = event.target.closest("[data-zoom-variant]");
+        if (zoomVariant) {
+          const product = productData.find((item) => item.id === zoomVariant.dataset.zoomVariant);
+          if (product) openZoom(product, product.swatches[variantState.colorIndex]);
+          return;
+        }
         const color = event.target.closest("[data-variant-color]");
         if (color) {
           variantState.colorIndex = Number(color.dataset.variantColor);
@@ -1297,17 +2016,34 @@
         }
         const qty = event.target.closest("[data-variant-qty]");
         if (qty) {
-          variantState.qty = Math.max(1, variantState.qty + Number(qty.dataset.variantQty));
+          variantState.qty = Math.min(999, Math.max(1, variantState.qty + Number(qty.dataset.variantQty)));
           renderVariantModal();
           return;
         }
         if (event.target.closest("#variantCancel")) closeVariant();
         if (event.target.closest("#variantConfirm")) confirmVariant();
       });
+      variantContent.addEventListener("input", (event) => {
+        if (event.target.id !== "variantQtyInput") return;
+        const qty = Number(event.target.value);
+        if (qty >= 1 && qty <= 999) variantState.qty = qty;
+      });
+      variantContent.addEventListener("change", (event) => {
+        if (event.target.id !== "variantQtyInput") return;
+        variantState.qty = Math.min(999, Math.max(1, Number(event.target.value) || 1));
+        event.target.value = variantState.qty;
+      });
 
       cartItems.addEventListener("click", (event) => {
         const inc = event.target.closest("[data-inc]");
         const dec = event.target.closest("[data-dec]");
+        const remove = event.target.closest("[data-remove]");
+        if (remove) {
+          const index = cart.findIndex((entry) => entry.cartId === remove.dataset.remove);
+          if (index >= 0) cart.splice(index, 1);
+          renderCart();
+          return;
+        }
         if (inc) {
           const item = cart.find((entry) => entry.cartId === inc.dataset.inc);
           if (item) item.qty += 1;
@@ -1320,6 +2056,58 @@
           }
         }
         renderCart();
+      });
+      cartItems.addEventListener("input", (event) => {
+        const quantityField = event.target.closest("[data-cart-qty]");
+        if (quantityField) {
+          const item = cart.find((entry) => entry.cartId === quantityField.dataset.cartQty);
+          const qty = Number(quantityField.value);
+          if (item && qty >= 1 && qty <= 999) {
+            item.qty = qty;
+            document.getElementById("cartCount").textContent = cartCount();
+            renderCartTotals();
+          }
+          return;
+        }
+        const messageField = event.target.closest("[data-cart-message]");
+        if (!messageField) return;
+        const item = cart.find((entry) => entry.cartId === messageField.dataset.cartMessage);
+        if (item) item.message = messageField.value;
+      });
+      cartItems.addEventListener("change", (event) => {
+        const quantityField = event.target.closest("[data-cart-qty]");
+        if (!quantityField) return;
+        const item = cart.find((entry) => entry.cartId === quantityField.dataset.cartQty);
+        if (!item) return;
+        item.qty = Math.min(999, Math.max(1, Number(quantityField.value) || 1));
+        renderCart();
+      });
+      cartNote.addEventListener("input", () => {
+        orderNote = cartNote.value;
+      });
+      document.getElementById("shippingTrigger").addEventListener("click", () => {
+        shippingOptions.classList.toggle("open");
+      });
+      shippingOptions.addEventListener("click", (event) => {
+        const option = event.target.closest("[data-shipping-method]");
+        if (!option) return;
+        selectedShippingMethod = option.dataset.shippingMethod;
+        shippingOptions.classList.remove("open");
+        renderShippingMethod();
+      });
+      voucherCode.addEventListener("input", () => {
+        orderVoucherCode = voucherCode.value.trim();
+      });
+      document.getElementById("openVoucherPage").addEventListener("click", openVoucherPage);
+      document.getElementById("closeVoucherPage").addEventListener("click", closeVoucherPage);
+      voucherList.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-select-voucher]");
+        if (!button || button.disabled) return;
+        selectedVoucherCode = selectedVoucherCode === button.dataset.selectVoucher ? "" : button.dataset.selectVoucher;
+        orderVoucherCode = selectedVoucherCode;
+        voucherCode.value = selectedVoucherCode;
+        renderVoucherPage();
+        renderCartTotals();
       });
 
       searchToggle.addEventListener("click", () => {
@@ -1351,9 +2139,244 @@
         if (event.key === "Enter") document.getElementById("shop").scrollIntoView({ behavior: "smooth", block: "start" });
         if (event.key === "Escape") closeSearchPanel();
       });
+      document.getElementById("homeShortcut").addEventListener("click", () => {
+        closeMobileMenu();
+        closeCart();
+        closeOrders();
+        closeDetail();
+        closeVariant();
+        closeWholesale();
+        checkoutModal.classList.remove("open");
+        integrationModal.classList.remove("open");
+        productSearch.value = "";
+        closeSearchPanel();
+        renderProducts(productData);
+        history.replaceState(null, "", `${window.location.pathname}#shop`);
+        document.getElementById("shop").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      productPagination.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-product-page]");
+        if (!button || button.disabled) return;
+        currentProductPage = Number(button.dataset.productPage);
+        renderProducts(currentProductList, false);
+        document.getElementById("shop").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
       menuToggle.addEventListener("click", openMobileMenu);
       mobileMenuClose.addEventListener("click", closeMobileMenu);
       mobileMenuOverlay.addEventListener("click", closeMobileMenu);
+      const openSupportMenu = () => {
+        setMobileMenuPanel("support");
+        openMobileMenu();
+      };
+      document.getElementById("contactShortcut").addEventListener("click", openSupportMenu);
+      const customState = {
+        color: "#111",
+        size: "M",
+        qty: 20,
+        unitPrice: 180000,
+        side: "front",
+        designs: {
+          front: { src: "", name: "", x: 50, y: 42, scale: 100 },
+          back: { src: "", name: "", x: 50, y: 42, scale: 100 }
+        },
+        texts: {
+          front: { value: "", font: "Arial, sans-serif", x: 50, y: 58, color: "#ffffff", fontSize: 14 },
+          back: { value: "", font: "Arial, sans-serif", x: 50, y: 58, color: "#ffffff", fontSize: 14 }
+        }
+      };
+      const customStart = document.getElementById("customStart");
+      const customConfig = document.getElementById("customConfig");
+      const customShirtView = document.getElementById("customShirtView");
+      const customShirt = document.getElementById("customShirt");
+      const customSideLabel = document.getElementById("customSideLabel");
+      const customRotate = document.getElementById("customRotate");
+      const customRotateText = document.getElementById("customRotateText");
+      const customDesignFile = document.getElementById("customDesignFile");
+      const customDesignPreview = document.getElementById("customDesignPreview");
+      const customDesignName = document.getElementById("customDesignName");
+      const customDesignRemove = document.getElementById("customDesignRemove");
+      const customTextInput = document.getElementById("customTextInput");
+      const customFont = document.getElementById("customFont");
+      const customTextPreview = document.getElementById("customTextPreview");
+      const customImageSizeInput = document.getElementById("customImageSizeInput");
+      const customTextSizeInput = document.getElementById("customTextSizeInput");
+      const customImageSizeValue = document.getElementById("customImageSizeValue");
+      const customTextSizeValue = document.getElementById("customTextSizeValue");
+      const customQtyInput = document.getElementById("customQtyInput");
+      const customPrice = document.getElementById("customPrice");
+      const customUnitPrice = document.getElementById("customUnitPrice");
+      const renderCustomSide = () => {
+        const design = customState.designs[customState.side];
+        const text = customState.texts[customState.side];
+        customShirtView.classList.toggle("back", customState.side === "back");
+        customSideLabel.textContent = customState.side === "front" ? "Mặt trước" : "Mặt sau";
+        customRotateText.textContent = customState.side === "front" ? "Xoay sang mặt sau" : "Xoay sang mặt trước";
+        customDesignPreview.hidden = !design.src;
+        if (design.src) customDesignPreview.src = design.src;
+        customDesignPreview.style.left = `${design.x}%`;
+        customDesignPreview.style.top = `${design.y}%`;
+        customDesignPreview.style.width = `${24 * (design.scale || 100) / 100}%`;
+        customDesignPreview.style.height = `${25 * (design.scale || 100) / 100}%`;
+        customDesignName.textContent = design.name || "Chưa có hình ảnh được tải lên.";
+        customDesignRemove.classList.toggle("visible", Boolean(design.src));
+        customTextPreview.textContent = text.value;
+        customTextPreview.style.fontFamily = text.font;
+        customTextPreview.style.left = `${text.x}%`;
+        customTextPreview.style.top = `${text.y}%`;
+        customTextPreview.style.color = text.color || (customState.color === "#f4f4f2" ? "#111" : "#fff");
+        customTextPreview.style.fontSize = `${text.fontSize || 14}px`;
+        customTextPreview.hidden = !text.value;
+        customTextInput.value = text.value;
+        customFont.value = text.font;
+        if (customImageSizeInput) customImageSizeInput.value = design.scale || 100;
+        if (customTextSizeInput) customTextSizeInput.value = text.fontSize || 14;
+        if (customImageSizeValue) customImageSizeValue.textContent = `${design.scale || 100}%`;
+        if (customTextSizeValue) customTextSizeValue.textContent = `${text.fontSize || 14}px`;
+        document.querySelectorAll("[data-custom-text-color]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.customTextColor.toLowerCase() === (text.color || "#ffffff").toLowerCase());
+        });
+      };
+      const updateCustomPrice = () => {
+        const discount = wholesaleDiscount(customState.qty);
+        const unitPrice = Math.round(customState.unitPrice * (1 - discount) / 1000) * 1000;
+        customQtyInput.value = customState.qty;
+        customUnitPrice.textContent = `${formatMoney(unitPrice)} / áo · Giảm ${Math.round(discount * 100)}%`;
+        customPrice.textContent = formatMoney(unitPrice * customState.qty);
+      };
+      customStart.addEventListener("click", () => {
+        const isOpen = customConfig.classList.toggle("open");
+        customStart.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        customStart.textContent = isOpen ? "Đóng tùy chọn" : "Bắt đầu";
+      });
+      customRotate.addEventListener("click", () => {
+        customState.side = customState.side === "front" ? "back" : "front";
+        customDesignFile.value = "";
+        renderCustomSide();
+      });
+      customDesignFile.addEventListener("change", () => {
+        const file = customDesignFile.files[0];
+        if (!file) return;
+        if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+          customDesignFile.value = "";
+          customDesignName.textContent = "Vui lòng chọn ảnh PNG, JPG hoặc WebP.";
+          return;
+        }
+        const reader = new FileReader();
+        reader.addEventListener("load", () => {
+          customState.designs[customState.side] = { src: reader.result, name: file.name, x: 50, y: 42, scale: Number(customImageSizeInput?.value) || 100 };
+          renderCustomSide();
+        });
+        reader.readAsDataURL(file);
+      });
+      customDesignRemove.addEventListener("click", () => {
+        customState.designs[customState.side] = { src: "", name: "", x: 50, y: 42, scale: Number(customImageSizeInput?.value) || 100 };
+        customDesignFile.value = "";
+        renderCustomSide();
+      });
+      customTextInput.addEventListener("input", () => {
+        customState.texts[customState.side].value = customTextInput.value;
+        renderCustomSide();
+      });
+      customFont.addEventListener("change", () => {
+        customState.texts[customState.side].font = customFont.value;
+        renderCustomSide();
+      });
+      document.querySelectorAll("[data-custom-text-color]").forEach((button) => {
+        button.addEventListener("click", () => {
+          customState.texts[customState.side].color = button.dataset.customTextColor;
+          renderCustomSide();
+        });
+      });
+      customImageSizeInput?.addEventListener("input", () => {
+        customState.designs[customState.side].scale = Number(customImageSizeInput.value) || 100;
+        renderCustomSide();
+      });
+      customTextSizeInput?.addEventListener("input", () => {
+        customState.texts[customState.side].fontSize = Number(customTextSizeInput.value) || 14;
+        renderCustomSide();
+      });
+      const enableCustomDrag = (element, stateKey) => {
+        let dragging = false;
+        element.addEventListener("pointerdown", (event) => {
+          dragging = true;
+          element.setPointerCapture(event.pointerId);
+          event.preventDefault();
+        });
+        element.addEventListener("pointermove", (event) => {
+          if (!dragging) return;
+          const rect = customShirt.getBoundingClientRect();
+          const x = Math.min(68, Math.max(32, ((event.clientX - rect.left) / rect.width) * 100));
+          const y = Math.min(72, Math.max(27, ((event.clientY - rect.top) / rect.height) * 100));
+          const target = stateKey === "designs" ? customState.designs[customState.side] : customState.texts[customState.side];
+          target.x = x;
+          target.y = y;
+          element.style.left = `${x}%`;
+          element.style.top = `${y}%`;
+        });
+        element.addEventListener("pointerup", () => { dragging = false; });
+        element.addEventListener("pointercancel", () => { dragging = false; });
+      };
+      enableCustomDrag(customDesignPreview, "designs");
+      enableCustomDrag(customTextPreview, "texts");
+      document.querySelectorAll("[data-custom-color]").forEach((button) => {
+        button.addEventListener("click", () => {
+          customState.color = button.dataset.customColor;
+          document.querySelectorAll("[data-custom-color]").forEach((item) => item.classList.toggle("active", item === button));
+          customShirt.style.setProperty("--garment", customState.color);
+          const isLight = customState.color === "#f4f4f2";
+          customShirt.style.setProperty("--garment-border", isLight ? "1px solid #d8d8d8" : "0");
+          customShirt.style.setProperty("--neck-border", isLight ? "1px solid #d8d8d8" : "1px solid rgba(255,255,255,.22)");
+          renderCustomSide();
+        });
+      });
+      document.querySelectorAll("[data-custom-size]").forEach((button) => {
+        button.addEventListener("click", () => {
+          customState.size = button.dataset.customSize;
+          document.querySelectorAll("[data-custom-size]").forEach((item) => item.classList.toggle("active", item === button));
+        });
+      });
+      customQtyInput.addEventListener("input", () => {
+        const qty = Number(customQtyInput.value);
+        if (qty >= 20 && qty <= 999) {
+          customState.qty = qty;
+          updateCustomPrice();
+        }
+      });
+      customQtyInput.addEventListener("change", () => {
+        customState.qty = Math.min(999, Math.max(20, Number(customQtyInput.value) || 20));
+        updateCustomPrice();
+      });
+      document.getElementById("customAdd").addEventListener("click", () => {
+        const discount = wholesaleDiscount(customState.qty);
+        const customUnitAmount = Math.round(customState.unitPrice * (1 - discount) / 1000) * 1000;
+        const cartId = `custom-${customState.color}-${customState.size}-${Date.now()}`;
+        cart.push({
+          id: "custom-tee",
+          cartId,
+          name: "Custom Company Tee",
+          price: `${formatMoney(customUnitAmount)} sỉ`,
+          amount: customUnitAmount,
+          kind: "tee",
+          color: customState.color,
+          size: customState.size,
+          qty: customState.qty,
+          wholesale: true,
+          designName: [customState.designs.front.name, customState.designs.back.name].filter(Boolean).join(" / "),
+          customText: [customState.texts.front.value, customState.texts.back.value].filter(Boolean).join(" / "),
+          customDesign: {
+            front: { ...customState.designs.front },
+            back: { ...customState.designs.back },
+            texts: {
+              front: { ...customState.texts.front },
+              back: { ...customState.texts.back }
+            }
+          }
+        });
+        renderCart();
+        openCart();
+      });
+      renderCustomSide();
+      updateCustomPrice();
       mobileMenu.querySelectorAll("[data-menu-tab]").forEach((tab) => {
         tab.addEventListener("click", () => setMobileMenuPanel(tab.dataset.menuTab));
       });
@@ -1414,11 +2437,19 @@
       document.getElementById("closeCheckout").addEventListener("click", () => checkoutModal.classList.remove("open"));
       document.getElementById("closeDetail").addEventListener("click", closeDetail);
       document.getElementById("closeVariant").addEventListener("click", closeVariant);
+      document.getElementById("closeZoom").addEventListener("click", closeZoom);
+      document.getElementById("closeWholesale").addEventListener("click", closeWholesale);
       detailModal.addEventListener("click", (event) => {
         if (event.target === detailModal) closeDetail();
       });
       variantModal.addEventListener("click", (event) => {
         if (event.target === variantModal) closeVariant();
+      });
+      zoomModal.addEventListener("click", (event) => {
+        if (event.target === zoomModal) closeZoom();
+      });
+      wholesaleModal.addEventListener("click", (event) => {
+        if (event.target === wholesaleModal) closeWholesale();
       });
       document.getElementById("closeIntegration").addEventListener("click", closeIntegration);
       checkoutModal.addEventListener("click", (event) => {
@@ -1446,6 +2477,7 @@
         const next = totals();
         const order = {
           code: `BLW-${Date.now().toString().slice(-6)}`,
+          trackingCode: `VN${Date.now().toString().slice(-10)}`,
           status: "Đã đặt",
           step: 0,
           customer: {
@@ -1453,19 +2485,37 @@
             phone: fields[1].value,
             address: fields[2].value
           },
-          items: cart.map((item) => ({ name: item.name, qty: item.qty, price: item.amount })),
+          items: cart.map((item) => ({
+            name: item.name,
+            qty: item.qty,
+            price: item.amount,
+            message: item.message || "",
+            designName: item.designName || "",
+            customText: item.customText || ""
+          })),
+          note: orderNote,
+          shippingMethod: selectedShippingMethod === "express" ? "Hỏa tốc" : "Giao nhanh",
+          shippingFee: next.shippingPending ? "Theo ứng dụng book giao hàng" : next.shipping,
+          voucherCode: orderVoucherCode,
           total: next.total,
           updatedAt: new Date().toLocaleString("vi-VN")
         };
         order.sync = await syncOrder(order);
         saveOrders([order, ...loadOrders()]);
         cart.length = 0;
+        orderNote = "";
+        orderVoucherCode = "";
+        selectedVoucherCode = "";
+        selectedShippingMethod = "fast";
+        cartNote.value = "";
+        voucherCode.value = "";
         renderCart();
         checkoutModal.classList.remove("open");
         event.currentTarget.reset();
         openOrders();
       });
       renderCart();
+      renderShippingMethod();
       renderOrders();
     </script>
   </body>
