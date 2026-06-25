@@ -374,6 +374,7 @@
       .status-step { border-top: 2px solid #ddd; padding-top: 7px; font-size: 11px; color: #888; }
       .status-step.active { border-color: #000; color: #000; font-weight: 600; }
       .ticker { border-block: 1px solid var(--line); padding: 16px; text-align: center; text-transform: uppercase; font-size: 13px; color: #555; }
+      .ticker, .footer-grid, footer, .custom-section { display: none; }
       .service-links { display: grid; grid-template-columns: repeat(2, 1fr); border-bottom: 1px solid #111; }
       .service-link { min-height: 76px; border: 0; border-right: 1px solid #111; background: #fff; color: #111; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; font-size: 13px; font-weight: 800; text-align: left; text-transform: uppercase; cursor: pointer; transition: background .2s ease, color .2s ease; }
       .service-link:last-child { border-right: 0; }
@@ -381,6 +382,20 @@
       .service-link svg { width: 20px; height: 20px; flex: 0 0 auto; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
       .hero-copy .service-links { margin-top: 28px; border: 1px solid #111; }
       .hero-copy .service-link { min-height: 62px; padding: 0 16px; font-size: 10px; line-height: 1.45; }
+      .mobile-menu-tabs.contact-only [data-menu-tab="menu"] { display: none; }
+      .mobile-menu-tabs.contact-only { justify-content: flex-start; }
+      .mobile-menu-list details { border-bottom: 1px solid var(--line); }
+      .mobile-menu-list summary { min-height: 76px; display: flex; align-items: center; justify-content: space-between; padding: 0 26px; color: #111; font-size: 15px; font-weight: 700; text-transform: uppercase; cursor: pointer; list-style: none; }
+      .mobile-menu-list summary::-webkit-details-marker { display: none; }
+      .mobile-menu-list details a { min-height: 54px; padding-left: 44px; font-size: 13px; }
+      .support-group { border-bottom: 1px solid var(--line); }
+      .support-group summary { min-height: 76px; display: flex; align-items: center; justify-content: space-between; padding: 0 26px; color: #111; font-size: 15px; font-weight: 800; text-transform: uppercase; cursor: pointer; list-style: none; }
+      .support-group summary::-webkit-details-marker { display: none; }
+      .discount-badge { position: absolute; right: 10px; top: 10px; z-index: 4; min-width: 48px; min-height: 30px; display: grid; place-items: center; padding: 0 8px; background: #ff4d00; color: #fff; font-size: 12px; font-weight: 900; box-shadow: 0 6px 16px rgba(0,0,0,.16); }
+      .size-chart { width: 100%; border: 1px solid #111; border-collapse: collapse; background: #fff; color: #111; }
+      .size-chart th, .size-chart td { border: 1px solid #111; padding: 8px; text-align: center; font-size: 12px; }
+      .payment-extra { display: none; gap: 8px; padding: 12px; border: 1px solid var(--line); background: #fafafa; }
+      .payment-extra.open { display: grid; }
       .custom-section { padding: 90px 0; border-bottom: 1px solid var(--line); scroll-margin-top: 24px; }
       .custom-section .eyebrow { margin-bottom: 14px; font-weight: 700; }
       .custom-section h2 { margin: 0; font-size: clamp(56px, 8vw, 104px); line-height: .95; text-transform: uppercase; }
@@ -542,9 +557,9 @@
       <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
       <aside class="mobile-menu" id="mobileMenu" aria-label="Menu mobile" aria-hidden="true">
         <div class="mobile-menu-head">
-          <div class="mobile-menu-tabs" role="tablist" aria-label="Menu categories">
+          <div class="mobile-menu-tabs" id="mobileMenuTabs" role="tablist" aria-label="Menu categories">
             <button class="mobile-menu-tab active" type="button" role="tab" aria-selected="true" data-menu-tab="menu">Menu</button>
-            <button class="mobile-menu-tab" type="button" role="tab" aria-selected="false" data-menu-tab="support">Liên hệ hỗ trợ</button>
+            <button class="mobile-menu-tab" type="button" role="tab" aria-selected="false" data-menu-tab="support">Liên hệ / Đơn sỉ</button>
           </div>
           <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Đóng menu">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6 6 18"/></svg>
@@ -552,18 +567,34 @@
         </div>
         <div class="mobile-menu-panel active" data-menu-panel="menu">
           <ul class="mobile-menu-list">
-            <li><a href="#shop" data-menu-filter="new">New Items <span class="mobile-menu-mark">&gt;</span></a></li>
-            <li><a href="#shop" data-menu-filter="best">Best Sellers</a></li>
-            <li><a href="#shop" data-menu-filter="sale">Sale</a></li>
-            <li><a href="#shop" data-menu-filter="gift">Gift Packaging <span class="mobile-menu-mark">&gt;</span></a></li>
+            <li>
+              <details>
+                <summary>Nam <span class="mobile-menu-mark">&gt;</span></summary>
+                <a href="#shop" data-menu-filter="best">Best Sellers</a>
+                <a href="#shop" data-menu-filter="new">New</a>
+                <a href="#shop" data-menu-filter="sale">Sale</a>
+              </details>
+            </li>
+            <li>
+              <details>
+                <summary>Nữ <span class="mobile-menu-mark">&gt;</span></summary>
+                <a href="#shop" data-menu-filter="best">Best Sellers</a>
+                <a href="#shop" data-menu-filter="new">New</a>
+                <a href="#shop" data-menu-filter="sale">Sale</a>
+              </details>
+            </li>
           </ul>
         </div>
         <div class="mobile-menu-panel support-panel" data-menu-panel="support">
-          <div class="support-row"><span>Số điện thoại</span><a href="tel:0900000000">0900 000 000</a></div>
-          <div class="support-row"><span>TikTok</span><a href="https://www.tiktok.com/@blanwhi.official" target="_blank" rel="noreferrer">@blanwhi.official</a></div>
+          <div class="support-row"><span>SDT</span><a href="tel:0900000000">0900 000 000</a></div>
           <div class="support-row"><span>Zalo</span><a href="https://zalo.me/0900000000" target="_blank" rel="noreferrer">zalo.me/0900000000</a></div>
+          <div class="support-row"><span>TikTok</span><a href="https://www.tiktok.com/@blanwhi.official" target="_blank" rel="noreferrer">@blanwhi.official</a></div>
           <div class="support-row"><span>Giờ làm việc</span><strong>9h30 - 20h00, Thứ 2 - Thứ 7</strong></div>
-          <p class="support-note">BLANWHI hỗ trợ tư vấn size, đổi size, kiểm tra đơn hàng và phối set trong giờ làm việc.</p>
+          <details class="support-group">
+            <summary>Đồng phục / Đơn sỉ <span class="mobile-menu-mark">&gt;</span></summary>
+            <div class="support-row"><span>SDT</span><a href="tel:0900000000">0900 000 000</a></div>
+            <div class="support-row"><span>Zalo</span><a href="https://zalo.me/0900000000" target="_blank" rel="noreferrer">zalo.me/0900000000</a></div>
+          </details>
         </div>
       </aside>
       <section class="search-panel" id="searchPanel" aria-label="Tìm kiếm sản phẩm">
@@ -590,13 +621,13 @@
             <p>BLANWHI là shop áo thun basic & minimal, chất liệu chọn lọc, form chuẩn, dành cho mọi phong cách.</p>
             <div class="service-links" aria-label="Dịch vụ BLANWHI">
               <button class="service-link" type="button" id="contactShortcut">
-                <span>Liên hệ</span>
+                <span>Liên hệ / Đơn sỉ</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m14 7 5 5-5 5"/></svg>
               </button>
-              <a class="service-link" href="#custom">
-                <span>Tạo chất riêng của bạn</span>
+              <button class="service-link" type="button" id="genderShortcut">
+                <span>Nam / Nữ</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"/><path d="m7 14 5 5 5-5"/></svg>
-              </a>
+              </button>
             </div>
           </div>
           <div class="stack-scene" aria-label="Chồng áo thun BLANWHI">
@@ -777,7 +808,7 @@
       <div class="cart-head"><h2>Giỏ hàng</h2><button class="icon-button" id="closeCart">×</button></div>
       <div class="cart-items" id="cartItems"></div>
       <div class="cart-foot">
-        <button class="voucher-entry" id="openVoucherPage" type="button">Áp voucher giảm giá tại đây →</button>
+        <button class="voucher-entry" id="openVoucherPage" type="button" hidden>Áp voucher giảm giá tại đây →</button>
         <input id="voucherCode" type="hidden" value="" />
         <textarea class="cart-note" id="cartNote" maxlength="500" placeholder="Ghi chú cho đơn hàng..."></textarea>
         <div class="shipping-picker">
@@ -798,7 +829,7 @@
             </button>
           </div>
         </div>
-        <div class="voucher-note" id="voucherNote">Voucher sẽ tự gợi ý theo tổng đơn và số lượng sản phẩm.</div>
+        <div class="voucher-note" id="voucherNote" hidden>Voucher sẽ tự gợi ý theo tổng đơn và số lượng sản phẩm.</div>
         <div class="line"><span>Tạm tính</span><strong id="subtotalText">0đ</strong></div>
         <div class="line"><span>Giảm giá</span><strong id="discountText">-0đ</strong></div>
         <div class="line"><span>Ship</span><strong id="shippingText">0đ</strong></div>
@@ -832,9 +863,20 @@
             <div class="custom-confirm-area" id="customConfirmArea"></div>
             <div class="pay-grid">
               <label><input type="radio" name="pay" checked /> COD</label>
-              <label><input type="radio" name="pay" /> Thẻ</label>
+              <label><input type="radio" name="pay" value="card" /> Thẻ</label>
               <label><input type="radio" name="pay" /> Chuyển khoản</label>
-              <label><input type="radio" name="pay" /> Ví điện tử</label>
+              <label><input type="radio" name="pay" value="wallet" /> Ví điện tử</label>
+            </div>
+            <div class="payment-extra" id="cardPaymentFields">
+              <input placeholder="Số thẻ" inputmode="numeric" />
+              <input placeholder="Tên chủ thẻ" />
+              <input placeholder="MM/YY" />
+              <input placeholder="CVV" inputmode="numeric" />
+            </div>
+            <div class="payment-extra" id="walletPaymentFields">
+              <input placeholder="Số điện thoại Momo" inputmode="tel" />
+              <button class="secondary" type="button">Liên kết Momo</button>
+              <button class="secondary" type="button">Liên kết ví</button>
             </div>
             <button class="primary" type="submit">Đặt hàng</button>
           </form>
@@ -908,10 +950,7 @@
         ["Half Zip Sweat","880.000đ","Rộng nhẹ, vai rũ vừa","hoodie",["#c9c5bd","#303030","#1f2937"]],
         ["Open Collar Shirt","620.000đ","Boxy sạch, dễ mặc","tee",["#111","#f4f4f2","#59614c"]],
         ["Studio Nylon Shorts","480.000đ","Boxy sạch, dễ mặc","pants",["#303030","#c9c5bd","#1f2937"]],
-        ["Monochrome Layer Jacket","1.390.000đ","Boxy sạch, dễ mặc","jacket",["#111","#dedbd4","#8c8c88"]],
-        ["Premium Gift Box","85.000đ","Hộp cứng tối giản, kèm giấy gói","gift-box",["#111","#dedbd4","#8c8c88"]],
-        ["Personal Message Card","25.000đ","Thiệp viết lời nhắn theo yêu cầu","gift-card",["#111","#f4f4f2","#59614c"]],
-        ["Signature Gift Bag","45.000đ","Túi quà BLANWHI chắc chắn, thanh lịch","gift-bag",["#111","#dedbd4","#c9c5bd"]]
+        ["Monochrome Layer Jacket","1.390.000đ","Boxy sạch, dễ mặc","jacket",["#111","#dedbd4","#8c8c88"]]
       ];
 
       const mockMarkup = (kind, color) => {
@@ -999,6 +1038,7 @@
 
       const visualMarkup = (product) => `
         <button class="product-visual" data-detail="${product.id}" data-swipe="${product.id}" aria-label="Xem chi tiết sản phẩm ${product.name}">
+          ${product.isSale ? `<span class="discount-badge">-${product.salePercent}%</span>` : ""}
           <span class="color-arrow prev" data-color-prev="${product.id}">‹</span>
           <span class="color-arrow next" data-color-next="${product.id}">›</span>
           <span class="color-name">${colorLabel(product.color)}</span>
@@ -1054,7 +1094,6 @@
           <div class="card-actions">
             <button class="quick" data-buy="${product.id}">Mua ngay</button>
             <button class="quick" data-add="${product.id}">Thêm giỏ</button>
-            <button class="quick" data-wholesale="${product.id}">Mua sỉ</button>
           </div>
         </article>
       `;
@@ -1103,7 +1142,6 @@
         if (type === "new") return productData.filter((product) => product.isNew);
         if (type === "best") return productData.filter((product) => product.sold >= 650).sort((a, b) => b.sold - a.sold);
         if (type === "sale") return productData.filter((product) => product.isSale);
-        if (type === "gift") return productData.filter((product) => product.kind.startsWith("gift-"));
         return productData;
       }
       function applyMenuFilter(type) {
@@ -1131,6 +1169,7 @@
       function closeMobileMenu() {
         mobileMenu.classList.remove("open");
         mobileMenuOverlay.classList.remove("open");
+        document.getElementById("mobileMenuTabs")?.classList.remove("contact-only");
         document.body.classList.remove("menu-open");
         menuToggle.setAttribute("aria-expanded", "false");
         mobileMenu.setAttribute("aria-hidden", "true");
@@ -1406,52 +1445,24 @@
               <h2>${product.name}</h2>
               ${priceMarkup(product, true)}
               ${isMessageCard ? "" : `<p class="muted">${productDescription(product)}</p>`}
-              ${isMessageCard ? `
-                <label class="custom-field-label" for="giftMessage">Lời nhắn bạn gửi</label>
-                <textarea class="gift-message" id="giftMessage" maxlength="300" placeholder="Nhập lời nhắn dành cho người nhận...">${product.message || ""}</textarea>
-              ` : isGift ? "" : `<div class="detail-section">
-                <button data-detail-toggle="voucher">Hiển thị voucher và gợi ý combo <span>+</span></button>
-                <div class="detail-panel" id="detail-voucher">
-                  <p><b>Voucher tự động theo tiền đơn:</b> từ 500k giảm 5%, từ 1 triệu giảm 10%, từ 2 triệu freeship + giảm 15%.</p>
-                  <p><b>Gợi ý combo:</b> ${comboText(product.kind)}</p>
-                  <div class="suggestion-actions">
-                    <button class="suggestion-chip" data-combo-suggest="${product.id}:daily">Áo + quần</button>
-                    <button class="suggestion-chip" data-combo-suggest="${product.id}:layer">Hoodie + tee</button>
-                    <button class="suggestion-chip" data-combo-suggest="${product.id}:outer">Jacket + tee</button>
-                    <button class="suggestion-chip" data-combo-suggest="${product.id}:same">2 sản phẩm cùng tone</button>
-                  </div>
-                  <div id="comboSuggestionResult"></div>
-                </div>
-              </div>
-              <div class="detail-section">
-                <button data-detail-toggle="tone">Gợi ý tone màu sáng da <span>+</span></button>
-                <div class="detail-panel" id="detail-tone">
-                  <p>${toneAdvice(product)}</p>
-                  <div class="suggestion-actions">
-                    <button class="suggestion-chip" data-tone-suggest="bright">Tone trắng / ash / stone</button>
-                    <button class="suggestion-chip" data-tone-suggest="contrast">Tone đen / than / navy</button>
-                    <button class="suggestion-chip" data-tone-suggest="soft">Tone xám / stone / olive</button>
-                  </div>
-                  <div id="toneSuggestionResult"></div>
-                </div>
-              </div>
-              <div class="detail-section">
-                <button data-detail-toggle="mix">Gợi ý phối màu quần áo <span>+</span></button>
-                <div class="detail-panel" id="detail-mix">
-                  <p>${styleText(product.color, product.kind)}</p>
-                  <p>Set an toàn: áo trắng + quần đen, áo đen + quần xám/stone, hoodie tối + tee trắng bên trong.</p>
-                  ${suggestionCards(mixProducts(product))}
-                </div>
-              </div>
-              <div class="detail-section">
-                <button data-detail-toggle="size">Tư vấn chọn size trực tuyến <span>+</span></button>
+              ${isGift ? "" : `<div class="detail-section">
+                <button data-detail-toggle="size">Bảng size <span>+</span></button>
                 <div class="detail-panel" id="detail-size">
-                  <div class="size-advisor-form">
-                    <input id="advisorHeight" type="number" placeholder="Chiều cao (cm)" />
-                    <input id="advisorWeight" type="number" placeholder="Cân nặng (kg)" />
-                  </div>
-                  <button class="secondary" id="runSizeAdvisor">Tư vấn size</button>
-                  <div class="size-result" id="sizeAdvisorResult">Nhập chiều cao và cân nặng để shop tư vấn size tự nhiên hơn.</div>
+                  <table class="size-chart" aria-label="Bảng size BLANWHI">
+                    <thead><tr><th>Size</th><th>Chiều cao</th><th>Cân nặng</th><th>Ngực</th></tr></thead>
+                    <tbody>
+                      <tr><td>S</td><td>155-164cm</td><td>45-55kg</td><td>88-94cm</td></tr>
+                      <tr><td>M</td><td>160-170cm</td><td>52-63kg</td><td>94-100cm</td></tr>
+                      <tr><td>L</td><td>168-176cm</td><td>60-72kg</td><td>100-106cm</td></tr>
+                      <tr><td>XL</td><td>174-184cm</td><td>70-85kg</td><td>106-114cm</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="detail-section">
+                <button data-detail-toggle="material">Chất liệu <span>+</span></button>
+                <div class="detail-panel" id="detail-material">
+                  <p>Chất cotton pha spandex mềm, thoáng và có độ co giãn nhẹ. Bề mặt vải mịn, đứng form vừa phải, phù hợp mặc hằng ngày và giữ phom sau nhiều lần giặt.</p>
                 </div>
               </div>`}
             </div>
@@ -1494,7 +1505,7 @@
               </div>
               <div class="variant-actions">
                 <button class="secondary" id="variantCancel">Huỷ</button>
-                <button class="primary" id="variantConfirm">${variantState.mode === "buy" ? "Xem giỏ hàng" : "Thêm vào giỏ hàng"}</button>
+                <button class="primary" id="variantConfirm">Thêm vào giỏ hàng</button>
               </div>
             </div>
           </div>
@@ -2166,9 +2177,15 @@
       mobileMenuOverlay.addEventListener("click", closeMobileMenu);
       const openSupportMenu = () => {
         setMobileMenuPanel("support");
+        document.getElementById("mobileMenuTabs")?.classList.add("contact-only");
         openMobileMenu();
       };
       document.getElementById("contactShortcut").addEventListener("click", openSupportMenu);
+      document.getElementById("genderShortcut").addEventListener("click", () => {
+        setMobileMenuPanel("menu");
+        document.getElementById("mobileMenuTabs")?.classList.remove("contact-only");
+        openMobileMenu();
+      });
       const customState = {
         color: "#111",
         size: "M",
@@ -2513,6 +2530,13 @@
         checkoutModal.classList.remove("open");
         event.currentTarget.reset();
         openOrders();
+      });
+      document.querySelectorAll("input[name='pay']").forEach((input) => {
+        input.addEventListener("change", () => {
+          const selectedPay = document.querySelector("input[name='pay']:checked")?.value || "";
+          document.getElementById("cardPaymentFields").classList.toggle("open", selectedPay === "card");
+          document.getElementById("walletPaymentFields").classList.toggle("open", selectedPay === "wallet");
+        });
       });
       renderCart();
       renderShippingMethod();
