@@ -1585,6 +1585,26 @@
                 <div class="sizes" data-variant-sizes>
                   ${["S", "M", "L", "XL"].map(size => `<button class="${size === variantState.size ? "active" : ""}" data-variant-size="${size}">${size}</button>`).join("")}
                 </div>
+              </div>
+              <div class="detail-section">
+                <button data-variant-toggle="size">Bảng size <span>+</span></button>
+                <div class="detail-panel" id="variant-detail-size">
+                  <table class="size-chart" aria-label="Bảng size BLANWHI">
+                    <thead><tr><th>Size</th><th>Chiều cao</th><th>Cân nặng</th><th>Ngực</th></tr></thead>
+                    <tbody>
+                      <tr><td>S</td><td>155-164cm</td><td>45-55kg</td><td>88-94cm</td></tr>
+                      <tr><td>M</td><td>160-170cm</td><td>52-63kg</td><td>94-100cm</td></tr>
+                      <tr><td>L</td><td>168-176cm</td><td>60-72kg</td><td>100-106cm</td></tr>
+                      <tr><td>XL</td><td>174-184cm</td><td>70-85kg</td><td>106-114cm</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="detail-section">
+                <button data-variant-toggle="material">Chất liệu <span>+</span></button>
+                <div class="detail-panel" id="variant-detail-material">
+                  <p>Chất cotton pha spandex mềm, thoáng và có độ co giãn nhẹ. Bề mặt vải mịn, đứng form vừa phải, phù hợp mặc hằng ngày và giữ phom sau nhiều lần giặt.</p>
+                </div>
               </div>`}
               <div>
                 <p class="muted">Số lượng</p>
@@ -2120,6 +2140,12 @@
         if (qty) {
           variantState.qty = Math.min(999, Math.max(1, variantState.qty + Number(qty.dataset.variantQty)));
           renderVariantModal();
+          return;
+        }
+        const toggle = event.target.closest("[data-variant-toggle]");
+        if (toggle) {
+          const panel = document.getElementById(`variant-detail-${toggle.dataset.variantToggle}`);
+          if (panel) panel.classList.toggle("open");
           return;
         }
         if (event.target.closest("#variantCancel")) closeVariant();
