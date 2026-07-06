@@ -300,16 +300,13 @@ function ProductForm({
   const colorImages = product.colorImages || {};
   const genders = product.genders || ["men", "women"];
   const [newColor, setNewColor] = useState("#111111");
+  const [newSize, setNewSize] = useState("");
   const setColorImage = (color: string, url: string) => {
     onChange({ ...product, colorImages: { ...colorImages, [color]: url } });
   };
   const toggleGender = (gender: string, checked: boolean) => {
     const next = checked ? Array.from(new Set([...genders, gender])) : genders.filter((item) => item !== gender);
     onChange({ ...product, genders: next.length ? next : ["men", "women"] });
-  };
-  const updateSwatches = (value: string) => {
-    const swatches = value.split(",").map((item) => item.trim()).filter(Boolean);
-    updateProductColors(swatches);
   };
   const updateProductColors = (swatches: string[]) => {
     const nextColorImages = swatches.reduce<Record<string, string>>((images, color) => {
@@ -325,6 +322,16 @@ function ProductForm({
   };
   const removeColor = (color: string) => {
     updateProductColors(product.swatches.filter((item) => item !== color));
+  };
+  const addSize = () => {
+    const size = newSize.trim().toUpperCase();
+    if (!size || product.sizes.includes(size)) return;
+    set("sizes", [...product.sizes, size]);
+    setNewSize("");
+  };
+  const removeSize = (size: string) => {
+    const nextSizes = product.sizes.filter((item) => item !== size);
+    set("sizes", nextSizes.length ? nextSizes : product.sizes);
   };
 
   return (
@@ -353,8 +360,6 @@ function ProductForm({
             <option value="gift-bag">Gift bag</option>
           </select>
         </label>
-        <Text label="Màu sắc, cách nhau bằng dấu phẩy" value={product.swatches.join(", ")} onChange={updateSwatches} />
-        <Text label="Size, cách nhau bằng dấu phẩy" value={product.sizes.join(", ")} onChange={(value) => set("sizes", value.split(",").map((item) => item.trim()).filter(Boolean))} />
         <Text label="Ảnh sản phẩm URL" value={product.image} onChange={(value) => set("image", value)} />
         <label className="text-sm">
           Upload ảnh sản phẩm
@@ -376,6 +381,41 @@ function ProductForm({
       <div className="mt-5 border-t pt-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
+            <h4 className="text-sm font-semibold uppercase">Phân loại size</h4>
+            <p className="mt-1 text-xs text-neutral-500">Nhập từng size rồi bấm thêm. Không cần dùng dấu phẩy.</p>
+          </div>
+          <div className="flex items-end gap-2">
+            <label className="text-xs uppercase text-neutral-500">
+              Thêm size
+              <input
+                value={newSize}
+                onChange={(event) => setNewSize(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    addSize();
+                  }
+                }}
+                placeholder="S, M, L, XL..."
+                className="mt-1 h-10 w-36 border px-3 text-sm normal-case"
+              />
+            </label>
+            <button type="button" onClick={addSize} className="h-10 border border-black px-4 text-xs uppercase">Thêm size</button>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {product.sizes.map((size) => (
+            <span key={size} className="inline-flex h-10 items-center gap-2 border border-neutral-300 px-3 text-sm">
+              <strong>{size}</strong>
+              <button type="button" onClick={() => removeSize(size)} className="text-[10px] uppercase text-red-600">Xóa</button>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 border-t pt-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
             <h4 className="text-sm font-semibold uppercase">Màu và ảnh theo từng màu</h4>
             <p className="mt-1 text-xs text-neutral-500">Chọn màu, bấm thêm màu, rồi upload ảnh riêng cho từng màu. Nếu để trống ảnh màu, website sẽ dùng ảnh chung.</p>
           </div>
@@ -384,7 +424,17 @@ function ProductForm({
               Thêm màu
               <span className="mt-1 flex h-10 items-center gap-2 border px-2">
                 <input type="color" value={newColor} onChange={(event) => setNewColor(event.target.value)} className="h-7 w-8 border-0 p-0" />
-                <input value={newColor} onChange={(event) => setNewColor(event.target.value)} className="h-8 w-24 border px-2 text-sm normal-case" />
+                <input
+                  value={newColor}
+                  onChange={(event) => setNewColor(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addColor();
+                    }
+                  }}
+                  className="h-8 w-24 border px-2 text-sm normal-case"
+                />
               </span>
             </label>
             <button type="button" onClick={addColor} className="h-10 border border-black px-4 text-xs uppercase">Thêm màu</button>
