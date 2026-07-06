@@ -204,8 +204,9 @@
       .product-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
       .product-tag { border: 1px solid #111; padding: 4px 7px; font-size: 10px; font-weight: 800; line-height: 1; text-transform: uppercase; color: #111; background: #fff; }
       .product-tag.sale { background: #111; color: #fff; }
-      .swatches { display: flex; gap: 5px; margin-top: 10px; }
-      .swatches button { width: 18px; height: 18px; padding: 0; border: 1px solid #aaa; display: block; cursor: pointer; }
+      .swatches { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+      .swatches button { width: 22px; height: 22px; padding: 0; border: 1px solid #aaa; display: grid; place-items: center; cursor: pointer; overflow: hidden; background-size: cover; background-position: center; color: #111; font-size: 9px; font-weight: 800; text-transform: uppercase; }
+      .swatches button img { width: 100%; height: 100%; object-fit: cover; display: block; }
       .swatches button.active { outline: 2px solid #111; outline-offset: 2px; }
       .sizes { display: flex; gap: 4px; margin-top: 10px; }
       .sizes button { border: 1px solid var(--line); background: #fff; min-width: 27px; height: 27px; display: grid; place-items: center; font-size: 11px; }
@@ -1047,7 +1048,7 @@
         if (kind === "hoodie") return dark ? "Đi cùng quần xám tro hoặc stone, giày trắng là set an toàn." : "Đi cùng quần đen, túi đen, giữ tổng thể lạnh và tối giản.";
         return dark ? "Áo tối màu hợp quần stone/xám, làm da sáng và outfit có chiều sâu." : "Áo sáng màu hợp quần đen/charcoal, nhìn clean và cao cấp.";
       };
-      const colorLabel = (color) => ({
+      const defaultColorLabel = (color) => ({
         "#111": "Đen",
         "#050505": "Đen",
         "#303030": "Than",
@@ -1058,22 +1059,29 @@
         "#59614c": "Olive",
         "#1f2937": "Navy"
       }[color] || "Tone");
+      const colorLabel = (color, product) => product?.colorNames?.[color] || defaultColorLabel(color);
 
       const productImageUrl = (product, color = product.color) => {
         const colorImage = product.colorImages?.[color];
         return colorImage || product.image || "";
       };
+      const swatchMarkup = (product, color, index, attribute) => {
+        const image = product.colorImages?.[color] || "";
+        const label = colorLabel(color, product);
+        const content = image ? `<img src="${escapeMarkup(image)}" alt="${escapeMarkup(label)}" />` : "";
+        return `<button type="button" class="${index === product.colorIndex ? "active" : ""}" ${attribute} style="background:${color}" aria-label="Chọn màu ${escapeMarkup(label)} cho ${escapeMarkup(product.name)}" title="${escapeMarkup(label)}">${content}</button>`;
+      };
       const productVisualMedia = (product, color = product.color) => {
         const image = productImageUrl(product, color);
         return image
-          ? `<img class="product-photo" src="${escapeMarkup(image)}" alt="${escapeMarkup(product.name)} ${escapeMarkup(colorLabel(color))}" />`
+          ? `<img class="product-photo" src="${escapeMarkup(image)}" alt="${escapeMarkup(product.name)} ${escapeMarkup(colorLabel(color, product))}" />`
           : mockMarkup(product.kind, color);
       };
       const productVisualInnerMarkup = (product) => `
         ${product.isSale ? `<span class="discount-badge">-${product.salePercent}%</span>` : ""}
         <span class="color-arrow prev" data-color-prev="${product.id}">‹</span>
         <span class="color-arrow next" data-color-next="${product.id}">›</span>
-        <span class="color-name">${colorLabel(product.color)}</span>
+        <span class="color-name">${colorLabel(product.color, product)}</span>
         ${productVisualMedia(product)}
       `;
       const visualMarkup = (product) => `
@@ -1101,7 +1109,7 @@
         product.fit,
         product.kind,
         product.price,
-        product.swatches.map(colorLabel).join(" "),
+        product.swatches.map((color) => colorLabel(color, product)).join(" "),
         kindKeywords[product.kind] || "",
         "cotton spandex form mau sac"
       ].join(" "));
@@ -1121,7 +1129,7 @@
           ${visualMarkup(product)}
           <div class="meta"><div><b>${product.name}</b><div class="muted">${product.fit}</div></div>${priceMarkup(product)}</div>
           <div class="product-tags">${productTags(product)}</div>
-          <div class="swatches" data-swatches="${product.id}">${product.swatches.map((color, index) => `<button type="button" class="${index === product.colorIndex ? "active" : ""}" data-card-color="${product.id}:${index}" style="background:${color}" aria-label="Chọn màu ${colorLabel(color)} cho ${product.name}" title="${colorLabel(color)}"></button>`).join("")}</div>
+          <div class="swatches" data-swatches="${product.id}">${product.swatches.map((color, index) => swatchMarkup(product, color, index, `data-card-color="${product.id}:${index}"`)).join("")}</div>
           ${product.kind.startsWith("gift-") ? `<div class="muted">Gói quà tiêu chuẩn BLANWHI</div>` : `
             <div class="sizes" data-size-group="${product.id}">
               ${(product.sizes || ["S", "M", "L", "XL"]).map(size => `<button class="${size === product.size ? "active" : ""}" data-size="${product.id}:${size}">${size}</button>`).join("")}
@@ -1237,6 +1245,7 @@
           color: swatches[0],
           colorIndex: 0,
           image: product.image || "",
+          colorNames: product.colorNames && typeof product.colorNames === "object" ? product.colorNames : {},
           colorImages: product.colorImages && typeof product.colorImages === "object" ? product.colorImages : {},
           sizes: Array.isArray(product.sizes) && product.sizes.length ? product.sizes : ["S", "M", "L", "XL"],
           size: (Array.isArray(product.sizes) && product.sizes[0]) || "M",
@@ -1446,7 +1455,7 @@
       function openZoom(product, color = product.color) {
         zoomContent.innerHTML = `
           <div class="product-visual">${productVisualMedia(product, color)}</div>
-          <div class="zoom-caption"><strong>${product.name}</strong><span>${colorLabel(color)}</span></div>
+          <div class="zoom-caption"><strong>${product.name}</strong><span>${colorLabel(color, product)}</span></div>
         `;
         zoomModal.classList.add("open");
       }
@@ -1576,7 +1585,7 @@
           <article class="suggestion-card">
             <div class="product-visual">${mockMarkup(item.kind, item.color)}</div>
             <h4>${item.name}</h4>
-            <p>${priceMarkup(item)} · ${colorLabel(item.color)}</p>
+            <p>${priceMarkup(item)} · ${colorLabel(item.color, item)}</p>
             <div class="mini-actions">
               <button data-suggest-add="${item.id}:${item.color}">Thêm giỏ</button>
               <button data-suggest-buy="${item.id}:${item.color}">Mua</button>
@@ -1597,10 +1606,10 @@
                 <div class="product-visual">${productVisualMedia(product)}</div>
               </button>
               <div class="swatches" data-detail-swatches="${product.id}" style="margin-top:14px">
-                ${product.swatches.map((color, index) => `<button type="button" class="${index === product.colorIndex ? "active" : ""}" data-detail-color="${product.id}:${index}" style="background:${color}" aria-label="Xem màu ${colorLabel(color)} của ${product.name}" title="${colorLabel(color)}"></button>`).join("")}
+                ${product.swatches.map((color, index) => swatchMarkup(product, color, index, `data-detail-color="${product.id}:${index}"`)).join("")}
               </div>
               ${isGift ? "" : `<div class="sizes" data-size-group="${product.id}" style="margin-top:14px">
-                ${["S", "M", "L", "XL"].map(size => `<button class="${size === product.size ? "active" : ""}" data-size="${product.id}:${size}">${size}</button>`).join("")}
+                ${(product.sizes || ["S", "M", "L", "XL"]).map(size => `<button class="${size === product.size ? "active" : ""}" data-size="${product.id}:${size}">${size}</button>`).join("")}
               </div>`}
               <button class="quick" data-buy="${product.id}">Mua ngay</button>
             </div>
@@ -1649,13 +1658,13 @@
               <div>
                 <p class="muted">Màu sắc</p>
                 <div class="swatches" data-variant-colors>
-                  ${product.swatches.map((swatch, index) => `<button type="button" class="${index === variantState.colorIndex ? "active" : ""}" data-variant-color="${index}" style="background:${swatch}" aria-label="Chọn màu ${colorLabel(swatch)}" title="${colorLabel(swatch)}"></button>`).join("")}
+                  ${product.swatches.map((swatch, index) => swatchMarkup({ ...product, colorIndex: variantState.colorIndex }, swatch, index, `data-variant-color="${index}"`)).join("")}
                 </div>
               </div>
               ${product.kind.startsWith("gift-") ? `<div><p class="muted">Loại</p><strong>Gift Packaging</strong></div>` : `<div>
                 <p class="muted">Size</p>
                 <div class="sizes" data-variant-sizes>
-                  ${["S", "M", "L", "XL"].map(size => `<button class="${size === variantState.size ? "active" : ""}" data-variant-size="${size}">${size}</button>`).join("")}
+                  ${(product.sizes || ["S", "M", "L", "XL"]).map(size => `<button class="${size === variantState.size ? "active" : ""}" data-variant-size="${size}">${size}</button>`).join("")}
                 </div>
               </div>
               <div class="detail-section">
@@ -1723,7 +1732,7 @@
         wholesaleContent.innerHTML = `
           <div class="wholesale-product">
             <div class="product-visual">${mockMarkup(product.kind, product.color)}</div>
-            <div><h3>${product.name}</h3><p class="muted">${colorLabel(product.color)} · Size ${product.size}</p></div>
+            <div><h3>${product.name}</h3><p class="muted">${colorLabel(product.color, product)} · Size ${product.size}</p></div>
           </div>
           <div class="wholesale-grid">
             <div class="wholesale-column">
@@ -1868,7 +1877,7 @@
       function customConfirmationMarkup(item) {
         return `
           <article class="custom-confirm-card">
-            <div><strong>${item.name}</strong><p class="custom-confirm-meta">${colorLabel(item.color)} · Size ${item.size} · ${item.qty} áo</p></div>
+            <div><strong>${item.name}</strong><p class="custom-confirm-meta">${colorLabel(item.color, item)} · Size ${item.size} · ${item.qty} áo</p></div>
             <div class="custom-confirm-grid">
               ${customDesignSideMarkup(item, "front", "Mặt trước")}
               ${customDesignSideMarkup(item, "back", "Mặt sau")}

@@ -10,6 +10,7 @@ export type CmsProduct = {
   swatches: string[];
   sizes: string[];
   image: string;
+  colorNames?: Record<string, string>;
   colorImages?: Record<string, string>;
   sold: number;
   genders?: string[];
@@ -108,6 +109,7 @@ export const defaultSiteContent: SiteContent = {
     swatches: swatches as string[],
     sizes: ["S", "M", "L", "XL"],
     image: "",
+    colorNames: {},
     genders: index % 3 === 0 ? ["women"] : index % 3 === 1 ? ["men"] : ["men", "women"],
     sold: [680, 740, 180, 520, 860, 330, 790, 610, 420, 260, 310, 240, 700, 360, 450, 580, 820, 390, 300, 650][index] || 0,
     isBestSeller: ([680, 740, 180, 520, 860, 330, 790, 610, 420, 260, 310, 240, 700, 360, 450, 580, 820, 390, 300, 650][index] || 0) >= 650,
@@ -132,6 +134,8 @@ export async function readSiteContent(): Promise<SiteContent> {
     return {
       ...fallback,
       ...product,
+      colorNames: product.colorNames && typeof product.colorNames === "object" ? product.colorNames : (fallback.colorNames || {}),
+      colorImages: product.colorImages && typeof product.colorImages === "object" ? product.colorImages : (fallback.colorImages || {}),
       genders: product.genders && product.genders.length ? product.genders : (fallback.genders || ["men", "women"]),
       isBestSeller: product.isBestSeller === undefined ? Boolean(fallback.isBestSeller || product.sold >= 650) : product.isBestSeller
     };

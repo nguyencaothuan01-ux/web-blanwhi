@@ -13,6 +13,7 @@ const emptyProduct: CmsProduct = {
   swatches: ["#111", "#f4f4f2"],
   sizes: ["S", "M", "L", "XL"],
   image: "",
+  colorNames: {},
   colorImages: {},
   sold: 0,
   genders: ["men", "women"],
@@ -297,28 +298,43 @@ function ProductForm({
   onUpload: (event: ChangeEvent<HTMLInputElement>, onUrl: (url: string) => void) => void;
 }) {
   const set = <K extends keyof CmsProduct>(key: K, value: CmsProduct[K]) => onChange({ ...product, [key]: value });
+  const colorNames = product.colorNames || {};
   const colorImages = product.colorImages || {};
   const genders = product.genders || ["men", "women"];
   const [newColor, setNewColor] = useState("#111111");
+  const [newColorName, setNewColorName] = useState("");
   const [newSize, setNewSize] = useState("");
   const setColorImage = (color: string, url: string) => {
     onChange({ ...product, colorImages: { ...colorImages, [color]: url } });
+  };
+  const setColorName = (color: string, name: string) => {
+    onChange({ ...product, colorNames: { ...colorNames, [color]: name } });
   };
   const toggleGender = (gender: string, checked: boolean) => {
     const next = checked ? Array.from(new Set([...genders, gender])) : genders.filter((item) => item !== gender);
     onChange({ ...product, genders: next.length ? next : ["men", "women"] });
   };
   const updateProductColors = (swatches: string[]) => {
+    const nextColorNames = swatches.reduce<Record<string, string>>((names, color) => {
+      if (colorNames[color]) names[color] = colorNames[color];
+      return names;
+    }, {});
     const nextColorImages = swatches.reduce<Record<string, string>>((images, color) => {
       if (colorImages[color]) images[color] = colorImages[color];
       return images;
     }, {});
-    onChange({ ...product, swatches, colorImages: nextColorImages });
+    onChange({ ...product, swatches, colorNames: nextColorNames, colorImages: nextColorImages });
   };
   const addColor = () => {
     const color = newColor.trim();
     if (!color || product.swatches.includes(color)) return;
-    updateProductColors([...product.swatches, color]);
+    onChange({
+      ...product,
+      swatches: [...product.swatches, color],
+      colorNames: { ...colorNames, [color]: newColorName.trim() || colorNames[color] || "Màu mới" },
+      colorImages
+    });
+    setNewColorName("");
   };
   const removeColor = (color: string) => {
     updateProductColors(product.swatches.filter((item) => item !== color));
@@ -417,11 +433,26 @@ function ProductForm({
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h4 className="text-sm font-semibold uppercase">Màu và ảnh theo từng màu</h4>
-            <p className="mt-1 text-xs text-neutral-500">Chọn màu, bấm thêm màu, rồi upload ảnh riêng cho từng màu. Nếu để trống ảnh màu, website sẽ dùng ảnh chung.</p>
+            <p className="mt-1 text-xs text-neutral-500">Chọn mã màu để hiển thị, sửa tên màu theo ý shop, rồi upload ảnh riêng cho từng màu.</p>
           </div>
-          <div className="flex items-end gap-2">
+          <div className="flex flex-wrap items-end gap-2">
             <label className="text-xs uppercase text-neutral-500">
-              Thêm màu
+              Tên màu
+              <input
+                value={newColorName}
+                onChange={(event) => setNewColorName(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    addColor();
+                  }
+                }}
+                placeholder="Đen, kem, nâu..."
+                className="mt-1 h-10 w-36 border px-3 text-sm normal-case"
+              />
+            </label>
+            <label className="text-xs uppercase text-neutral-500">
+              Mã màu hiển thị
               <span className="mt-1 flex h-10 items-center gap-2 border px-2">
                 <input type="color" value={newColor} onChange={(event) => setNewColor(event.target.value)} className="h-7 w-8 border-0 p-0" />
                 <input
@@ -445,10 +476,14 @@ function ProductForm({
             <div key={color} className="grid gap-3 border border-neutral-200 p-3 md:grid-cols-[120px_1fr]">
               <div className="flex flex-wrap items-center gap-2 text-sm md:block">
                 <span className="inline-block h-7 w-7 border border-neutral-300 align-middle" style={{ backgroundColor: color }} />
-                <strong className="ml-2 align-middle md:ml-0 md:mt-2 md:block">{color}</strong>
+                <strong className="ml-2 align-middle md:ml-0 md:mt-2 md:block">{colorNames[color] || color}</strong>
+                <span className="block text-xs text-neutral-500">{color}</span>
                 <button type="button" onClick={() => removeColor(color)} className="border border-red-500 px-2 py-1 text-[10px] uppercase text-red-600 md:mt-3">Xóa màu</button>
               </div>
               <div>
+                <label className="mb-2 block text-xs uppercase text-neutral-500">Tên màu hiển thị cho khách</label>
+                <input value={colorNames[color] || ""} onChange={(event) => setColorName(color, event.target.value)} placeholder="Ví dụ: Đen, Kem, Nâu cafe..." className="mb-3 h-10 w-full border px-3 text-sm" />
+                <label className="mb-2 block text-xs uppercase text-neutral-500">Ảnh cho màu này</label>
                 <input value={colorImages[color] || ""} onChange={(event) => setColorImage(color, event.target.value)} placeholder="URL ảnh cho màu này" className="h-10 w-full border px-3 text-sm" />
                 <input type="file" accept="image/*" onChange={(event) => onUpload(event, (url) => setColorImage(color, url))} className="mt-2 block text-xs" />
                 {colorImages[color] && <img src={colorImages[color]} alt={`${product.name} ${color}`} className="mt-3 aspect-[4/3] max-h-56 w-full object-cover" />}
