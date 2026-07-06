@@ -3,6 +3,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "preserve:live-site": "node scripts/preserve-live-site.mjs",
     "lint": "next lint"
   },
   "dependencies": {
