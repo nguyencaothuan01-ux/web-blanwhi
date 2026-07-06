@@ -602,14 +602,14 @@
           </ul>
         </div>
         <div class="mobile-menu-panel support-panel" data-menu-panel="support">
-          <div class="support-row"><span>SDT</span><a href="tel:0900000000">0900 000 000</a></div>
-          <div class="support-row"><span>Zalo</span><a href="https://zalo.me/0900000000" target="_blank" rel="noreferrer">zalo.me/0900000000</a></div>
-          <div class="support-row"><span>TikTok</span><a href="https://www.tiktok.com/@blanwhi.official" target="_blank" rel="noreferrer">@blanwhi.official</a></div>
-          <div class="support-row"><span>Giờ làm việc</span><strong>9h30 - 20h00, Thứ 2 - Thứ 7</strong></div>
+          <div class="support-row"><span data-cms-support-phone-label>SDT</span><a href="tel:0900000000" data-cms-support-phone>0900 000 000</a></div>
+          <div class="support-row"><span data-cms-support-zalo-label>Zalo</span><a href="https://zalo.me/0900000000" target="_blank" rel="noreferrer" data-cms-support-zalo>zalo.me/0900000000</a></div>
+          <div class="support-row"><span data-cms-support-tiktok-label>TikTok</span><a href="https://www.tiktok.com/@blanwhi.official" target="_blank" rel="noreferrer" data-cms-support-tiktok>@blanwhi.official</a></div>
+          <div class="support-row"><span data-cms-support-hours-label>Giờ làm việc</span><strong data-cms-support-hours>9h30 - 20h00, Thứ 2 - Thứ 7</strong></div>
           <details class="support-group">
-            <summary>Đồng phục / Đơn sỉ <span class="mobile-menu-mark">&gt;</span></summary>
-            <div class="support-row"><span>SDT</span><a href="tel:0900000000">0900 000 000</a></div>
-            <div class="support-row"><span>Zalo</span><a href="https://zalo.me/0900000000" target="_blank" rel="noreferrer">zalo.me/0900000000</a></div>
+            <summary><span data-cms-wholesale-title>Đồng phục / Đơn sỉ</span> <span class="mobile-menu-mark">&gt;</span></summary>
+            <div class="support-row"><span data-cms-wholesale-phone-label>SDT</span><a href="tel:0900000000" data-cms-wholesale-phone>0900 000 000</a></div>
+            <div class="support-row"><span data-cms-wholesale-zalo-label>Zalo</span><a href="https://zalo.me/0900000000" target="_blank" rel="noreferrer" data-cms-wholesale-zalo>zalo.me/0900000000</a></div>
           </details>
         </div>
       </aside>
@@ -1271,6 +1271,15 @@
 
       function applySiteContent(content) {
         if (!content) return;
+        const setText = (selector, value) => {
+          document.querySelectorAll(selector).forEach((node) => node.textContent = value || "");
+        };
+        const setLink = (selector, text, href) => {
+          document.querySelectorAll(selector).forEach((node) => {
+            node.textContent = text || "";
+            node.href = href || "#";
+          });
+        };
         if (content.brand) {
           document.querySelectorAll("[data-cms-brand]").forEach((node) => node.textContent = content.brand.name || "BLANWHI");
           document.querySelectorAll("[data-cms-logo]").forEach((node) => node.src = content.brand.logoUrl || "/umbrella-logo.png");
@@ -1298,6 +1307,21 @@
           document.querySelectorAll("[data-cms-sale-label]").forEach((node) => node.textContent = content.menu.saleLabel || "Sale");
           document.querySelectorAll("[data-cms-contact-shortcut]").forEach((node) => node.textContent = content.menu.contactShortcutLabel || "Liên hệ / Đơn sỉ");
           document.querySelectorAll("[data-cms-gender-shortcut]").forEach((node) => node.textContent = content.menu.genderShortcutLabel || "Nam / Nữ");
+        }
+        if (content.support) {
+          setText("[data-cms-support-phone-label]", content.support.phoneLabel || "SDT");
+          setLink("[data-cms-support-phone]", content.support.phoneText || "0900 000 000", content.support.phoneHref || "tel:0900000000");
+          setText("[data-cms-support-zalo-label]", content.support.zaloLabel || "Zalo");
+          setLink("[data-cms-support-zalo]", content.support.zaloText || "zalo.me/0900000000", content.support.zaloHref || "https://zalo.me/0900000000");
+          setText("[data-cms-support-tiktok-label]", content.support.tiktokLabel || "TikTok");
+          setLink("[data-cms-support-tiktok]", content.support.tiktokText || "@blanwhi.official", content.support.tiktokHref || "https://www.tiktok.com/@blanwhi.official");
+          setText("[data-cms-support-hours-label]", content.support.hoursLabel || "Giờ làm việc");
+          setText("[data-cms-support-hours]", content.support.hoursText || "9h30 - 20h00, Thứ 2 - Thứ 7");
+          setText("[data-cms-wholesale-title]", content.support.wholesaleTitle || "Đồng phục / Đơn sỉ");
+          setText("[data-cms-wholesale-phone-label]", content.support.wholesalePhoneLabel || "SDT");
+          setLink("[data-cms-wholesale-phone]", content.support.wholesalePhoneText || "0900 000 000", content.support.wholesalePhoneHref || "tel:0900000000");
+          setText("[data-cms-wholesale-zalo-label]", content.support.wholesaleZaloLabel || "Zalo");
+          setLink("[data-cms-wholesale-zalo]", content.support.wholesaleZaloText || "zalo.me/0900000000", content.support.wholesaleZaloHref || "https://zalo.me/0900000000");
         }
         if (Array.isArray(content.footerColumns)) {
           const footerGrid = document.querySelector(".footer-grid");

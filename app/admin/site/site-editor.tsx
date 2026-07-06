@@ -204,6 +204,28 @@ export function SiteEditor() {
             <Text label="Nút Liên hệ / Đơn sỉ ở hero" value={content.menu.contactShortcutLabel} onChange={(value) => updateContent({ ...content, menu: { ...content.menu, contactShortcutLabel: value } })} />
             <Text label="Nút Nam / Nữ ở hero" value={content.menu.genderShortcutLabel} onChange={(value) => updateContent({ ...content, menu: { ...content.menu, genderShortcutLabel: value } })} />
           </div>
+
+          <div className="border border-neutral-200 p-4">
+            <h2 className="text-sm font-semibold uppercase">Thông tin liên hệ / đơn sỉ</h2>
+            <Text label="Nhãn số điện thoại" value={content.support.phoneLabel} onChange={(value) => updateContent({ ...content, support: { ...content.support, phoneLabel: value } })} />
+            <Text label="Số điện thoại hiển thị" value={content.support.phoneText} onChange={(value) => updateContent({ ...content, support: { ...content.support, phoneText: value } })} />
+            <Text label="Link số điện thoại" value={content.support.phoneHref} onChange={(value) => updateContent({ ...content, support: { ...content.support, phoneHref: value } })} />
+            <Text label="Nhãn Zalo" value={content.support.zaloLabel} onChange={(value) => updateContent({ ...content, support: { ...content.support, zaloLabel: value } })} />
+            <Text label="Zalo hiển thị" value={content.support.zaloText} onChange={(value) => updateContent({ ...content, support: { ...content.support, zaloText: value } })} />
+            <Text label="Link Zalo" value={content.support.zaloHref} onChange={(value) => updateContent({ ...content, support: { ...content.support, zaloHref: value } })} />
+            <Text label="Nhãn TikTok" value={content.support.tiktokLabel} onChange={(value) => updateContent({ ...content, support: { ...content.support, tiktokLabel: value } })} />
+            <Text label="TikTok hiển thị" value={content.support.tiktokText} onChange={(value) => updateContent({ ...content, support: { ...content.support, tiktokText: value } })} />
+            <Text label="Link TikTok" value={content.support.tiktokHref} onChange={(value) => updateContent({ ...content, support: { ...content.support, tiktokHref: value } })} />
+            <Text label="Nhãn giờ làm việc" value={content.support.hoursLabel} onChange={(value) => updateContent({ ...content, support: { ...content.support, hoursLabel: value } })} />
+            <Text label="Giờ làm việc" value={content.support.hoursText} onChange={(value) => updateContent({ ...content, support: { ...content.support, hoursText: value } })} />
+            <Text label="Tiêu đề mục đơn sỉ" value={content.support.wholesaleTitle} onChange={(value) => updateContent({ ...content, support: { ...content.support, wholesaleTitle: value } })} />
+            <Text label="Nhãn SĐT đơn sỉ" value={content.support.wholesalePhoneLabel} onChange={(value) => updateContent({ ...content, support: { ...content.support, wholesalePhoneLabel: value } })} />
+            <Text label="SĐT đơn sỉ hiển thị" value={content.support.wholesalePhoneText} onChange={(value) => updateContent({ ...content, support: { ...content.support, wholesalePhoneText: value } })} />
+            <Text label="Link SĐT đơn sỉ" value={content.support.wholesalePhoneHref} onChange={(value) => updateContent({ ...content, support: { ...content.support, wholesalePhoneHref: value } })} />
+            <Text label="Nhãn Zalo đơn sỉ" value={content.support.wholesaleZaloLabel} onChange={(value) => updateContent({ ...content, support: { ...content.support, wholesaleZaloLabel: value } })} />
+            <Text label="Zalo đơn sỉ hiển thị" value={content.support.wholesaleZaloText} onChange={(value) => updateContent({ ...content, support: { ...content.support, wholesaleZaloText: value } })} />
+            <Text label="Link Zalo đơn sỉ" value={content.support.wholesaleZaloHref} onChange={(value) => updateContent({ ...content, support: { ...content.support, wholesaleZaloHref: value } })} />
+          </div>
         </aside>
 
         <section className="grid gap-5">

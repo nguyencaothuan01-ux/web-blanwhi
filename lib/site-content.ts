@@ -45,6 +45,26 @@ export type SiteContent = {
     contactShortcutLabel: string;
     genderShortcutLabel: string;
   };
+  support: {
+    phoneLabel: string;
+    phoneText: string;
+    phoneHref: string;
+    zaloLabel: string;
+    zaloText: string;
+    zaloHref: string;
+    tiktokLabel: string;
+    tiktokText: string;
+    tiktokHref: string;
+    hoursLabel: string;
+    hoursText: string;
+    wholesaleTitle: string;
+    wholesalePhoneLabel: string;
+    wholesalePhoneText: string;
+    wholesalePhoneHref: string;
+    wholesaleZaloLabel: string;
+    wholesaleZaloText: string;
+    wholesaleZaloHref: string;
+  };
   footerColumns: Array<{
     title: string;
     lines: string[];
@@ -74,6 +94,26 @@ export const defaultSiteContent: SiteContent = {
     saleLabel: "Sale",
     contactShortcutLabel: "Liên hệ / Đơn sỉ",
     genderShortcutLabel: "Nam / Nữ"
+  },
+  support: {
+    phoneLabel: "SDT",
+    phoneText: "0900 000 000",
+    phoneHref: "tel:0900000000",
+    zaloLabel: "Zalo",
+    zaloText: "zalo.me/0900000000",
+    zaloHref: "https://zalo.me/0900000000",
+    tiktokLabel: "TikTok",
+    tiktokText: "@blanwhi.official",
+    tiktokHref: "https://www.tiktok.com/@blanwhi.official",
+    hoursLabel: "Giờ làm việc",
+    hoursText: "9h30 - 20h00, Thứ 2 - Thứ 7",
+    wholesaleTitle: "Đồng phục / Đơn sỉ",
+    wholesalePhoneLabel: "SDT",
+    wholesalePhoneText: "0900 000 000",
+    wholesalePhoneHref: "tel:0900000000",
+    wholesaleZaloLabel: "Zalo",
+    wholesaleZaloText: "zalo.me/0900000000",
+    wholesaleZaloHref: "https://zalo.me/0900000000"
   },
   footerColumns: [
     { title: "Company", lines: ["About Us", "Join Us", "Store Locator"] },
@@ -149,6 +189,7 @@ export async function readSiteContent(): Promise<SiteContent> {
     brand: { ...defaultSiteContent.brand, ...saved.brand },
     hero: { ...defaultSiteContent.hero, ...saved.hero },
     menu: { ...defaultSiteContent.menu, ...saved.menu },
+    support: { ...defaultSiteContent.support, ...saved.support },
     footerColumns: saved.footerColumns || defaultSiteContent.footerColumns,
     products
   };
