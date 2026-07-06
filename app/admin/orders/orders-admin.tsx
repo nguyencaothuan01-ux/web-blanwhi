@@ -90,7 +90,9 @@ export function OrdersAdmin({
   const [integrations, setIntegrations] = useState(initialIntegrations);
   const [message, setMessage] = useState("");
   const [busyCode, setBusyCode] = useState("");
-  const [autoSyncText, setAutoSyncText] = useState("Tự động cập nhật đang bật");
+  const [autoSyncText, setAutoSyncText] = useState("Tự động cập nhật nền đang bật");
+  const [isBackgroundRefreshing, setIsBackgroundRefreshing] = useState(false);
+  const [lastBackgroundRefresh, setLastBackgroundRefresh] = useState<Date | null>(null);
   const [stageFilter, setStageFilter] = useState<OrderStage | "all">("all");
   const [expandedOrderCode, setExpandedOrderCode] = useState("");
   const orderListRef = useRef<HTMLElement | null>(null);
@@ -104,10 +106,16 @@ export function OrdersAdmin({
     revenue: orders.filter((order) => order.status === "paid").reduce((sum, order) => sum + order.total, 0)
   }), [orders]);
 
-  async function refreshOrders() {
-    const response = await fetch("/api/orders", { cache: "no-store" });
-    const data = await response.json();
-    setOrders(data.orders || []);
+  async function refreshOrders({ silent = false }: { silent?: boolean } = {}) {
+    if (silent) setIsBackgroundRefreshing(true);
+    try {
+      const response = await fetch("/api/orders", { cache: "no-store" });
+      const data = await response.json();
+      setOrders(data.orders || []);
+      if (silent) setLastBackgroundRefresh(new Date());
+    } finally {
+      if (silent) setIsBackgroundRefreshing(false);
+    }
   }
 
   function selectStage(stage: OrderStage | "all") {
@@ -179,13 +187,13 @@ export function OrdersAdmin({
       const response = await fetch("/api/admin/orders/shipping-sync", { method: "POST" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Không cập nhật được vận chuyển.");
-      await refreshOrders();
+      await refreshOrders({ silent });
       const text = `Đã kiểm tra ${data.checked || 0} đơn: ${data.success || 0} cập nhật thành công, ${data.failed || 0} lỗi.`;
-      setAutoSyncText(`Tự động cập nhật: ${text}`);
+      setAutoSyncText(`Tự động cập nhật nền: ${text}`);
       if (!silent) setMessage(text);
     } catch (error) {
       const text = error instanceof Error ? error.message : "Không cập nhật được vận chuyển.";
-      setAutoSyncText(`Tự động cập nhật: ${text}`);
+      setAutoSyncText(`Tự động cập nhật nền: ${text}`);
       if (!silent) setMessage(text);
     } finally {
       if (!silent) setBusyCode("");
@@ -194,7 +202,8 @@ export function OrdersAdmin({
 
   useEffect(() => {
     const refreshTimer = window.setInterval(() => {
-      refreshOrders().catch(() => undefined);
+      if (document.visibilityState === "hidden") return;
+      refreshOrders({ silent: true }).catch(() => undefined);
     }, 10000);
     const shippingTimer = window.setInterval(() => {
       if (!integrations.shipping.enabled) return;
@@ -216,12 +225,16 @@ export function OrdersAdmin({
         <div className="flex flex-wrap gap-2">
           <Link href="/admin/site" className="h-10 border border-neutral-300 px-4 pt-2 text-xs uppercase">Admin website</Link>
           <button onClick={() => updateAllShipping()} disabled={busyCode === "all-shipping"} className="h-10 border border-black bg-black px-4 text-xs uppercase text-white disabled:opacity-50">Cập nhật tất cả VC</button>
-          <button onClick={refreshOrders} className="h-10 border border-black px-4 text-xs uppercase">Tải lại đơn</button>
+          <button onClick={() => refreshOrders()} className="h-10 border border-black px-4 text-xs uppercase">Tải lại đơn</button>
         </div>
       </header>
 
       {message && <p className="mt-4 border border-neutral-200 bg-neutral-50 p-3 text-sm">{message}</p>}
-      <p className="mt-4 border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{autoSyncText}. Admin tự tải lại mỗi 10 giây, tự hỏi API vận chuyển mỗi 60 giây khi đã bật kết nối.</p>
+      <p className="mt-4 border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+        {autoSyncText}. Dữ liệu đơn được cập nhật nền mỗi 10 giây, không reload trang, không tự cuộn và không đóng đơn đang mở.
+        {lastBackgroundRefresh && <span> Lần cập nhật gần nhất: {lastBackgroundRefresh.toLocaleTimeString("vi-VN")}.</span>}
+        {isBackgroundRefreshing && <span> Đang kiểm tra dữ liệu mới...</span>}
+      </p>
 
       <section className="mt-6 grid gap-3 md:grid-cols-3 lg:grid-cols-9">
         {orderStages.map((stage) => (
