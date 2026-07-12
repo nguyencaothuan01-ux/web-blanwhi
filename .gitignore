@@ -1,5 +1,6 @@
 .next/
 node_modules/
+.pnpm-store/
 out/
 dist/
 .env
@@ -10,3 +11,4 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .vercel
+tsconfig.tsbuildinfo

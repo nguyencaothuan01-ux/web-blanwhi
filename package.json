@@ -4,12 +4,14 @@
     "build": "next build",
     "start": "next start",
     "preserve:live-site": "node scripts/preserve-live-site.mjs",
+    "db:import-json": "node scripts/import-json-to-db.mjs",
     "lint": "next lint"
   },
   "dependencies": {
     "framer-motion": "^12.0.0",
     "lucide-react": "^0.468.0",
     "next": "^15.0.0",
+    "pg": "^8.22.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

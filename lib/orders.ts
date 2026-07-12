@@ -1,24 +1,12 @@
-import { readFile, writeFile } from "fs/promises";
-import { ensureJsonFile } from "@/lib/data-store";
+import { readJsonStore, writeJsonStore } from "@/lib/data-store";
 import { OrderStatus, ShopOrder } from "@/lib/types";
 
-function ensureStore() {
-  return ensureJsonFile<ShopOrder[]>("orders.json", []);
-}
-
 export async function readOrders(): Promise<ShopOrder[]> {
-  const ordersFile = await ensureStore();
-  const raw = await readFile(ordersFile, "utf8");
-  try {
-    return JSON.parse(raw) as ShopOrder[];
-  } catch {
-    return [];
-  }
+  return readJsonStore<ShopOrder[]>("orders.json", []);
 }
 
 export async function writeOrders(orders: ShopOrder[]) {
-  const ordersFile = await ensureStore();
-  await writeFile(ordersFile, JSON.stringify(orders, null, 2), "utf8");
+  await writeJsonStore("orders.json", orders);
 }
 
 export async function createOrder(order: ShopOrder) {

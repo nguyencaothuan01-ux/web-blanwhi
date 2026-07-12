@@ -26,6 +26,7 @@ NEXT_PUBLIC_SITE_URL=https://www.blanwhi.com
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=change-this-strong-password
 ENABLE_DEMO_PAYMENTS=false
+DATABASE_URL=postgresql://...
 
 VNPAY_TMN_CODE=
 VNPAY_HASH_SECRET=
@@ -76,8 +77,24 @@ SHIPPING_CLIENT_ID=
 - Webhook MISA: `https://www.blanwhi.com/api/webhooks/misa`
 - Webhook Pancake: `https://www.blanwhi.com/api/webhooks/pancake`
 
+## Database thật
+
+Web dùng Postgres khi có biến `DATABASE_URL`. Dữ liệu admin được lưu trong bảng `blanwhi_store`, gồm:
+
+- `site-content`: nội dung trang, hình ảnh, sản phẩm, footer, menu.
+- `integrations`: cấu hình thanh toán, vận chuyển, MISA, Pancake POS.
+- `orders`: đơn hàng của khách.
+
+Sau khi tạo database Postgres thật, chạy lệnh import dữ liệu JSON hiện có:
+
+```bash
+DATABASE_URL="postgresql://..." npm run db:import-json
+```
+
+Nếu chưa có `DATABASE_URL`, web vẫn chạy bằng file JSON trong thư mục `data/` để test local.
+
 ## Lưu ý trước khi nhận đơn thật
 
-Hiện dữ liệu đang lưu trong các file JSON trong thư mục `data/`. Cách này ổn để demo/local, nhưng production nên chuyển sang database thật như Supabase/Postgres để đơn hàng, sản phẩm và nội dung admin không bị mất khi server rebuild.
+Production nên luôn khai báo `DATABASE_URL`; nếu không, hosting serverless có thể mất dữ liệu admin/đơn hàng khi server rebuild.
 
 Thanh toán production sẽ không tự chạy demo nếu thiếu key merchant. Cần đăng ký merchant thật với VNPAY/MoMo và điền key trước khi nhận tiền thật.

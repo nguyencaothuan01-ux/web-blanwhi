@@ -1,5 +1,4 @@
-import { readFile, writeFile } from "fs/promises";
-import { ensureJsonFile } from "@/lib/data-store";
+import { readJsonStore, writeJsonStore } from "@/lib/data-store";
 
 export type ShippingProvider = "ghn" | "viettelpost" | "ghtk" | "shopee_express" | "vnpost" | "custom";
 
@@ -83,14 +82,9 @@ export const defaultIntegrationConfig: IntegrationConfig = {
   }
 };
 
-function ensureStore() {
-  return ensureJsonFile<IntegrationConfig>("integrations.json", defaultIntegrationConfig);
-}
-
 export async function readIntegrationConfig(): Promise<IntegrationConfig> {
-  const integrationsFile = await ensureStore();
   try {
-    const saved = JSON.parse(await readFile(integrationsFile, "utf8")) as Partial<IntegrationConfig>;
+    const saved = await readJsonStore<Partial<IntegrationConfig>>("integrations.json", defaultIntegrationConfig);
     return {
       pancake: { ...defaultIntegrationConfig.pancake, ...saved.pancake },
       misa: { ...defaultIntegrationConfig.misa, ...saved.misa },
@@ -107,7 +101,6 @@ export async function readIntegrationConfig(): Promise<IntegrationConfig> {
 }
 
 export async function writeIntegrationConfig(config: IntegrationConfig) {
-  const integrationsFile = await ensureStore();
   const normalized: IntegrationConfig = {
     pancake: { ...defaultIntegrationConfig.pancake, ...config.pancake },
     misa: { ...defaultIntegrationConfig.misa, ...config.misa },
@@ -118,8 +111,7 @@ export async function writeIntegrationConfig(config: IntegrationConfig) {
       zalopay: { ...defaultIntegrationConfig.payment.zalopay, ...config.payment?.zalopay }
     }
   };
-  await writeFile(integrationsFile, JSON.stringify(normalized, null, 2), "utf8");
-  return normalized;
+  return writeJsonStore("integrations.json", normalized);
 }
 
 export function integrationHeaders(token: string) {

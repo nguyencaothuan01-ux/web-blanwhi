@@ -1,5 +1,4 @@
-import { readFile, writeFile } from "fs/promises";
-import { ensureJsonFile } from "@/lib/data-store";
+import { readJsonStore, writeJsonStore } from "@/lib/data-store";
 
 export type CmsProduct = {
   id: string;
@@ -178,14 +177,8 @@ export const defaultSiteContent: SiteContent = {
   }))
 };
 
-function ensureStore() {
-  return ensureJsonFile<SiteContent>("site-content.json", defaultSiteContent);
-}
-
 export async function readSiteContent(): Promise<SiteContent> {
-  const siteContentFile = await ensureStore();
-  const raw = await readFile(siteContentFile, "utf8");
-  const saved = JSON.parse(raw) as Partial<SiteContent>;
+  const saved = await readJsonStore<Partial<SiteContent>>("site-content.json", defaultSiteContent);
   const defaultProductsById = new Map(defaultSiteContent.products.map((product) => [product.id, product]));
   const products = (saved.products || defaultSiteContent.products).map((product) => {
     const fallback = defaultProductsById.get(product.id) || {} as Partial<CmsProduct>;
@@ -218,7 +211,5 @@ export async function readSiteContent(): Promise<SiteContent> {
 }
 
 export async function writeSiteContent(content: SiteContent) {
-  const siteContentFile = await ensureStore();
-  await writeFile(siteContentFile, JSON.stringify(content, null, 2), "utf8");
-  return content;
+  return writeJsonStore("site-content.json", content);
 }
