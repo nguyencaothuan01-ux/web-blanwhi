@@ -25,6 +25,32 @@ const emptyProduct: CmsProduct = {
   active: true
 };
 
+const compressibleImageTypes = new Set(["image/png", "image/jpeg", "image/webp"]);
+
+async function prepareImageForUpload(file: File) {
+  if (!compressibleImageTypes.has(file.type) || file.size <= 2.5 * 1024 * 1024) return file;
+
+  const bitmap = await createImageBitmap(file);
+  const maxSide = 1800;
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+  const width = Math.max(1, Math.round(bitmap.width * scale));
+  const height = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) return file;
+
+  context.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.82));
+  if (!blob || blob.size >= file.size) return file;
+
+  const name = file.name.replace(/\.[^.]+$/, "") || "blanwhi-image";
+  return new File([blob], `${name}.webp`, { type: "image/webp" });
+}
+
 export function SiteEditor() {
   const [content, setContent] = useState<SiteContent | null>(null);
   const [selectedId, setSelectedId] = useState("");
@@ -94,8 +120,9 @@ export function SiteEditor() {
     if (!file) return;
     setMessage("Đang upload ảnh...");
     try {
+      const uploadFile = await prepareImageForUpload(file);
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", uploadFile);
       const response = await fetch("/api/admin/upload", { method: "POST", body: form });
       const result = await response.json();
       if (!response.ok) {
