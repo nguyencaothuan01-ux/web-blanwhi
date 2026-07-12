@@ -1,5 +1,5 @@
 {
-  "installCommand": "npm install",
+  "installCommand": "pnpm install --no-frozen-lockfile",
   "crons": [
     {
       "path": "/api/admin/orders/shipping-sync",
