@@ -10,6 +10,10 @@
       * { box-sizing: border-box; }
       html { scroll-behavior: smooth; }
       body { margin: 0; background: #fff; color: var(--ink); font-family: var(--font-sans); font-size: 14px; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; font-feature-settings: "kern"; }
+      body.cms-loading .page { visibility: hidden; }
+      body.cms-loading::before { content: "Đang tải BLANWHI..."; position: fixed; inset: 0; z-index: 999; display: grid; place-items: center; background: #fff; color: #111; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+      body.cms-error .page { visibility: hidden; }
+      body.cms-error::before { content: "Đang kết nối lại..."; position: fixed; inset: 0; z-index: 999; display: grid; place-items: center; background: #fff; color: #111; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
       body.menu-open { overflow: hidden; }
       button, input, select, textarea { font: inherit; }
       .serif { font-family: var(--font-serif); font-weight: 600; letter-spacing: 0; }
@@ -539,7 +543,7 @@
       }
     </style>
   </head>
-  <body>
+  <body class="cms-loading">
     <button class="home-shortcut" type="button" id="homeShortcut" aria-label="Về trang chính" title="Về trang chính">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
       <span>Trang chính</span>
@@ -1352,14 +1356,20 @@
       async function loadSiteContent() {
         try {
           const response = await fetch(`${paymentApiBase}/api/site?t=${Date.now()}`, { cache: "no-store" });
-          if (!response.ok) return;
+          if (!response.ok) throw new Error(`Không tải được nội dung (${response.status})`);
           const content = await response.json();
           const signature = JSON.stringify(content);
-          if (signature === siteContentSignature) return;
+          if (signature === siteContentSignature) {
+            document.body.classList.remove("cms-loading", "cms-error");
+            return;
+          }
           siteContentSignature = signature;
           applySiteContent(content);
+          document.body.classList.remove("cms-loading", "cms-error");
         } catch (error) {
           console.warn("Không tải được nội dung admin", error);
+          document.body.classList.remove("cms-loading");
+          document.body.classList.add("cms-error");
         }
       }
 
