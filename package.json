@@ -3,6 +3,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "publish": "node scripts/publish-to-github.mjs",
     "preserve:live-site": "node scripts/preserve-live-site.mjs",
     "db:import-json": "node scripts/import-json-to-db.mjs",
     "lint": "next lint"

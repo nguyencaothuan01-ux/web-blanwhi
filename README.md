@@ -65,6 +65,30 @@ SHIPPING_CLIENT_ID=
 8. Ở nơi mua domain, trỏ DNS theo hướng dẫn của Vercel.
 9. Sau khi DNS nhận, đặt `NEXT_PUBLIC_SITE_URL` bằng domain thật rồi redeploy.
 
+## Quy trình lưu code và deploy tự động
+
+Repo chính để deploy web thật là:
+
+```text
+https://github.com/khaitamphatphap-bit/web-blanwhi
+```
+
+Sau khi sửa code xong, chạy một lệnh này:
+
+```bash
+npm run publish -- "Mô tả ngắn phần vừa sửa"
+```
+
+Lệnh này sẽ tự:
+
+- commit toàn bộ thay đổi trên máy.
+- đồng bộ với repo chính trên GitHub.
+- push lên repo chính `khaitamphatphap-bit/web-blanwhi`.
+- push thêm một bản backup sang `nguyencaothuan01-ux/web-blanwhi`.
+- Vercel sẽ tự deploy web thật sau khi GitHub nhận code.
+
+Không lưu mật khẩu GitHub trong code. Máy nào cần push thì đăng nhập GitHub Desktop hoặc dùng Personal Access Token của GitHub.
+
 ## Các URL quan trọng sau deploy
 
 - Trang khách: `https://www.blanwhi.com`
