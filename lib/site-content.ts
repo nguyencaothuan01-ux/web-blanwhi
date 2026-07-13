@@ -21,6 +21,8 @@ export type CmsProduct = {
   id: string;
   name: string;
   price: string;
+  originalPrice?: string;
+  salePrice?: string;
   fit: string;
   kind: string;
   swatches: string[];
@@ -224,6 +226,8 @@ export const defaultSiteContent: SiteContent = {
     id: `p${index + 1}`,
     name: String(name),
     price: String(price),
+    originalPrice: String(price),
+    salePrice: "",
     fit: String(fit),
     kind: String(kind),
     swatches: swatches as string[],
@@ -249,6 +253,8 @@ export async function readSiteContent(): Promise<SiteContent> {
     const normalizedProduct = {
       ...fallback,
       ...product,
+      originalPrice: product.originalPrice || fallback.originalPrice || product.price || fallback.price || "",
+      salePrice: product.salePrice || fallback.salePrice || "",
       galleryImages: Array.isArray(product.galleryImages) ? product.galleryImages : (fallback.galleryImages || []),
       colorNames: product.colorNames && typeof product.colorNames === "object" ? product.colorNames : (fallback.colorNames || {}),
       colorImages: product.colorImages && typeof product.colorImages === "object" ? product.colorImages : (fallback.colorImages || {}),

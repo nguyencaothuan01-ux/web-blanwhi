@@ -9,6 +9,8 @@ const emptyProduct: CmsProduct = {
   id: "",
   name: "Sản phẩm mới",
   price: "390.000đ",
+  originalPrice: "390.000đ",
+  salePrice: "",
   fit: "Boxy sạch, dễ mặc",
   kind: "tee",
   swatches: ["#111", "#f4f4f2"],
@@ -473,7 +475,7 @@ export function SiteEditor() {
                     <strong>{product.name}</strong>
                     <span className={`shrink-0 border px-2 py-1 text-[10px] uppercase ${selectedId === product.id ? "border-white" : "border-black"}`}>Sửa</span>
                   </span>
-                  <span className="mt-1 block text-xs opacity-70">{product.price} · tồn {buildProductInventory(product).reduce((sum, item) => sum + item.quantity, 0)} · {product.active ? "đang bán" : "ẩn"}</span>
+                  <span className="mt-1 block text-xs opacity-70">{product.salePrice || product.originalPrice || product.price} · tồn {buildProductInventory(product).reduce((sum, item) => sum + item.quantity, 0)} · {product.active ? "đang bán" : "ẩn"}</span>
                 </button>
               ))}
             </div>
@@ -519,6 +521,8 @@ function ProductForm({
   onUploadMany: (event: ChangeEvent<HTMLInputElement>, onUrls: (urls: string[]) => void) => void;
 }) {
   const set = <K extends keyof CmsProduct>(key: K, value: CmsProduct[K]) => onChange({ ...product, [key]: value });
+  const originalPrice = product.originalPrice || product.price || "";
+  const salePrice = product.salePrice || "";
   const colorNames = product.colorNames || {};
   const colorImages = product.colorImages || {};
   const galleryImages = product.galleryImages || [];
@@ -649,6 +653,22 @@ function ProductForm({
   const removeClassification = (id: string) => {
     set("classifications", (product.classifications || []).filter((item) => item.id !== id));
   };
+  const setOriginalPrice = (value: string) => {
+    onChange({
+      ...product,
+      originalPrice: value,
+      price: salePrice.trim() ? product.price : value
+    });
+  };
+  const setSalePrice = (value: string) => {
+    const trimmed = value.trim();
+    onChange({
+      ...product,
+      salePrice: value,
+      price: trimmed || originalPrice,
+      isSale: trimmed ? true : product.isSale
+    });
+  };
 
   return (
     <div className="border border-neutral-200 p-4">
@@ -662,7 +682,8 @@ function ProductForm({
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <Text label="Tên sản phẩm" value={product.name} onChange={(value) => set("name", value)} />
-        <Text label="Giá hiển thị" value={product.price} onChange={(value) => set("price", value)} />
+        <Text label="Giá gốc" value={originalPrice} onChange={setOriginalPrice} />
+        <Text label="Giá sau giảm" value={salePrice} onChange={setSalePrice} />
         <Text label="Mô tả form/chất liệu" value={product.fit} onChange={(value) => set("fit", value)} />
         <label className="text-sm">
           Loại sản phẩm
