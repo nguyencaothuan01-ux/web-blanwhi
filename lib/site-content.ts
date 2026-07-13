@@ -63,6 +63,9 @@ export type SiteContent = {
     tiktokLabel: string;
     tiktokText: string;
     tiktokHref: string;
+    facebookLabel: string;
+    facebookText: string;
+    facebookHref: string;
     hoursLabel: string;
     hoursText: string;
     wholesaleTitle: string;
@@ -121,6 +124,9 @@ export const defaultSiteContent: SiteContent = {
     tiktokLabel: "TikTok",
     tiktokText: "@blanwhi.official",
     tiktokHref: "https://www.tiktok.com/@blanwhi.official",
+    facebookLabel: "FACEBOOK",
+    facebookText: "facebook.com/nhunglathucotton",
+    facebookHref: "https://www.facebook.com/nhunglathucotton",
     hoursLabel: "Giờ làm việc",
     hoursText: "9h30 - 20h00, Thứ 2 - Thứ 7",
     wholesaleTitle: "Đồng phục / Đơn sỉ",

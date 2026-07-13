@@ -277,6 +277,9 @@ export function SiteEditor() {
             <Text label="Nhãn TikTok" value={content.support.tiktokLabel} onChange={(value) => updateContent({ ...content, support: { ...content.support, tiktokLabel: value } })} />
             <Text label="TikTok hiển thị" value={content.support.tiktokText} onChange={(value) => updateContent({ ...content, support: { ...content.support, tiktokText: value } })} />
             <Text label="Link TikTok" value={content.support.tiktokHref} onChange={(value) => updateContent({ ...content, support: { ...content.support, tiktokHref: value } })} />
+            <Text label="Nhãn Facebook" value={content.support.facebookLabel} onChange={(value) => updateContent({ ...content, support: { ...content.support, facebookLabel: value } })} />
+            <Text label="Facebook hiển thị" value={content.support.facebookText} onChange={(value) => updateContent({ ...content, support: { ...content.support, facebookText: value } })} />
+            <Text label="Link Facebook" value={content.support.facebookHref} onChange={(value) => updateContent({ ...content, support: { ...content.support, facebookHref: value } })} />
             <Text label="Nhãn giờ làm việc" value={content.support.hoursLabel} onChange={(value) => updateContent({ ...content, support: { ...content.support, hoursLabel: value } })} />
             <Text label="Giờ làm việc" value={content.support.hoursText} onChange={(value) => updateContent({ ...content, support: { ...content.support, hoursText: value } })} />
             <Text label="Tiêu đề mục đơn sỉ" value={content.support.wholesaleTitle} onChange={(value) => updateContent({ ...content, support: { ...content.support, wholesaleTitle: value } })} />
