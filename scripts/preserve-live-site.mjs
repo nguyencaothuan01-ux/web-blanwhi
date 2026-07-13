@@ -1,4 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 
 const siteUrl = new URL(process.env.BLANWHI_LIVE_SITE_URL || "https://www.blanwhi.com/api/site");
@@ -21,3 +22,4 @@ await mkdir(path.dirname(outputFile), { recursive: true });
 await writeFile(outputFile, `${JSON.stringify(content, null, 2)}\n`, "utf8");
 
 console.log(`Preserved live site content to ${outputFile}`);
+execFileSync(process.execPath, ["scripts/embed-site-content.mjs"], { stdio: "inherit" });
