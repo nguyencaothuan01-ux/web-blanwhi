@@ -1,5 +1,13 @@
 import { readJsonStore, writeJsonStore } from "@/lib/data-store";
 
+export type CmsProductClassification = {
+  id: string;
+  name: string;
+  swatches: string[];
+  colorNames?: Record<string, string>;
+  colorImages?: Record<string, string>;
+};
+
 export type CmsProduct = {
   id: string;
   name: string;
@@ -12,6 +20,7 @@ export type CmsProduct = {
   galleryImages?: string[];
   colorNames?: Record<string, string>;
   colorImages?: Record<string, string>;
+  classifications?: CmsProductClassification[];
   sold: number;
   genders?: string[];
   isBestSeller?: boolean;
@@ -188,6 +197,12 @@ export async function readSiteContent(): Promise<SiteContent> {
       galleryImages: Array.isArray(product.galleryImages) ? product.galleryImages : (fallback.galleryImages || []),
       colorNames: product.colorNames && typeof product.colorNames === "object" ? product.colorNames : (fallback.colorNames || {}),
       colorImages: product.colorImages && typeof product.colorImages === "object" ? product.colorImages : (fallback.colorImages || {}),
+      classifications: Array.isArray(product.classifications) ? product.classifications.map((classification) => ({
+        ...classification,
+        swatches: Array.isArray(classification.swatches) ? classification.swatches : [],
+        colorNames: classification.colorNames && typeof classification.colorNames === "object" ? classification.colorNames : {},
+        colorImages: classification.colorImages && typeof classification.colorImages === "object" ? classification.colorImages : {}
+      })) : (fallback.classifications || []),
       genders: product.genders && product.genders.length ? product.genders : (fallback.genders || ["men", "women"]),
       isBestSeller: product.isBestSeller === undefined ? Boolean(fallback.isBestSeller || product.sold >= 650) : product.isBestSeller
     };

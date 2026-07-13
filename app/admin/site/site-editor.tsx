@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
-import type { CmsProduct, SiteContent } from "@/lib/site-content";
+import type { CmsProduct, CmsProductClassification, SiteContent } from "@/lib/site-content";
 
 const emptyProduct: CmsProduct = {
   id: "",
@@ -455,6 +455,7 @@ function ProductForm({
   const galleryImages = product.galleryImages || [];
   const genders = product.genders || ["men", "women"];
   const [newColorName, setNewColorName] = useState("");
+  const [newClassificationName, setNewClassificationName] = useState("");
   const [newSize, setNewSize] = useState("");
   const setColorImage = (color: string, url: string) => {
     const nextColorImages = { ...colorImages, [color]: url };
@@ -546,6 +547,25 @@ function ProductForm({
   const removeSize = (size: string) => {
     const nextSizes = product.sizes.filter((item) => item !== size);
     set("sizes", nextSizes.length ? nextSizes : product.sizes);
+  };
+  const addClassification = () => {
+    const name = newClassificationName.trim();
+    if (!name) return;
+    const classification: CmsProductClassification = {
+      id: `classification-${Date.now()}`,
+      name,
+      swatches: [],
+      colorNames: {},
+      colorImages: {}
+    };
+    set("classifications", [...(product.classifications || []), classification]);
+    setNewClassificationName("");
+  };
+  const updateClassification = (classification: CmsProductClassification) => {
+    set("classifications", (product.classifications || []).map((item) => item.id === classification.id ? classification : item));
+  };
+  const removeClassification = (id: string) => {
+    set("classifications", (product.classifications || []).filter((item) => item.id !== id));
   };
 
   return (
@@ -652,6 +672,49 @@ function ProductForm({
       <div className="mt-5 border-t pt-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
+            <h4 className="text-sm font-semibold uppercase">Phân loại form / dáng</h4>
+            <p className="mt-1 text-xs text-neutral-500">Không bắt buộc. Mỗi phân loại có danh sách màu và ảnh riêng như một sản phẩm con.</p>
+          </div>
+          <div className="flex items-end gap-2">
+            <label className="text-xs uppercase text-neutral-500">
+              Tên phân loại
+              <input
+                value={newClassificationName}
+                onChange={(event) => setNewClassificationName(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    addClassification();
+                  }
+                }}
+                placeholder="Form rộng, form ôm..."
+                className="mt-1 h-10 w-48 border px-3 text-sm normal-case"
+              />
+            </label>
+            <button type="button" onClick={addClassification} className="h-10 border border-black px-4 text-xs uppercase">Thêm phân loại</button>
+          </div>
+        </div>
+        {(product.classifications || []).length === 0 && (
+          <p className="mt-3 border border-dashed border-neutral-300 p-4 text-sm text-neutral-500">Sản phẩm này chưa chia phân loại form/dáng.</p>
+        )}
+        <div className="mt-3 grid gap-4">
+          {(product.classifications || []).map((classification, index) => (
+            <ClassificationEditor
+              key={classification.id}
+              classification={classification}
+              index={index}
+              productName={product.name}
+              onChange={updateClassification}
+              onDelete={() => removeClassification(classification.id)}
+              onUpload={onUpload}
+            />
+          ))}
+        </div>
+      </div>
+
+      {(product.classifications || []).length === 0 && <div className="mt-5 border-t pt-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
             <h4 className="text-sm font-semibold uppercase">Màu và ảnh theo từng màu</h4>
             <p className="mt-1 text-xs text-neutral-500">Nhập tên phân loại rồi upload ảnh. Ảnh vừa upload sẽ tự động trở thành ảnh chính của sản phẩm.</p>
           </div>
@@ -693,9 +756,116 @@ function ProductForm({
             </div>
           ))}
         </div>
-      </div>
+      </div>}
 
       {product.image && <img src={product.image} alt={product.name} className="mt-4 aspect-[4/3] max-h-72 w-full object-cover" />}
+    </div>
+  );
+}
+
+function ClassificationEditor({
+  classification,
+  index,
+  productName,
+  onChange,
+  onDelete,
+  onUpload
+}: {
+  classification: CmsProductClassification;
+  index: number;
+  productName: string;
+  onChange: (classification: CmsProductClassification) => void;
+  onDelete: () => void;
+  onUpload: (event: ChangeEvent<HTMLInputElement>, onUrl: (url: string) => void) => void;
+}) {
+  const [newColorName, setNewColorName] = useState("");
+  const colorNames = classification.colorNames || {};
+  const colorImages = classification.colorImages || {};
+
+  function addColor() {
+    const color = `variant-${Date.now()}`;
+    onChange({
+      ...classification,
+      swatches: [...classification.swatches, color],
+      colorNames: { ...colorNames, [color]: newColorName.trim() || "Màu mới" },
+      colorImages
+    });
+    setNewColorName("");
+  }
+
+  function updateColorName(color: string, name: string) {
+    onChange({ ...classification, colorNames: { ...colorNames, [color]: name } });
+  }
+
+  function updateColorImage(color: string, url: string) {
+    const nextSwatches = url
+      ? [...classification.swatches.filter((item) => item !== color), color]
+      : classification.swatches;
+    onChange({
+      ...classification,
+      swatches: nextSwatches,
+      colorImages: { ...colorImages, [color]: url }
+    });
+  }
+
+  function removeColor(color: string) {
+    const swatches = classification.swatches.filter((item) => item !== color);
+    const nextColorNames = Object.fromEntries(Object.entries(colorNames).filter(([key]) => key !== color));
+    const nextColorImages = Object.fromEntries(Object.entries(colorImages).filter(([key]) => key !== color));
+    onChange({ ...classification, swatches, colorNames: nextColorNames, colorImages: nextColorImages });
+  }
+
+  return (
+    <div className="border border-neutral-300 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs uppercase text-neutral-500">Phân loại {index + 1}</p>
+          <input
+            value={classification.name}
+            onChange={(event) => onChange({ ...classification, name: event.target.value })}
+            className="mt-1 h-10 w-full max-w-md border px-3 font-medium"
+          />
+        </div>
+        <button type="button" onClick={onDelete} className="border border-red-500 px-3 py-2 text-xs uppercase text-red-600">Bỏ phân loại</button>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-end gap-2">
+        <label className="text-xs uppercase text-neutral-500">
+          Tên màu
+          <input
+            value={newColorName}
+            onChange={(event) => setNewColorName(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                addColor();
+              }
+            }}
+            placeholder="Đen, kem, nâu..."
+            className="mt-1 h-10 w-40 border px-3 text-sm normal-case"
+          />
+        </label>
+        <button type="button" onClick={addColor} className="h-10 border border-black px-4 text-xs uppercase">Thêm màu</button>
+      </div>
+
+      <div className="mt-3 grid gap-3">
+        {classification.swatches.map((color) => (
+          <div key={color} className="grid gap-3 border border-neutral-200 p-3 md:grid-cols-[120px_1fr]">
+            <div>
+              {colorImages[color] && <img src={colorImages[color]} alt={`${productName} ${colorNames[color] || classification.name}`} className="h-20 w-20 border border-neutral-200 object-cover" />}
+              <strong className="mt-2 block text-sm">{colorNames[color] || "Màu mới"}</strong>
+              <button type="button" onClick={() => removeColor(color)} className="mt-3 border border-red-500 px-2 py-1 text-[10px] uppercase text-red-600">Xóa màu</button>
+            </div>
+            <div>
+              <label className="mb-2 block text-xs uppercase text-neutral-500">Tên màu hiển thị cho khách</label>
+              <input value={colorNames[color] || ""} onChange={(event) => updateColorName(color, event.target.value)} className="mb-3 h-10 w-full border px-3 text-sm" />
+              <label className="mb-2 block text-xs uppercase text-neutral-500">Ảnh cho màu này</label>
+              <input value={colorImages[color] || ""} onChange={(event) => updateColorImage(color, event.target.value)} placeholder="URL ảnh" className="h-10 w-full border px-3 text-sm" />
+              <input type="file" accept="image/*" onChange={(event) => onUpload(event, (url) => updateColorImage(color, url))} className="mt-2 block text-xs" />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

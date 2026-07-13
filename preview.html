@@ -1067,33 +1067,49 @@
         "#59614c": "Olive",
         "#1f2937": "Navy"
       }[color] || "Tone");
-      const colorLabel = (color, product) => product?.colorNames?.[color] || defaultColorLabel(color);
+      const activeClassification = (product, classificationIndex = product.classificationIndex || 0) =>
+        Array.isArray(product.classifications) ? product.classifications[classificationIndex] || null : null;
+      const activeVariant = (product, classificationIndex = product.classificationIndex || 0) =>
+        activeClassification(product, classificationIndex) || product;
+      const variantSwatches = (product, classificationIndex = product.classificationIndex || 0) => {
+        const variant = activeVariant(product, classificationIndex);
+        return Array.isArray(variant.swatches) && variant.swatches.length ? variant.swatches : product.swatches;
+      };
+      const colorLabel = (color, product, classificationIndex = product.classificationIndex || 0) =>
+        activeVariant(product, classificationIndex)?.colorNames?.[color] || product?.colorNames?.[color] || defaultColorLabel(color);
 
-      const productImageUrl = (product, color = product.color) => {
-        const colorImage = product.colorImages?.[color];
-        if (product.useColorImage && colorImage) return colorImage;
+      const productImageUrl = (product, color = product.color, classificationIndex = product.classificationIndex || 0) => {
+        const classification = activeClassification(product, classificationIndex);
+        const colorImage = activeVariant(product, classificationIndex).colorImages?.[color] || product.colorImages?.[color];
+        if ((classification || product.useColorImage) && colorImage) return colorImage;
         const gallery = Array.isArray(product.galleryImages) ? product.galleryImages.filter(Boolean) : [];
         return gallery[product.galleryIndex || 0] || product.image || colorImage || "";
       };
-      const swatchMarkup = (product, color, index, attribute) => {
-        const image = product.colorImages?.[color] || "";
-        const label = colorLabel(color, product);
+      const swatchMarkup = (product, color, index, attribute, classificationIndex = product.classificationIndex || 0) => {
+        const image = activeVariant(product, classificationIndex).colorImages?.[color] || product.colorImages?.[color] || "";
+        const label = colorLabel(color, product, classificationIndex);
         const content = image ? `<img src="${escapeMarkup(image)}" alt="${escapeMarkup(label)}" />` : escapeMarkup(label.slice(0, 1));
         return `<button type="button" class="${index === product.colorIndex ? "active" : ""}" ${attribute} aria-label="Chọn màu ${escapeMarkup(label)} cho ${escapeMarkup(product.name)}" title="${escapeMarkup(label)}">${content}</button>`;
       };
-      const productVisualMedia = (product, color = product.color) => {
-        const image = productImageUrl(product, color);
+      const productVisualMedia = (product, color = product.color, classificationIndex = product.classificationIndex || 0) => {
+        const image = productImageUrl(product, color, classificationIndex);
         return image
-          ? `<img class="product-photo" src="${escapeMarkup(image)}" alt="${escapeMarkup(product.name)} ${escapeMarkup(colorLabel(color, product))}" />`
+          ? `<img class="product-photo" src="${escapeMarkup(image)}" alt="${escapeMarkup(product.name)} ${escapeMarkup(colorLabel(color, product, classificationIndex))}" />`
           : mockMarkup(product.kind, color);
       };
       const productVisualInnerMarkup = (product) => `
         ${product.isSale ? `<span class="discount-badge">-${product.salePercent}%</span>` : ""}
         <span class="color-arrow prev" data-gallery-prev="${product.id}">‹</span>
         <span class="color-arrow next" data-gallery-next="${product.id}">›</span>
-        <span class="color-name">${colorLabel(product.color, product)}</span>
+        <span class="color-name">${colorLabel(product.color, product, product.classificationIndex)}</span>
         ${productVisualMedia(product)}
       `;
+      const classificationMarkup = (product, attributeName, selectedIndex = product.classificationIndex || 0) => {
+        if (!Array.isArray(product.classifications) || !product.classifications.length) return "";
+        return `<div class="sizes classifications" data-classifications="${product.id}">
+          ${product.classifications.map((classification, index) => `<button type="button" class="${index === selectedIndex ? "active" : ""}" ${attributeName}="${product.id}:${index}">${escapeMarkup(classification.name)}</button>`).join("")}
+        </div>`;
+      };
       const visualMarkup = (product) => `
         <button class="product-visual" data-detail="${product.id}" data-swipe="${product.id}" aria-label="Xem chi tiết sản phẩm ${product.name}">
           ${productVisualInnerMarkup(product)}
@@ -1134,23 +1150,31 @@
           ${product.isSale ? `<span class="original-price">${formatMoney(product.originalAmount)}</span>` : ""}
         </span>
       `;
-      const productCardMarkup = (product) => `
+      const productCardMarkup = (product) => {
+        const swatches = variantSwatches(product);
+        if (!swatches.includes(product.color)) {
+          product.colorIndex = 0;
+          product.color = swatches[0];
+        }
+        return `
         <article class="card">
           ${visualMarkup(product)}
           <div class="meta"><div><b>${product.name}</b><div class="muted">${product.fit}</div></div>${priceMarkup(product)}</div>
           <div class="product-tags">${productTags(product)}</div>
-          <div class="swatches" data-swatches="${product.id}">${product.swatches.map((color, index) => swatchMarkup(product, color, index, `data-card-color="${product.id}:${index}"`)).join("")}</div>
           ${product.kind.startsWith("gift-") ? `<div class="muted">Gói quà tiêu chuẩn BLANWHI</div>` : `
             <div class="sizes" data-size-group="${product.id}">
               ${(product.sizes || ["S", "M", "L", "XL"]).map(size => `<button class="${size === product.size ? "active" : ""}" data-size="${product.id}:${size}">${size}</button>`).join("")}
             </div>
           `}
+          ${classificationMarkup(product, "data-card-classification")}
+          <div class="swatches" data-swatches="${product.id}">${swatches.map((color, index) => swatchMarkup(product, color, index, `data-card-color="${product.id}:${index}"`)).join("")}</div>
           <div class="card-actions">
             <button class="quick" data-buy="${product.id}">Mua ngay</button>
             <button class="quick" data-add="${product.id}">Thêm giỏ</button>
           </div>
         </article>
       `;
+      };
       function renderProductPagination() {
         const totalPages = Math.ceil(currentProductList.length / productsPerPage);
         productPagination.classList.toggle("visible", totalPages > 1);
@@ -1250,6 +1274,13 @@
         const orderedVariantImages = swatches.map((color) => colorImages[color]).filter(Boolean);
         const galleryImages = [primaryImage, ...sourceGallery.filter((url) => !variantImages.has(url)), ...orderedVariantImages]
           .filter((url, imageIndex, images) => url && images.indexOf(url) === imageIndex);
+        const classifications = Array.isArray(product.classifications) ? product.classifications.map((classification, classificationIndex) => ({
+          id: classification.id || `classification-${classificationIndex + 1}`,
+          name: classification.name || `Phân loại ${classificationIndex + 1}`,
+          swatches: Array.isArray(classification.swatches) ? classification.swatches : [],
+          colorNames: classification.colorNames && typeof classification.colorNames === "object" ? classification.colorNames : {},
+          colorImages: classification.colorImages && typeof classification.colorImages === "object" ? classification.colorImages : {}
+        })) : [];
         const id = product.id || `cms-${index + 1}`;
         const salePercent = Number(product.salePercent || 0);
         return {
@@ -1268,6 +1299,8 @@
           useColorImage: false,
           colorNames: product.colorNames && typeof product.colorNames === "object" ? product.colorNames : {},
           colorImages,
+          classifications,
+          classificationIndex: 0,
           sizes: Array.isArray(product.sizes) && product.sizes.length ? product.sizes : ["S", "M", "L", "XL"],
           size: (Array.isArray(product.sizes) && product.sizes[0]) || "M",
           orderQty: 1,
@@ -1430,7 +1463,7 @@
 
       const cartCount = () => cart.reduce((sum, item) => sum + item.qty, 0);
       const subtotal = () => cart.reduce((sum, item) => sum + item.amount * item.qty, 0);
-      let variantState = { productId: null, mode: "cart", colorIndex: 0, size: "M", qty: 1 };
+      let variantState = { productId: null, mode: "cart", classificationIndex: 0, colorIndex: 0, size: "M", qty: 1 };
       let wholesaleState = { productId: null, qty: 10 };
       const loadOrders = () => JSON.parse(localStorage.getItem("blanwhiOrders") || "[]");
       const saveOrders = (orders) => localStorage.setItem("blanwhiOrders", JSON.stringify(orders));
@@ -1665,6 +1698,11 @@
       function openDetail(id) {
         const product = productData.find((item) => item.id === id);
         if (!product) return;
+        const swatches = variantSwatches(product);
+        if (!swatches.includes(product.color)) {
+          product.colorIndex = 0;
+          product.color = swatches[0];
+        }
         const isGift = product.kind.startsWith("gift-");
         const isMessageCard = product.kind === "gift-card";
         detailContent.innerHTML = `
@@ -1673,12 +1711,13 @@
               <button class="zoom-action" type="button" data-zoom-product="${product.id}" aria-label="Phóng to ảnh ${product.name}">
                 <div class="product-visual">${productVisualMedia(product)}</div>
               </button>
-              <div class="swatches" data-detail-swatches="${product.id}" style="margin-top:14px">
-                ${product.swatches.map((color, index) => swatchMarkup(product, color, index, `data-detail-color="${product.id}:${index}"`)).join("")}
-              </div>
               ${isGift ? "" : `<div class="sizes" data-size-group="${product.id}" style="margin-top:14px">
                 ${(product.sizes || ["S", "M", "L", "XL"]).map(size => `<button class="${size === product.size ? "active" : ""}" data-size="${product.id}:${size}">${size}</button>`).join("")}
               </div>`}
+              ${classificationMarkup(product, "data-detail-classification")}
+              <div class="swatches" data-detail-swatches="${product.id}" style="margin-top:14px">
+                ${swatches.map((color, index) => swatchMarkup(product, color, index, `data-detail-color="${product.id}:${index}"`)).join("")}
+              </div>
               <button class="quick" data-buy="${product.id}">Mua ngay</button>
             </div>
             <div class="detail-info">
@@ -1714,25 +1753,27 @@
       function renderVariantModal() {
         const product = productData.find((item) => item.id === variantState.productId);
         if (!product) return;
-        const color = product.swatches[variantState.colorIndex];
+        const swatches = variantSwatches(product, variantState.classificationIndex);
+        const color = swatches[variantState.colorIndex] || swatches[0];
         variantContent.innerHTML = `
           <div class="detail-grid" style="grid-template-columns:.8fr 1.2fr">
             <button class="zoom-action" type="button" data-zoom-variant="${product.id}" aria-label="Phóng to ảnh ${product.name}">
-              <div class="product-visual">${productVisualMedia(product, color)}</div>
+              <div class="product-visual">${productVisualMedia(product, color, variantState.classificationIndex)}</div>
             </button>
             <div class="detail-info">
               <h2>${product.name}</h2>
               ${priceMarkup(product, true)}
-              <div>
-                <p class="muted">Màu sắc</p>
-                <div class="swatches" data-variant-colors>
-                  ${product.swatches.map((swatch, index) => swatchMarkup({ ...product, colorIndex: variantState.colorIndex }, swatch, index, `data-variant-color="${index}"`)).join("")}
-                </div>
-              </div>
               ${product.kind.startsWith("gift-") ? `<div><p class="muted">Loại</p><strong>Gift Packaging</strong></div>` : `<div>
                 <p class="muted">Size</p>
                 <div class="sizes" data-variant-sizes>
                   ${(product.sizes || ["S", "M", "L", "XL"]).map(size => `<button class="${size === variantState.size ? "active" : ""}" data-variant-size="${size}">${size}</button>`).join("")}
+                </div>
+              </div>
+              ${product.classifications?.length ? `<div><p class="muted">Phân loại form / dáng</p>${classificationMarkup(product, "data-variant-classification", variantState.classificationIndex)}</div>` : ""}
+              <div>
+                <p class="muted">Màu sắc</p>
+                <div class="swatches" data-variant-colors>
+                  ${swatches.map((swatch, index) => swatchMarkup({ ...product, colorIndex: variantState.colorIndex }, swatch, index, `data-variant-color="${index}"`, variantState.classificationIndex)).join("")}
                 </div>
               </div>
               <div class="detail-section">
@@ -1775,7 +1816,7 @@
       function openVariant(id, mode) {
         const product = productData.find((item) => item.id === id);
         if (!product) return;
-        variantState = { productId: id, mode, colorIndex: product.colorIndex, size: product.size, qty: product.orderQty || 1 };
+        variantState = { productId: id, mode, classificationIndex: product.classificationIndex || 0, colorIndex: product.colorIndex, size: product.size, qty: product.orderQty || 1 };
         renderVariantModal();
         variantModal.classList.add("open");
       }
@@ -1835,7 +1876,17 @@
       function confirmVariant() {
         const product = productData.find((item) => item.id === variantState.productId);
         if (!product) return;
-        const options = { color: product.swatches[variantState.colorIndex], size: variantState.size, qty: variantState.qty, message: product.message || "" };
+        const classification = activeClassification(product, variantState.classificationIndex);
+        const swatches = variantSwatches(product, variantState.classificationIndex);
+        const options = {
+          color: swatches[variantState.colorIndex],
+          size: variantState.size,
+          qty: variantState.qty,
+          message: product.message || "",
+          classificationId: classification?.id || "",
+          classificationName: classification?.name || ""
+        };
+        product.classificationIndex = variantState.classificationIndex;
         product.colorIndex = variantState.colorIndex;
         product.color = options.color;
         product.size = options.size;
@@ -1870,7 +1921,7 @@
               <div class="product-visual">${mockMarkup(item.kind, item.color)}</div>
               <div>
                 <h3>${item.name}</h3>
-                <p>${item.price}${item.kind.startsWith("gift-") ? "" : ` · ${item.size}`}${item.designName ? ` · ${item.designName}` : ""}</p>
+                <p>${item.price}${item.kind.startsWith("gift-") ? "" : ` · ${item.size}`}${item.classificationName ? ` · ${escapeMarkup(item.classificationName)}` : ""}${item.designName ? ` · ${item.designName}` : ""}</p>
                 ${item.customText ? `<p>Chữ thiết kế: ${escapeMarkup(item.customText)}</p>` : ""}
                 ${item.kind === "gift-card" ? `
                   <label class="cart-message-label" for="cart-message-${item.cartId}">Lời nhắn bạn gửi</label>
@@ -2033,13 +2084,15 @@
         const color = options.color || product.color;
         const size = options.size || product.size;
         const qty = options.qty || 1;
-        const cartId = `${id}-${color}-${size}`;
+        const classificationId = options.classificationId || "";
+        const classificationName = options.classificationName || "";
+        const cartId = `${id}-${classificationId}-${color}-${size}`;
         const existing = cart.find((item) => item.cartId === cartId);
         if (existing) {
           existing.qty += qty;
           if (options.message !== undefined) existing.message = options.message;
         }
-        else cart.push({ ...product, cartId, color, size, qty, message: options.message || product.message || "" });
+        else cart.push({ ...product, cartId, color, size, qty, classificationId, classificationName, message: options.message || product.message || "" });
         renderCart();
       }
 
@@ -2070,6 +2123,21 @@
       }
 
       document.getElementById("productGrid").addEventListener("click", (event) => {
+        const cardClassification = event.target.closest("[data-card-classification]");
+        if (cardClassification) {
+          event.preventDefault();
+          event.stopPropagation();
+          const [id, index] = cardClassification.dataset.cardClassification.split(":");
+          const product = productData.find((item) => item.id === id);
+          if (product) {
+            product.classificationIndex = Number(index);
+            product.colorIndex = 0;
+            product.color = variantSwatches(product)[0];
+            product.useColorImage = true;
+            renderProducts(currentProductList, false);
+          }
+          return;
+        }
         const cardColor = event.target.closest("[data-card-color]");
         if (cardColor) {
           event.preventDefault();
@@ -2078,7 +2146,7 @@
           const product = productData.find((item) => item.id === id);
           if (product) {
             product.colorIndex = Number(index);
-            product.color = product.swatches[product.colorIndex];
+            product.color = variantSwatches(product)[product.colorIndex];
             product.useColorImage = true;
             renderProducts(currentProductList, false);
           }
@@ -2179,13 +2247,26 @@
       });
 
       detailContent.addEventListener("click", (event) => {
+        const detailClassification = event.target.closest("[data-detail-classification]");
+        if (detailClassification) {
+          const [id, index] = detailClassification.dataset.detailClassification.split(":");
+          const product = productData.find((item) => item.id === id);
+          if (product) {
+            product.classificationIndex = Number(index);
+            product.colorIndex = 0;
+            product.color = variantSwatches(product)[0];
+            product.useColorImage = true;
+            openDetail(id);
+          }
+          return;
+        }
         const detailColor = event.target.closest("[data-detail-color]");
         if (detailColor) {
           const [id, index] = detailColor.dataset.detailColor.split(":");
           const product = productData.find((item) => item.id === id);
           if (product) {
             product.colorIndex = Number(index);
-            product.color = product.swatches[product.colorIndex];
+            product.color = variantSwatches(product)[product.colorIndex];
             product.useColorImage = true;
             openDetail(id);
           }
@@ -2263,7 +2344,15 @@
         const zoomVariant = event.target.closest("[data-zoom-variant]");
         if (zoomVariant) {
           const product = productData.find((item) => item.id === zoomVariant.dataset.zoomVariant);
-          if (product) openZoom(product, product.swatches[variantState.colorIndex]);
+          if (product) openZoom(product, variantSwatches(product, variantState.classificationIndex)[variantState.colorIndex]);
+          return;
+        }
+        const classification = event.target.closest("[data-variant-classification]");
+        if (classification) {
+          const [, index] = classification.dataset.variantClassification.split(":");
+          variantState.classificationIndex = Number(index);
+          variantState.colorIndex = 0;
+          renderVariantModal();
           return;
         }
         const color = event.target.closest("[data-variant-color]");
@@ -2766,6 +2855,9 @@
             name: item.name,
             qty: item.qty,
             price: item.amount,
+            color: colorLabel(item.color, item, item.classificationIndex || 0),
+            size: item.size || "",
+            classificationName: item.classificationName || "",
             message: item.message || "",
             designName: item.designName || "",
             customText: item.customText || ""

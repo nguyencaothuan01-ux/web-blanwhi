@@ -37,6 +37,7 @@ type PreviewCheckoutItem = {
   size?: string;
   message?: string;
   designName?: string;
+  classificationName?: string;
   customText?: string;
 };
 
@@ -100,7 +101,7 @@ function normalizeItems(items: Array<CartItem | PreviewCheckoutItem>) {
 
     return {
       productId: `preview-${index + 1}`,
-      name: item.name,
+      name: item.classificationName ? `${item.name} - ${item.classificationName}` : item.name,
       color: item.color || item.designName || "",
       size: item.size || "",
       quantity: Number(item.qty || 1),
