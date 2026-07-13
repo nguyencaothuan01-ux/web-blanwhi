@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { jsonError } from "@/lib/api-errors";
 import { integrationHeaders, readIntegrationConfig } from "@/lib/integrations";
-import { buildProductInventory, readSiteContent, writeSiteContent } from "@/lib/site-content";
+import { buildProductInventory } from "@/lib/product-inventory";
+import { readSiteContent, writeSiteContent } from "@/lib/site-content";
 
 type SyncRequest = {
   target?: "pos" | "misa";

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
-import { buildProductInventory } from "@/lib/site-content";
+import { buildProductInventory } from "@/lib/product-inventory";
 import type { CmsProduct, CmsProductClassification, CmsProductInventoryItem, SiteContent } from "@/lib/site-content";
 
 const emptyProduct: CmsProduct = {
