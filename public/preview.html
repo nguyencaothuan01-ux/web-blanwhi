@@ -1530,15 +1530,6 @@
         }
       }
 
-      if (initialSiteContent) {
-        siteContentSignature = JSON.stringify(initialSiteContent);
-        applySiteContent(initialSiteContent);
-      } else {
-        renderProducts();
-      }
-      loadSiteContent();
-      window.setInterval(loadSiteContent, 2500);
-
       const cartButton = document.querySelector(".cart");
       const cartOverlay = document.getElementById("cartOverlay");
       const cartDrawer = document.getElementById("cartDrawer");
@@ -1581,6 +1572,15 @@
       let shopBankAccountNumber = "0123 456 789";
       let shopBankName = "Vietcombank";
       let shopBankCode = "vcb";
+
+      if (initialSiteContent) {
+        siteContentSignature = JSON.stringify(initialSiteContent);
+        applySiteContent(initialSiteContent);
+      } else {
+        renderProducts();
+      }
+      loadSiteContent();
+      window.setInterval(loadSiteContent, 2500);
 
       const cartCount = () => cart.reduce((sum, item) => sum + item.qty, 0);
       const subtotal = () => cart.reduce((sum, item) => sum + item.amount * item.qty, 0);
