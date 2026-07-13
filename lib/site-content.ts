@@ -250,11 +250,19 @@ export async function readSiteContent(): Promise<SiteContent> {
   const defaultProductsById = new Map(defaultSiteContent.products.map((product) => [product.id, product]));
   const products = (saved.products || defaultSiteContent.products).map((product) => {
     const fallback = defaultProductsById.get(product.id) || {} as Partial<CmsProduct>;
+    const originalPrice = product.originalPrice || fallback.originalPrice || product.price || fallback.price || "";
+    const salePrice = product.salePrice || fallback.salePrice || "";
+    const originalAmount = parseMoneyValue(originalPrice);
+    const saleAmount = parseMoneyValue(salePrice);
+    const hasDiscount = Boolean(salePrice) && originalAmount > 0 && saleAmount > 0 && saleAmount < originalAmount;
     const normalizedProduct = {
       ...fallback,
       ...product,
-      originalPrice: product.originalPrice || fallback.originalPrice || product.price || fallback.price || "",
-      salePrice: product.salePrice || fallback.salePrice || "",
+      originalPrice,
+      salePrice,
+      price: hasDiscount ? salePrice : originalPrice,
+      isSale: hasDiscount,
+      salePercent: hasDiscount ? Math.max(1, Math.round((originalAmount - saleAmount) / originalAmount * 100)) : 0,
       galleryImages: Array.isArray(product.galleryImages) ? product.galleryImages : (fallback.galleryImages || []),
       colorNames: product.colorNames && typeof product.colorNames === "object" ? product.colorNames : (fallback.colorNames || {}),
       colorImages: product.colorImages && typeof product.colorImages === "object" ? product.colorImages : (fallback.colorImages || {}),
@@ -289,4 +297,8 @@ export async function readSiteContent(): Promise<SiteContent> {
 
 export async function writeSiteContent(content: SiteContent) {
   return writeJsonStore("site-content.json", content);
+}
+
+function parseMoneyValue(value: string) {
+  return Number(String(value || "").replace(/[^0-9]/g, "")) || 0;
 }

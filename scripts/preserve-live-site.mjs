@@ -1,13 +1,14 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-const siteUrl = process.env.BLANWHI_LIVE_SITE_URL || "https://www.blanwhi.com/api/site";
+const siteUrl = new URL(process.env.BLANWHI_LIVE_SITE_URL || "https://www.blanwhi.com/api/site");
+siteUrl.searchParams.set("_preserve", String(Date.now()));
 const outputFile = path.join(process.cwd(), "data", "site-content.json");
 
 const response = await fetch(siteUrl, { cache: "no-store" });
 
 if (!response.ok) {
-  throw new Error(`Cannot fetch live site content from ${siteUrl}: ${response.status}`);
+  throw new Error(`Cannot fetch live site content from ${siteUrl.toString()}: ${response.status}`);
 }
 
 const content = await response.json();

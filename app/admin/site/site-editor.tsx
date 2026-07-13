@@ -654,19 +654,28 @@ function ProductForm({
     set("classifications", (product.classifications || []).filter((item) => item.id !== id));
   };
   const setOriginalPrice = (value: string) => {
+    const originalAmount = parseMoneyValue(value);
+    const saleAmount = parseMoneyValue(salePrice);
+    const hasDiscount = saleAmount > 0 && originalAmount > 0 && saleAmount < originalAmount;
     onChange({
       ...product,
       originalPrice: value,
-      price: salePrice.trim() ? product.price : value
+      price: hasDiscount ? salePrice : value,
+      isSale: hasDiscount,
+      salePercent: hasDiscount ? Math.max(1, Math.round((originalAmount - saleAmount) / originalAmount * 100)) : 0
     });
   };
   const setSalePrice = (value: string) => {
     const trimmed = value.trim();
+    const originalAmount = parseMoneyValue(originalPrice);
+    const saleAmount = parseMoneyValue(trimmed);
+    const hasDiscount = Boolean(trimmed) && originalAmount > 0 && saleAmount > 0 && saleAmount < originalAmount;
     onChange({
       ...product,
       salePrice: value,
-      price: trimmed || originalPrice,
-      isSale: trimmed ? true : product.isSale
+      price: hasDiscount ? trimmed : originalPrice,
+      isSale: hasDiscount,
+      salePercent: hasDiscount ? Math.max(1, Math.round((originalAmount - saleAmount) / originalAmount * 100)) : 0
     });
   };
 
@@ -892,6 +901,10 @@ function ProductForm({
       {product.image && <img src={product.image} alt={product.name} className="mt-4 aspect-[4/3] max-h-72 w-full object-cover" />}
     </div>
   );
+}
+
+function parseMoneyValue(value: string) {
+  return Number(String(value || "").replace(/[^0-9]/g, "")) || 0;
 }
 
 function ClassificationEditor({
