@@ -227,10 +227,6 @@
       .mini-link { border: 0; background: transparent; padding: 0; text-align: left; font-size: 12px; text-decoration: underline; }
       .quick { width: 100%; margin-top: 12px; height: 38px; border: 1px solid #000; background: transparent; text-transform: uppercase; font-size: 12px; }
       .quick:hover { background: #000; color: #fff; }
-      .card-quantity { margin-top: 11px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-      .card-quantity > span:first-child { color: #555; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-      .card-quantity .quantity-picker { width: 118px; grid-template-columns: 32px 1fr 32px; }
-      .card-quantity .quantity-picker button, .card-quantity .quantity-picker input { height: 34px; }
       .card-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
       .card-actions .quick { margin-top: 0; }
       .card-actions [data-add] { background: #000; color: #fff; }
@@ -1254,7 +1250,7 @@
       const sizeButtonsMarkup = (product, selectedSize = product.size, attributeFactory = (size) => `data-size="${product.id}:${size}"`, classificationIndex = product.classificationIndex || 0, color = product.color) => `
         ${(product.sizes || ["S", "M", "L", "XL"]).map(size => {
           const out = !hasStock(product, { classificationIndex, color, size });
-          return `<button class="${size === selectedSize ? "active" : ""}${out ? " out-of-stock" : ""}" ${attributeFactory(size)} data-stock-state="${out ? "out" : "in"}">${size}${out ? " · Hết" : ""}</button>`;
+          return `<button class="${size === selectedSize ? "active" : ""}${out ? " out-of-stock" : ""}" ${attributeFactory(size)} data-stock-state="${out ? "out" : "in"}">${size}</button>`;
         }).join("")}
       `;
       const productCardMarkup = (product) => {
@@ -1277,14 +1273,6 @@
           `}
           ${classificationMarkup(product, "data-card-classification")}
           <div class="swatches" data-swatches="${product.id}">${swatches.map((color, index) => swatchMarkup(product, color, index, `data-card-color="${product.id}:${index}"`)).join("")}</div>
-          <div class="card-quantity">
-            <span>Số lượng</span>
-            <span class="quantity-picker">
-              <button type="button" data-card-qty-change="${product.id}:-1" aria-label="Giảm số lượng" ${soldOut ? "disabled" : ""}>−</button>
-              <input type="number" min="1" max="999" value="${Math.max(1, Number(product.orderQty) || 1)}" inputmode="numeric" data-card-qty="${product.id}" aria-label="Số lượng ${escapeMarkup(product.name)}" ${soldOut ? "disabled" : ""} />
-              <button type="button" data-card-qty-change="${product.id}:1" aria-label="Tăng số lượng" ${soldOut ? "disabled" : ""}>+</button>
-            </span>
-          </div>
           <div class="card-actions">
             <button class="quick" data-buy="${product.id}" ${soldOut ? "disabled" : ""}>Mua ngay</button>
             <button class="quick" data-add="${product.id}" ${soldOut ? "disabled" : ""}>Thêm giỏ</button>
@@ -1292,6 +1280,10 @@
         </article>
       `;
       };
+      function renderProductCard(product) {
+        const card = document.querySelector(`[data-detail="${product.id}"]`)?.closest(".card");
+        if (card) card.outerHTML = productCardMarkup(product);
+      }
       function renderProductPagination() {
         const totalPages = Math.ceil(currentProductList.length / productsPerPage);
         productPagination.classList.toggle("visible", totalPages > 1);
@@ -1473,18 +1465,26 @@
         return Number(row.availableQuantity ?? Math.min(Number(row.publishQuantity || 0), Number(row.pancakeQuantity || 0)));
       }
 
-      async function refreshProductAvailability(productId) {
+      async function refreshProductAvailability(productId, force = false) {
         const product = productData.find((item) => item.id === productId);
         if (!product) return;
-        try {
-          const response = await fetch(`${paymentApiBase}/api/inventory/availability?productId=${encodeURIComponent(productId)}&t=${Date.now()}`, { cache: "no-store" });
-          if (!response.ok) return;
-          const result = await response.json();
-          product.inventoryConfigured = Boolean(result.configured);
-          if (Array.isArray(result.items)) product.inventory = result.items;
-        } catch (error) {
-          console.warn("Không cập nhật được tồn kho Pancake", error);
-        }
+        if (!force && product.availabilityUpdatedAt && Date.now() - product.availabilityUpdatedAt < 15000) return;
+        if (product.availabilityPromise) return product.availabilityPromise;
+        product.availabilityPromise = (async () => {
+          try {
+            const response = await fetch(`${paymentApiBase}/api/inventory/availability?productId=${encodeURIComponent(productId)}&t=${Date.now()}`, { cache: "no-store" });
+            if (!response.ok) return;
+            const result = await response.json();
+            product.inventoryConfigured = Boolean(result.configured);
+            if (Array.isArray(result.items)) product.inventory = result.items;
+          } catch (error) {
+            console.warn("Không cập nhật được tồn kho", error);
+          } finally {
+            product.availabilityUpdatedAt = Date.now();
+            product.availabilityPromise = null;
+          }
+        })();
+        return product.availabilityPromise;
       }
 
       async function refreshAllAvailability() {
@@ -1966,7 +1966,7 @@
             <div class="detail-info">
               <h2>${product.name}</h2>
               ${priceMarkup(product, true)}
-              <p class="muted" style="color:${outOfStock ? "#c00" : "#176b36"}">${liveAvailable === null ? "Chưa liên kết tồn kho Pancake" : outOfStock ? "Hết hàng" : `Còn có thể bán ${liveAvailable} sản phẩm`}</p>
+              ${liveAvailable === null ? "" : `<p class="muted" style="color:${outOfStock ? "#c00" : "#176b36"}">${outOfStock ? "Hết hàng" : `Còn có thể bán ${liveAvailable} sản phẩm`}</p>`}
               ${product.kind.startsWith("gift-") ? `<div><p class="muted">Loại</p><strong>Gift Packaging</strong></div>` : `<div>
                 <p class="muted">Size</p>
                 <div class="sizes" data-variant-sizes>
@@ -2018,10 +2018,7 @@
         `;
       }
 
-      async function openVariant(id, mode) {
-        const product = productData.find((item) => item.id === id);
-        if (!product) return;
-        await refreshProductAvailability(id);
+      function preferredVariantSelection(product) {
         let classificationIndex = product.classificationIndex || 0;
         let colorIndex = product.colorIndex || 0;
         let size = product.size;
@@ -2034,9 +2031,28 @@
           ).find((selection) => hasStock(product, selection));
           if (availableSelection) ({ classificationIndex, colorIndex, size } = availableSelection);
         }
-        variantState = { productId: id, mode, classificationIndex, colorIndex, size, qty: Math.max(1, Number(product.orderQty) || 1) };
+        return { classificationIndex, colorIndex, size };
+      }
+
+      function openVariant(id, mode) {
+        const product = productData.find((item) => item.id === id);
+        if (!product) return;
+        variantState = { productId: id, mode, ...preferredVariantSelection(product), qty: Math.max(1, Number(product.orderQty) || 1) };
         renderVariantModal();
         variantModal.classList.add("open");
+        refreshProductAvailability(id).then(() => {
+          if (!variantModal.classList.contains("open") || variantState.productId !== id) return;
+          const selectedColor = variantSwatches(product, variantState.classificationIndex)[variantState.colorIndex];
+          if (!hasStock(product, { classificationIndex: variantState.classificationIndex, color: selectedColor, size: variantState.size })) {
+            Object.assign(variantState, preferredVariantSelection({
+              ...product,
+              classificationIndex: variantState.classificationIndex,
+              colorIndex: variantState.colorIndex,
+              size: variantState.size
+            }));
+          }
+          renderVariantModal();
+        });
       }
 
       function closeVariant() {
@@ -2094,6 +2110,22 @@
       async function confirmVariant() {
         const product = productData.find((item) => item.id === variantState.productId);
         if (!product) return;
+        const confirmButton = document.getElementById("variantConfirm");
+        if (confirmButton) {
+          confirmButton.disabled = true;
+          confirmButton.textContent = "Đang kiểm tra...";
+        }
+        await refreshProductAvailability(product.id);
+        const currentColor = variantSwatches(product, variantState.classificationIndex)[variantState.colorIndex];
+        if (!hasStock(product, { classificationIndex: variantState.classificationIndex, color: currentColor, size: variantState.size })) {
+          Object.assign(variantState, preferredVariantSelection({
+            ...product,
+            classificationIndex: variantState.classificationIndex,
+            colorIndex: variantState.colorIndex,
+            size: variantState.size
+          }));
+        }
+        renderVariantModal();
         const classification = activeClassification(product, variantState.classificationIndex);
         const swatches = variantSwatches(product, variantState.classificationIndex);
         const options = {
@@ -2121,9 +2153,10 @@
         product.color = options.color;
         product.size = options.size;
         closeVariant();
-        if (variantState.mode === "buy") await buyNow(product.id, options);
+        const purchaseOptions = { ...options, skipAvailabilityRefresh: true };
+        if (variantState.mode === "buy") await buyNow(product.id, purchaseOptions);
         else {
-          if (await addToCart(product.id, options)) openCart();
+          if (await addToCart(product.id, purchaseOptions)) openCart();
         }
       }
 
@@ -2312,7 +2345,7 @@
       async function addToCart(id, options = {}) {
         const product = productData.find((item) => item.id === id);
         if (!product) return false;
-        await refreshProductAvailability(id);
+        if (!options.skipAvailabilityRefresh) await refreshProductAvailability(id);
         const color = options.color || product.color;
         const size = options.size || product.size;
         const qty = Math.max(1, Math.floor(Number(options.qty) || 1));
@@ -2378,19 +2411,6 @@
       }
 
       document.getElementById("productGrid").addEventListener("click", (event) => {
-        const quantityChange = event.target.closest("[data-card-qty-change]");
-        if (quantityChange) {
-          event.preventDefault();
-          event.stopPropagation();
-          const [id, delta] = quantityChange.dataset.cardQtyChange.split(":");
-          const product = productData.find((item) => item.id === id);
-          if (product) {
-            product.orderQty = Math.min(999, Math.max(1, (Number(product.orderQty) || 1) + Number(delta)));
-            const input = productGrid.querySelector(`[data-card-qty="${id}"]`);
-            if (input) input.value = product.orderQty;
-          }
-          return;
-        }
         const cardClassification = event.target.closest("[data-card-classification]");
         if (cardClassification) {
           event.preventDefault();
@@ -2406,7 +2426,7 @@
             product.colorIndex = 0;
             product.color = variantSwatches(product)[0];
             product.useColorImage = true;
-            renderProducts(currentProductList, false);
+            renderProductCard(product);
           }
           return;
         }
@@ -2424,7 +2444,7 @@
             product.colorIndex = Number(index);
             product.color = variantSwatches(product)[product.colorIndex];
             product.useColorImage = true;
-            renderProducts(currentProductList, false);
+            renderProductCard(product);
           }
           return;
         }
@@ -2469,21 +2489,6 @@
         if (detailButton) openDetail(detailButton.dataset.detail);
         const buyButton = event.target.closest("[data-buy]");
         if (buyButton) openVariant(buyButton.dataset.buy, "buy");
-      });
-      document.getElementById("productGrid").addEventListener("input", (event) => {
-        const quantityInput = event.target.closest("[data-card-qty]");
-        if (!quantityInput) return;
-        const product = productData.find((item) => item.id === quantityInput.dataset.cardQty);
-        const qty = Number(quantityInput.value);
-        if (product && qty >= 1 && qty <= 999) product.orderQty = Math.floor(qty);
-      });
-      document.getElementById("productGrid").addEventListener("change", (event) => {
-        const quantityInput = event.target.closest("[data-card-qty]");
-        if (!quantityInput) return;
-        const product = productData.find((item) => item.id === quantityInput.dataset.cardQty);
-        if (!product) return;
-        product.orderQty = Math.min(999, Math.max(1, Math.floor(Number(quantityInput.value) || 1)));
-        quantityInput.value = product.orderQty;
       });
       const swipeStart = {};
       document.getElementById("productGrid").addEventListener("touchstart", (event) => {
