@@ -52,23 +52,30 @@ export class InventoryService {
   }
 
   async availability(productId?: string, refresh = false) {
-    if (refresh && this.configured()) await this.sync();
+    const variations = refresh && this.configured() ? await this.pancake.variations() : [];
+    const byId = new Map(variations.map((item) => [item.id, item]));
+    const bySku = new Map(variations.filter((item) => item.sku).map((item) => [item.sku.toUpperCase(), item]));
+    const byProductId = new Map(variations.filter((item) => item.productId).map((item) => [item.productId, item]));
     const content = await readSiteContent();
     const products = productId ? content.products.filter((product) => product.id === productId) : content.products;
     return products.flatMap((product) => buildProductInventory(product).map((item): PancakeAvailabilityItem & { productId: string } => {
       const linked = Boolean(item.pancakeVariationId || item.pancakeProductId || item.pancakeSku);
+      const variation = (item.pancakeVariationId ? byId.get(item.pancakeVariationId) : undefined)
+        || (item.pancakeSku ? bySku.get(item.pancakeSku.toUpperCase()) : undefined)
+        || (item.pancakeProductId ? byProductId.get(item.pancakeProductId) : undefined);
+      const pancakeQuantity = variation ? Validator.quantity(variation.quantity) : Validator.quantity(item.pancakeQuantity);
       return {
         productId: product.id,
         key: item.key,
         sku: item.sku,
-        pancakeProductId: item.pancakeProductId || "",
-        pancakeVariationId: item.pancakeVariationId || "",
-        pancakeSku: item.pancakeSku || "",
+        pancakeProductId: item.pancakeProductId || variation?.productId || "",
+        pancakeVariationId: item.pancakeVariationId || variation?.id || "",
+        pancakeSku: item.pancakeSku || variation?.sku || "",
         publishQuantity: Validator.quantity(item.publishQuantity),
-        pancakeQuantity: Validator.quantity(item.pancakeQuantity),
-        availableQuantity: linked ? InventoryService.available(item.publishQuantity, item.pancakeQuantity) : 0,
+        pancakeQuantity,
+        availableQuantity: linked ? InventoryService.available(item.publishQuantity, pancakeQuantity) : 0,
         linked,
-        lastSyncedAt: item.lastSyncedAt
+        lastSyncedAt: variation ? new Date().toISOString() : item.lastSyncedAt
       };
     }));
   }
@@ -77,8 +84,7 @@ export class InventoryService {
     const linkedItems = items;
     if (!linkedItems.length) return;
     if (!this.configured()) throw new PancakeIntegrationError("Website chưa cấu hình API Pancake nên chưa thể kiểm tra tồn kho.", "PANCAKE_NOT_CONFIGURED", 503);
-    await this.sync();
-    const availability = await this.availability();
+    const availability = await this.availability(undefined, true);
     for (const item of linkedItems) {
       const row = availability.find((candidate) =>
         (item.inventoryKey && candidate.key === item.inventoryKey)

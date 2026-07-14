@@ -273,6 +273,32 @@ export async function writeSiteContent(content: SiteContent) {
   return writeJsonStore("site-content.json", content);
 }
 
+export async function writeSiteContentFromAdmin(content: SiteContent) {
+  const latest = await readSiteContent();
+  const latestProducts = new Map(latest.products.map((product) => [product.id, product]));
+  const products = content.products.map((product) => {
+    const latestProduct = latestProducts.get(product.id);
+    if (!latestProduct) return product;
+    const latestRows = new Map(buildProductInventory(latestProduct).map((row) => [row.key, row]));
+    return {
+      ...product,
+      inventory: buildProductInventory(product).map((row) => {
+        const latestRow = latestRows.get(row.key);
+        if (!latestRow) return row;
+        return {
+          ...row,
+          pancakeProductId: latestRow.pancakeProductId || "",
+          pancakeVariationId: latestRow.pancakeVariationId || "",
+          pancakeSku: latestRow.pancakeSku || "",
+          pancakeQuantity: latestRow.pancakeQuantity || 0,
+          lastSyncedAt: latestRow.lastSyncedAt
+        };
+      })
+    };
+  });
+  return writeSiteContent({ ...content, products });
+}
+
 function parseMoneyValue(value: string) {
   return Number(String(value || "").replace(/[^0-9]/g, "")) || 0;
 }
