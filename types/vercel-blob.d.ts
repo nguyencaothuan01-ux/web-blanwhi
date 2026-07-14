@@ -24,4 +24,17 @@ declare module "@vercel/blob" {
     statusCode: 304;
     stream: null;
   } | null>;
+
+  export function list(options?: {
+    prefix?: string;
+    limit?: number;
+    cursor?: string;
+  }): Promise<{
+    blobs: Array<{
+      pathname: string;
+      uploadedAt: Date;
+    }>;
+    cursor?: string;
+    hasMore: boolean;
+  }>;
 }

@@ -81,14 +81,18 @@ export function PancakeAdmin() {
     void load().catch((error) => setMessage(error instanceof Error ? error.message : "Không tải được dữ liệu."));
   }, []);
 
-  async function action(name: "test" | "sync-inventory") {
+  async function action(name: "test" | "sync-inventory" | "recover-links") {
     setBusy(name);
     setMessage("");
     try {
       const response = await request({ action: name });
       if (response.dashboard) setDashboard(response.dashboard);
-      const testResult = response.result as { shopName?: string } | undefined;
-      setMessage(name === "test" ? `Kết nối thành công: ${testResult?.shopName || "Pancake POS"}` : "Đã đồng bộ tồn kho Pancake.");
+      const result = response.result as { shopName?: string; recoveredCount?: number; scannedBackups?: number } | undefined;
+      setMessage(name === "test"
+        ? `Kết nối thành công: ${result?.shopName || "Pancake POS"}`
+        : name === "recover-links"
+          ? `Đã khôi phục ${result?.recoveredCount || 0} liên kết từ ${result?.scannedBackups || 0} bản lưu gần nhất.`
+          : "Đã đồng bộ tồn kho Pancake.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Không thực hiện được.");
     } finally {
@@ -198,7 +202,10 @@ export function PancakeAdmin() {
       <section className="mt-6 border border-black p-4 md:p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div><h2 className="text-lg font-semibold uppercase">Liên kết từng sản phẩm</h2><p className="mt-1 text-sm text-neutral-600">Đã liên kết {linkedCount}/{rowCount} dòng. Bấm Liên kết ở đúng phân loại, màu và size rồi chọn sản phẩm có sẵn trong Pancake POS.</p></div>
-          <button onClick={() => action("sync-inventory")} disabled={Boolean(busy)} className="h-11 bg-black px-5 text-xs uppercase text-white disabled:opacity-50">{busy === "sync-inventory" ? "Đang đồng bộ..." : "Đồng bộ tồn kho"}</button>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => action("recover-links")} disabled={Boolean(busy)} className="h-11 border border-black px-5 text-xs uppercase disabled:opacity-50">{busy === "recover-links" ? "Đang khôi phục..." : "Khôi phục liên kết"}</button>
+            <button onClick={() => action("sync-inventory")} disabled={Boolean(busy)} className="h-11 bg-black px-5 text-xs uppercase text-white disabled:opacity-50">{busy === "sync-inventory" ? "Đang đồng bộ..." : "Đồng bộ tồn kho"}</button>
+          </div>
         </div>
 
         <div className="mt-5 grid gap-3">

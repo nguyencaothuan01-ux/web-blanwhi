@@ -63,6 +63,7 @@ export async function POST(request: Request) {
     }
     let result: unknown;
     if (body.action === "test") result = await new PancakeService().testConnection();
+    else if (body.action === "recover-links") result = await new ProductLinkService().recoverLinks();
     else if (body.action === "sync-inventory") result = await new InventoryService().sync();
     else if (body.action === "retry-order" && body.orderCode) result = await new OrderSyncService().retry(body.orderCode);
     else return NextResponse.json({ error: "Hành động Pancake không hợp lệ." }, { status: 400 });

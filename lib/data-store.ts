@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "fs/promises";
 import path from "path";
 
 type PgPool = {
@@ -267,6 +267,64 @@ export async function readJsonStore<T>(filename: string, fallback: T): Promise<T
     return JSON.parse(await readFile(file, "utf8")) as T;
   } catch {
     return fallback;
+  }
+}
+
+export async function readJsonStoreHistory<T>(filename: string, limit = 100): Promise<T[]> {
+  const safeLimit = Math.max(1, Math.min(250, Math.floor(limit)));
+
+  if (hasDatabase()) {
+    await ensureDatabaseSchema();
+    const pool = await getPool();
+    if (pool) {
+      const result = await pool.query(
+        `select store_value
+         from blanwhi_store_history
+         where store_key = $1
+         order by created_at desc
+         limit $2`,
+        [toStoreKey(filename), safeLimit]
+      );
+      return result.rows
+        .map((row) => row.store_value as T)
+        .filter((value): value is T => value !== undefined && value !== null);
+    }
+  }
+
+  if (shouldUseBlobStore(filename)) {
+    const { get, list } = await import("@vercel/blob");
+    const result = await list({ prefix: "blanwhi/content-history/site-content-", limit: safeLimit });
+    const blobs = [...result.blobs]
+      .sort((left, right) => right.uploadedAt.getTime() - left.uploadedAt.getTime())
+      .slice(0, safeLimit);
+    const values = await Promise.all(blobs.map(async (blob) => {
+      try {
+        const saved = await get(blob.pathname, { access: "public", useCache: false });
+        if (!saved || saved.statusCode !== 200) return null;
+        return JSON.parse(await new Response(saved.stream).text()) as T;
+      } catch {
+        return null;
+      }
+    }));
+    return values.filter((value) => value !== null) as T[];
+  }
+
+  const backupDir = path.join(writableDataDir(), "backups", toStoreKey(filename));
+  try {
+    const files = (await readdir(backupDir))
+      .filter((name) => name.endsWith(".json"))
+      .sort((left, right) => right.localeCompare(left))
+      .slice(0, safeLimit);
+    const values = await Promise.all(files.map(async (name) => {
+      try {
+        return JSON.parse(await readFile(path.join(backupDir, name), "utf8")) as T;
+      } catch {
+        return null;
+      }
+    }));
+    return values.filter((value) => value !== null) as T[];
+  } catch {
+    return [];
   }
 }
 

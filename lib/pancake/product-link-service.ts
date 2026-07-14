@@ -1,8 +1,9 @@
 import { buildProductInventory } from "@/lib/product-inventory";
+import { readJsonStoreHistory } from "@/lib/data-store";
 import { PancakeIntegrationError } from "@/lib/pancake/exception-handler";
 import { PancakeService } from "@/lib/pancake/pancake-service";
 import { Validator } from "@/lib/pancake/validator";
-import { readSiteContent, writeSiteContent } from "@/lib/site-content";
+import { readSiteContent, writeSiteContent, type SiteContent } from "@/lib/site-content";
 
 export type ProductLinkInput = {
   productId?: string;
@@ -21,6 +22,63 @@ export class ProductLinkService {
 
   async variations() {
     return this.pancake.variations();
+  }
+
+  async recoverLinks() {
+    const [content, history, variations] = await Promise.all([
+      readSiteContent(),
+      readJsonStoreHistory<Partial<SiteContent>>("site-content.json", 100),
+      this.pancake.variations()
+    ]);
+    const currentProducts = new Map(content.products.map((product) => [product.id, product]));
+    const variationById = new Map(variations.map((variation) => [variation.id, variation]));
+    const variationBySku = new Map(
+      variations
+        .filter((variation) => variation.sku)
+        .map((variation) => [variation.sku.trim().toUpperCase(), variation])
+    );
+    const candidates = new Map<string, (typeof variations)[number]>();
+
+    for (const snapshot of history) {
+      if (!Array.isArray(snapshot.products)) continue;
+      for (const historicalProduct of snapshot.products) {
+        if (!historicalProduct?.id || !currentProducts.has(historicalProduct.id)) continue;
+        for (const row of buildProductInventory(historicalProduct)) {
+          const candidateKey = `${historicalProduct.id}::${row.key}`;
+          if (candidates.has(candidateKey)) continue;
+          const variation = (row.pancakeVariationId && variationById.get(row.pancakeVariationId))
+            || (row.pancakeSku && variationBySku.get(row.pancakeSku.trim().toUpperCase()));
+          if (variation) candidates.set(candidateKey, variation);
+        }
+      }
+    }
+
+    let recoveredCount = 0;
+    const recoveredAt = new Date().toISOString();
+    const products = content.products.map((product) => ({
+      ...product,
+      inventory: buildProductInventory(product).map((row) => {
+        const alreadyLinked = Boolean(row.pancakeProductId || row.pancakeVariationId || row.pancakeSku);
+        const variation = candidates.get(`${product.id}::${row.key}`);
+        if (alreadyLinked || !variation) return row;
+        recoveredCount += 1;
+        return {
+          ...row,
+          pancakeProductId: variation.productId,
+          pancakeVariationId: variation.id,
+          pancakeSku: variation.sku,
+          pancakeQuantity: variation.quantity,
+          lastSyncedAt: recoveredAt
+        };
+      })
+    }));
+
+    if (recoveredCount > 0) await writeSiteContent({ ...content, products });
+    return {
+      recoveredCount,
+      scannedBackups: history.length,
+      availablePancakeVariations: variations.length
+    };
   }
 
   async update(input: ProductLinkInput) {
