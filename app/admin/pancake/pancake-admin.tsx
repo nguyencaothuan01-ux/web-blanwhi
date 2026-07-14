@@ -35,7 +35,18 @@ type Dashboard = {
   queueCount: number;
 };
 
-type ApiResult = { dashboard: Dashboard; result?: unknown; error?: string };
+type ApiResult = { dashboard?: Dashboard; result?: unknown; error?: string };
+
+type LinkResult = {
+  productId: string;
+  rowKey: string;
+  linked: boolean;
+  pancakeProductId: string;
+  pancakeVariationId: string;
+  pancakeSku: string;
+  pancakeQuantity: number;
+  lastSyncedAt?: string;
+};
 
 export function PancakeAdmin() {
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
@@ -75,7 +86,7 @@ export function PancakeAdmin() {
     setMessage("");
     try {
       const response = await request({ action: name });
-      setDashboard(response.dashboard);
+      if (response.dashboard) setDashboard(response.dashboard);
       const testResult = response.result as { shopName?: string } | undefined;
       setMessage(name === "test" ? `Kết nối thành công: ${testResult?.shopName || "Pancake POS"}` : "Đã đồng bộ tồn kho Pancake.");
     } catch (error) {
@@ -96,7 +107,6 @@ export function PancakeAdmin() {
     try {
       const response = await request({ action: "variations" });
       setVariations((response.result || []) as PancakeVariation[]);
-      setDashboard(response.dashboard);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Không đọc được danh sách sản phẩm Pancake.");
       setEditingKey("");
@@ -110,12 +120,27 @@ export function PancakeAdmin() {
     setBusy(`${operation}:${productId}::${rowKey}`);
     setMessage("");
     try {
-      const response = await request({ action: "link-product", productId, rowKey, variationId });
-      setDashboard(response.dashboard);
-      await load();
+      const selectedVariation = variations.find((item) => item.id === variationId);
+      const response = await request({ action: "link-product", productId, rowKey, variationId, variation: selectedVariation });
+      const saved = response.result as LinkResult;
+      setDashboard((current) => current ? {
+        ...current,
+        products: current.products.map((product) => product.id === productId ? {
+          ...product,
+          rows: product.rows.map((row) => row.key === rowKey ? {
+            ...row,
+            linked: saved.linked,
+            pancakeProductId: saved.pancakeProductId,
+            pancakeVariationId: saved.pancakeVariationId,
+            pancakeSku: saved.pancakeSku,
+            pancakeQuantity: saved.pancakeQuantity,
+            lastSyncedAt: saved.lastSyncedAt,
+            availableQuantity: saved.linked ? Math.min(row.publishQuantity || 0, saved.pancakeQuantity) : 0
+          } : row)
+        } : product)
+      } : current);
       setEditingKey("");
       setSelectedVariationId("");
-      const selectedVariation = variations.find((item) => item.id === variationId);
       setMessage(variationId
         ? `Đã xác minh liên kết thành công${selectedVariation ? `: SKU ${selectedVariation.sku || selectedVariation.id}` : ""}.`
         : "Đã xác minh hủy liên kết Pancake POS thành công.");

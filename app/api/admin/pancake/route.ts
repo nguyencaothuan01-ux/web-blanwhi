@@ -47,12 +47,23 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json() as { action?: string; orderCode?: string; productId?: string; rowKey?: string; variationId?: string };
+    const body = await request.json() as {
+      action?: string;
+      orderCode?: string;
+      productId?: string;
+      rowKey?: string;
+      variationId?: string;
+      variation?: { id?: string; productId?: string; sku?: string; quantity?: number };
+    };
+    if (body.action === "variations") {
+      return NextResponse.json({ ok: true, result: await new ProductLinkService().variations() });
+    }
+    if (body.action === "link-product") {
+      return NextResponse.json({ ok: true, result: await new ProductLinkService().update(body) });
+    }
     let result: unknown;
     if (body.action === "test") result = await new PancakeService().testConnection();
     else if (body.action === "sync-inventory") result = await new InventoryService().sync();
-    else if (body.action === "variations") result = await new ProductLinkService().variations();
-    else if (body.action === "link-product") result = await new ProductLinkService().update(body);
     else if (body.action === "retry-order" && body.orderCode) result = await new OrderSyncService().retry(body.orderCode);
     else return NextResponse.json({ error: "Hành động Pancake không hợp lệ." }, { status: 400 });
     return NextResponse.json({ ok: true, result, dashboard: await dashboard() });

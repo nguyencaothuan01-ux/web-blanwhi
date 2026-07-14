@@ -1,6 +1,5 @@
 import { buildProductInventory } from "@/lib/product-inventory";
 import { PancakeIntegrationError } from "@/lib/pancake/exception-handler";
-import { PancakeLogger } from "@/lib/pancake/logger";
 import { PancakeService } from "@/lib/pancake/pancake-service";
 import { Validator } from "@/lib/pancake/validator";
 import { readSiteContent, writeSiteContent } from "@/lib/site-content";
@@ -9,6 +8,12 @@ export type ProductLinkInput = {
   productId?: string;
   rowKey?: string;
   variationId?: string;
+  variation?: {
+    id?: string;
+    productId?: string;
+    sku?: string;
+    quantity?: number;
+  };
 };
 
 export class ProductLinkService {
@@ -44,7 +49,15 @@ export class ProductLinkService {
     };
 
     if (variationId) {
-      const variation = (await this.pancake.variations()).find((item) => item.id === variationId);
+      const suppliedVariation = input.variation?.id === variationId
+        ? {
+            id: variationId,
+            productId: String(input.variation.productId || ""),
+            sku: String(input.variation.sku || "").toUpperCase(),
+            quantity: Validator.quantity(input.variation.quantity)
+          }
+        : null;
+      const variation = suppliedVariation || (await this.pancake.variations()).find((item) => item.id === variationId);
       if (!variation) {
         throw new PancakeIntegrationError("Biến thể Pancake đã chọn không còn tồn tại.", "PANCAKE_VARIATION_NOT_FOUND", 404);
       }
@@ -68,35 +81,15 @@ export class ProductLinkService {
 
     await writeSiteContent({ ...content, products });
 
-    const confirmedContent = await readSiteContent();
-    const confirmedProduct = confirmedContent.products.find((item) => item.id === productId);
-    const confirmedRow = confirmedProduct
-      ? buildProductInventory(confirmedProduct).find((item) => item.key === rowKey)
-      : undefined;
-    const confirmedLinked = Boolean(confirmedRow?.pancakeVariationId || confirmedRow?.pancakeProductId || confirmedRow?.pancakeSku);
-
-    if (variationId && (!confirmedLinked || confirmedRow?.pancakeVariationId !== link.pancakeVariationId)) {
-      throw new PancakeIntegrationError("Đã gửi yêu cầu nhưng chưa xác minh được dữ liệu liên kết sau khi lưu.", "PRODUCT_LINK_NOT_PERSISTED", 500);
-    }
-    if (!variationId && confirmedLinked) {
-      throw new PancakeIntegrationError("Chưa xác minh được việc hủy liên kết sau khi lưu.", "PRODUCT_UNLINK_NOT_PERSISTED", 500);
-    }
-
-    await PancakeLogger.write(
-      "info",
-      variationId ? "product.link" : "product.unlink",
-      variationId
-        ? `Đã liên kết ${product.name} · ${target.size} với SKU ${link.pancakeSku || link.pancakeVariationId}.`
-        : `Đã hủy liên kết ${product.name} · ${target.size}.`
-    );
-
     return {
       productId,
       rowKey,
-      linked: confirmedLinked,
-      pancakeProductId: confirmedRow?.pancakeProductId || "",
-      pancakeVariationId: confirmedRow?.pancakeVariationId || "",
-      pancakeSku: confirmedRow?.pancakeSku || ""
+      linked: Boolean(variationId),
+      pancakeProductId: link.pancakeProductId,
+      pancakeVariationId: link.pancakeVariationId,
+      pancakeSku: link.pancakeSku,
+      pancakeQuantity: link.pancakeQuantity,
+      lastSyncedAt: link.lastSyncedAt
     };
   }
 }
