@@ -4,6 +4,7 @@ import { InventoryService } from "@/lib/pancake/inventory-service";
 import { PancakeLogger } from "@/lib/pancake/logger";
 import { OrderSyncService } from "@/lib/pancake/order-sync-service";
 import { PancakeService } from "@/lib/pancake/pancake-service";
+import { ProductLinkService } from "@/lib/pancake/product-link-service";
 import { QueueHandler } from "@/lib/pancake/queue-handler";
 import { buildProductInventory } from "@/lib/product-inventory";
 import { readSiteContent } from "@/lib/site-content";
@@ -12,15 +13,19 @@ async function dashboard() {
   const content = await readSiteContent();
   const logs = await PancakeLogger.list();
   const queue = await QueueHandler.list();
-  const products = content.products.map((product) => ({
-    id: product.id,
-    name: product.name,
-    rows: buildProductInventory(product).map((item) => ({
-      ...item,
-      linked: Boolean(item.pancakeProductId || item.pancakeVariationId || item.pancakeSku),
-      availableQuantity: InventoryService.available(item.publishQuantity, item.pancakeQuantity)
-    }))
-  }));
+  const products = content.products.map((product) => {
+    const classificationNames = new Map((product.classifications || []).map((item) => [item.id, item.name]));
+    return {
+      id: product.id,
+      name: product.name,
+      rows: buildProductInventory(product).map((item) => ({
+        ...item,
+        classificationName: item.classificationId ? classificationNames.get(item.classificationId) || item.classificationId : "",
+        linked: Boolean(item.pancakeProductId || item.pancakeVariationId || item.pancakeSku),
+        availableQuantity: InventoryService.available(item.publishQuantity, item.pancakeQuantity)
+      }))
+    };
+  });
   return {
     configuration: {
       apiKey: Boolean(process.env.PANCAKE_API_KEY),
@@ -42,10 +47,12 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json() as { action?: string; orderCode?: string };
+    const body = await request.json() as { action?: string; orderCode?: string; productId?: string; rowKey?: string; variationId?: string };
     let result: unknown;
     if (body.action === "test") result = await new PancakeService().testConnection();
     else if (body.action === "sync-inventory") result = await new InventoryService().sync();
+    else if (body.action === "variations") result = await new ProductLinkService().variations();
+    else if (body.action === "link-product") result = await new ProductLinkService().update(body);
     else if (body.action === "retry-order" && body.orderCode) result = await new OrderSyncService().retry(body.orderCode);
     else return NextResponse.json({ error: "Hành động Pancake không hợp lệ." }, { status: 400 });
     return NextResponse.json({ ok: true, result, dashboard: await dashboard() });
