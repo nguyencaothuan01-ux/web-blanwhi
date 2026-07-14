@@ -1156,14 +1156,6 @@
         !inventoryIsManaged(product) || (product.sizes || ["S", "M", "L", "XL"]).some((size) => hasStock(product, { classificationIndex, color, size }));
       const classificationHasStock = (product, classificationIndex = product.classificationIndex || 0) =>
         !inventoryIsManaged(product) || variantSwatches(product, classificationIndex).some((color) => colorHasStock(product, color, classificationIndex));
-      const selectedStock = (product) => stockFor(product, { classificationIndex: product.classificationIndex || 0, color: product.color, size: product.size });
-      const stockNote = (product, { classificationIndex = product.classificationIndex || 0, color = product.color, size = product.size, qty = 1 } = {}) => {
-        if (!inventoryIsManaged(product)) return "";
-        const stock = stockFor(product, { classificationIndex, color, size });
-        if (stock <= 0) return "Hết hàng";
-        if (qty > stock) return `Chỉ còn ${stock} sản phẩm`;
-        return `Còn ${stock} sản phẩm`;
-      };
       const showSoldOut = () => alert("Phân loại này đã hết hàng.");
 
       const productImageUrl = (product, color = product.color, classificationIndex = product.classificationIndex || 0) => {
@@ -1935,7 +1927,6 @@
             <div class="detail-info">
               <h2>${product.name}</h2>
               ${priceMarkup(product, true)}
-              ${inventoryIsManaged(product) ? `<p class="stock-note ${selectedStock(product) <= 0 ? "sold-out" : ""}">${stockNote(product)}</p>` : ""}
               ${isMessageCard ? "" : `<p class="muted">${productDescription(product)}</p>`}
               ${isGift ? "" : `<div class="detail-section">
                 <button data-detail-toggle="size">Bảng size <span>+</span></button>
@@ -1973,7 +1964,11 @@
         const stock = liveAvailable === null ? stockFor(product, { classificationIndex: variantState.classificationIndex, color, size: variantState.size }) : liveAvailable;
         if (stock !== Infinity && stock > 0 && variantState.qty > stock) variantState.qty = stock;
         const outOfStock = stock <= 0;
-        const note = stockNote(product, { classificationIndex: variantState.classificationIndex, color, size: variantState.size, qty: variantState.qty });
+        const customerStockNote = outOfStock
+          ? "Hết hàng"
+          : liveAvailable !== null && liveAvailable > 0 && liveAvailable < 5
+            ? `Sắp hết hàng · Chỉ còn ${liveAvailable} sản phẩm`
+            : "";
         variantContent.innerHTML = `
           <div class="detail-grid" style="grid-template-columns:.8fr 1.2fr">
             <button class="zoom-action" type="button" data-zoom-variant="${product.id}" aria-label="Phóng to ảnh ${product.name}">
@@ -1982,7 +1977,6 @@
             <div class="detail-info">
               <h2>${product.name}</h2>
               ${priceMarkup(product, true)}
-              ${liveAvailable === null ? "" : `<p class="muted" style="color:${outOfStock ? "#c00" : "#176b36"}">${outOfStock ? "Hết hàng" : `Còn có thể bán ${liveAvailable} sản phẩm`}</p>`}
               ${product.kind.startsWith("gift-") ? `<div><p class="muted">Loại</p><strong>Gift Packaging</strong></div>` : `<div>
                 <p class="muted">Size</p>
                 <div class="sizes" data-variant-sizes>
@@ -2023,7 +2017,7 @@
                   <input id="variantQtyInput" type="number" min="1" max="${stock === Infinity ? 999 : Math.max(1, stock)}" value="${outOfStock ? 1 : variantState.qty}" inputmode="numeric" aria-label="Số lượng ${product.name}" ${outOfStock ? "disabled" : ""} />
                   <button type="button" data-variant-qty="1" aria-label="Tăng số lượng ${product.name}" ${outOfStock ? "disabled" : ""}>+</button>
                 </div>
-                ${inventoryIsManaged(product) ? `<p class="stock-note ${outOfStock ? "sold-out" : ""}">${note}</p>` : ""}
+                ${customerStockNote ? `<p class="stock-note ${outOfStock ? "sold-out" : ""}">${customerStockNote}</p>` : ""}
               </div>
               <div class="variant-actions">
                 <button class="secondary" id="variantCancel">Huỷ</button>
