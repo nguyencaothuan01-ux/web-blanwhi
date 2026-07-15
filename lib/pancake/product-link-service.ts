@@ -3,7 +3,7 @@ import { readJsonStoreHistory } from "@/lib/data-store";
 import { PancakeIntegrationError } from "@/lib/pancake/exception-handler";
 import { PancakeService } from "@/lib/pancake/pancake-service";
 import { Validator } from "@/lib/pancake/validator";
-import { readSiteContent, writeSiteContent, type SiteContent } from "@/lib/site-content";
+import { readSiteContent, writePancakeProductLink, writeSiteContent, type SiteContent } from "@/lib/site-content";
 
 export type ProductLinkInput = {
   productId?: string;
@@ -136,6 +136,8 @@ export class ProductLinkService {
       };
     }
 
+    await writePancakeProductLink(productId, rowKey, link);
+
     const products = content.products.map((item) => item.id === productId
       ? {
           ...item,
@@ -146,6 +148,18 @@ export class ProductLinkService {
       : item);
 
     await writeSiteContent({ ...content, products });
+
+    const persistedProduct = (await readSiteContent()).products.find((item) => item.id === productId);
+    const persistedRow = persistedProduct && buildProductInventory(persistedProduct).find((item) => item.key === rowKey);
+    if (!persistedRow
+      || String(persistedRow.pancakeVariationId || "") !== String(link.pancakeVariationId || "")
+      || String(persistedRow.pancakeSku || "") !== String(link.pancakeSku || "")) {
+      throw new PancakeIntegrationError(
+        "Liên kết chưa được lưu bền vững. Vui lòng thử lại.",
+        "PANCAKE_LINK_VERIFY_FAILED",
+        503
+      );
+    }
 
     return {
       productId,

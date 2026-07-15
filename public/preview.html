@@ -368,6 +368,10 @@
       .checkout-card.quick-checkout .order-box { display: none; }
       .checkout-form { display: grid; gap: 12px; }
       .checkout-form input, .checkout-form textarea, .checkout-form select { width: 100%; border: 1px solid var(--line); min-height: 42px; padding: 10px; background: #fff; }
+      .saved-address-box { display: grid; gap: 7px; }
+      .saved-address-box > span { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+      .save-address-check { display: flex; align-items: center; gap: 9px; font-size: 12px; color: #555; cursor: pointer; }
+      .save-address-check input { width: 17px; min-height: 17px; margin: 0; accent-color: #111; }
       .pay-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
       .pay-grid label { border: 1px solid var(--line); padding: 12px; font-size: 13px; }
       .order-box { background: #f7f7f7; padding: 16px; display: grid; gap: 10px; align-content: start; }
@@ -938,9 +942,14 @@
         <div class="checkout-top"><h2 style="margin:0">Thanh toán một trang</h2><button class="icon-button" id="closeCheckout">×</button></div>
         <div class="checkout-grid">
           <form class="checkout-form" id="checkoutForm">
-            <input required placeholder="Họ tên" />
-            <input required placeholder="Số điện thoại" />
-            <input required placeholder="Địa chỉ giao hàng" />
+            <input id="checkoutName" name="customerName" required autocomplete="name" placeholder="Họ tên" />
+            <input id="checkoutPhone" name="customerPhone" required autocomplete="tel" inputmode="tel" placeholder="Số điện thoại" />
+            <div class="saved-address-box">
+              <span>Địa chỉ giao hàng</span>
+              <select id="savedAddressSelect" aria-label="Chọn địa chỉ đã lưu"></select>
+              <input id="checkoutAddress" name="customerAddress" required autocomplete="street-address" placeholder="Nhập địa chỉ giao hàng" />
+              <label class="save-address-check"><input id="saveCheckoutAddress" type="checkbox" checked /> <span>Lưu địa chỉ này cho lần mua sau trên thiết bị này</span></label>
+            </div>
             <div class="custom-confirm-area" id="customConfirmArea"></div>
             <div class="pay-grid">
               <label><input type="radio" name="pay" checked /> COD</label>
@@ -1276,7 +1285,7 @@
         return `
         <article class="card">
           ${visualMarkup(product, soldOut)}
-          <div class="meta"><div><b>${product.name}</b><div class="muted">${product.fit}</div></div>${priceMarkup(product)}</div>
+          <div class="meta"><div><b>${product.name}</b></div>${priceMarkup(product)}</div>
           ${product.kind.startsWith("gift-") ? `<div class="muted">Gói quà tiêu chuẩn BLANWHI</div>` : `
             <div class="sizes" data-size-group="${product.id}">
               ${sizeButtonsMarkup(product)}
@@ -1651,6 +1660,11 @@
       const bankTransferModal = document.getElementById("bankTransferModal");
       const bankList = document.getElementById("bankList");
       const customerBankAccount = document.getElementById("customerBankAccount");
+      const checkoutName = document.getElementById("checkoutName");
+      const checkoutPhone = document.getElementById("checkoutPhone");
+      const checkoutAddress = document.getElementById("checkoutAddress");
+      const savedAddressSelect = document.getElementById("savedAddressSelect");
+      const saveCheckoutAddress = document.getElementById("saveCheckoutAddress");
       let orderNote = "";
       let orderVoucherCode = "";
       let selectedVoucherCode = "";
@@ -1687,6 +1701,55 @@
       let wholesaleState = { productId: null, qty: 10 };
       const loadOrders = () => JSON.parse(localStorage.getItem("blanwhiOrders") || "[]");
       const saveOrders = (orders) => localStorage.setItem("blanwhiOrders", JSON.stringify(orders));
+      const loadSavedAddresses = () => {
+        try {
+          const saved = JSON.parse(localStorage.getItem("blanwhiSavedAddresses") || "[]");
+          return Array.isArray(saved) ? saved.filter((item) => item?.address).slice(0, 5) : [];
+        } catch {
+          return [];
+        }
+      };
+      const saveCustomerAddress = (customer) => {
+        const normalized = {
+          name: String(customer.name || "").trim(),
+          phone: String(customer.phone || "").trim(),
+          address: String(customer.address || "").trim()
+        };
+        if (!normalized.address) return;
+        const previous = loadSavedAddresses().filter((item) =>
+          String(item.address || "").trim().toLowerCase() !== normalized.address.toLowerCase()
+          || String(item.phone || "").trim() !== normalized.phone
+        );
+        localStorage.setItem("blanwhiSavedAddresses", JSON.stringify([normalized, ...previous].slice(0, 5)));
+      };
+      function applySavedAddress(index) {
+        if (index === "new") {
+          checkoutAddress.value = "";
+          checkoutAddress.focus();
+          return;
+        }
+        const selected = loadSavedAddresses()[Number(index)];
+        if (!selected) return;
+        checkoutName.value = selected.name || "";
+        checkoutPhone.value = selected.phone || "";
+        checkoutAddress.value = selected.address || "";
+      }
+      function renderSavedAddresses() {
+        const addresses = loadSavedAddresses();
+        savedAddressSelect.replaceChildren();
+        addresses.forEach((item, index) => {
+          const option = document.createElement("option");
+          option.value = String(index);
+          option.textContent = `${item.address}${item.phone ? ` · ${item.phone}` : ""}`;
+          savedAddressSelect.appendChild(option);
+        });
+        const newOption = document.createElement("option");
+        newOption.value = "new";
+        newOption.textContent = addresses.length ? "+ Nhập địa chỉ mới" : "Nhập địa chỉ giao hàng";
+        savedAddressSelect.appendChild(newOption);
+        savedAddressSelect.value = addresses.length ? "0" : "new";
+        if (addresses.length) applySavedAddress("0");
+      }
       const paymentMethodMap = { card: "vnpay", wallet: "momo", zalopay: "zalopay", transfer: "bank_transfer" };
       const customerShippingLabels = {
         not_created: "Đơn mới đặt",
@@ -1944,7 +2007,6 @@
             <div class="detail-info">
               <h2>${product.name}</h2>
               ${priceMarkup(product, true)}
-              ${isMessageCard ? "" : `<p class="muted">${productDescription(product)}</p>`}
               ${isGift ? "" : `<div class="detail-section">
                 <button data-detail-toggle="size">Bảng size <span>+</span></button>
                 <div class="detail-panel" id="detail-size">
@@ -1962,7 +2024,7 @@
               <div class="detail-section">
                 <button data-detail-toggle="material">Chất liệu <span>+</span></button>
                 <div class="detail-panel" id="detail-material">
-                  <p>Chất cotton pha spandex mềm, thoáng và có độ co giãn nhẹ. Bề mặt vải mịn, đứng form vừa phải, phù hợp mặc hằng ngày và giữ phom sau nhiều lần giặt.</p>
+                  <p>${escapeMarkup(product.fit || productDescription(product))}</p>
                 </div>
               </div>`}
             </div>
@@ -2024,7 +2086,7 @@
               <div class="detail-section">
                 <button data-variant-toggle="material">Chất liệu <span>+</span></button>
                 <div class="detail-panel" id="variant-detail-material">
-                  <p>Chất cotton pha spandex mềm, thoáng và có độ co giãn nhẹ. Bề mặt vải mịn, đứng form vừa phải, phù hợp mặc hằng ngày và giữ phom sau nhiều lần giặt.</p>
+                  <p>${escapeMarkup(product.fit || productDescription(product))}</p>
                 </div>
               </div>`}
               <div>
@@ -2485,6 +2547,7 @@
 
       function openCheckout() {
         closeCart();
+        renderSavedAddresses();
         document.querySelector(".checkout-card").classList.add("quick-checkout");
         checkoutModal.classList.add("open");
         renderCheckoutSummary();
@@ -3286,10 +3349,10 @@
         renderBankList();
       });
       document.getElementById("openCustomerBankApp").addEventListener("click", openSelectedBankApp);
+      savedAddressSelect.addEventListener("change", () => applySavedAddress(savedAddressSelect.value));
       document.getElementById("checkoutForm").addEventListener("submit", async (event) => {
         event.preventDefault();
         const checkoutForm = event.currentTarget;
-        const fields = [...checkoutForm.querySelectorAll("input, textarea")];
         const next = totals();
         const selectedPay = document.querySelector("input[name='pay']:checked")?.value || "cod";
         const paymentMethod = paymentMethodMap[selectedPay] || "cod";
@@ -3303,9 +3366,9 @@
           step: 0,
           paymentMethod,
           customer: {
-            name: fields[0].value,
-            phone: fields[1].value,
-            address: fields[2].value
+            name: checkoutName.value.trim(),
+            phone: checkoutPhone.value.trim(),
+            address: checkoutAddress.value.trim()
           },
           items: cart.map((item) => ({
             productId: item.id,
@@ -3358,6 +3421,7 @@
           if (!response.ok) throw new Error(result.error || "Không thể tạo giao dịch thanh toán.");
           order.code = result.order?.code || order.code;
           order.status = result.order?.status === "pending" ? "Chờ thanh toán" : result.order?.status === "paid" ? "Đã thanh toán" : order.status;
+          if (saveCheckoutAddress.checked) saveCustomerAddress(order.customer);
           saveOrders([order, ...loadOrders()]);
           cart.length = 0;
           orderNote = "";

@@ -7,11 +7,12 @@ import { PancakeService } from "@/lib/pancake/pancake-service";
 import { ProductLinkService } from "@/lib/pancake/product-link-service";
 import { QueueHandler } from "@/lib/pancake/queue-handler";
 import { buildProductInventory } from "@/lib/product-inventory";
-import { readSiteContent } from "@/lib/site-content";
+import { readSiteContent, seedPancakeProductLinks } from "@/lib/site-content";
 import { hasBlobStore, hasDatabase } from "@/lib/data-store";
 
 async function dashboard() {
   const content = await readSiteContent();
+  await seedPancakeProductLinks(content);
   const logs = await PancakeLogger.list();
   const queue = await QueueHandler.list();
   const products = content.products.map((product) => {

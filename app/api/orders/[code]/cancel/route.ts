@@ -23,6 +23,17 @@ export async function POST(request: Request, { params }: Params) {
   if (!phoneKey(body.phone) || phoneKey(body.phone) !== phoneKey(order.customer.phone)) {
     return NextResponse.json({ error: "Số điện thoại không khớp với đơn hàng." }, { status: 403 });
   }
+  if (order.status === "cancelled") {
+    const orderSync = new OrderSyncService();
+    let reconciled = order;
+    if (!order.providerOrderId) {
+      try { reconciled = await orderSync.reconcileExisting(order); } catch { /* Đơn chỉ tồn tại trên website vẫn được xem là đã hủy. */ }
+    }
+    if (reconciled.providerOrderId && reconciled.pancakeStatus !== "cancelled") {
+      try { reconciled = await orderSync.cancel(reconciled); } catch { /* Hàng đợi sẽ gửi lại yêu cầu hủy POS. */ }
+    }
+    return NextResponse.json({ ok: true, order: reconciled });
+  }
   if (!canCancel(order)) {
     return NextResponse.json({ error: "Đơn đã được xác nhận hoặc bàn giao vận chuyển nên không thể hủy trực tuyến." }, { status: 409 });
   }

@@ -106,15 +106,15 @@ export class PancakeService {
     });
   }
 
-  async orders() {
+  async orders(search = "") {
     return this.client.request<unknown>(`/shops/${encodeURIComponent(this.shopId())}/orders`, {
-      query: { page_number: 1, page_size: 100 }
+      query: { page_number: 1, page_size: 100, search: search || undefined }
     });
   }
 
   async findOrder(orderCode: string) {
     const expected = orderCode.trim().toUpperCase();
-    return records(await this.orders()).find((item) => {
+    return records(await this.orders(orderCode)).find((item) => {
       const partnerCode = text(item, ["custom_id", "partner_order_id", "order_code", "code"]).toUpperCase();
       const externalCode = text(item, ["external_order_id"]).replace(/^BLANWHI:/i, "").toUpperCase();
       return partnerCode === expected || externalCode === expected;

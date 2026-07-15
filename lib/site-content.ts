@@ -24,6 +24,16 @@ export type CmsProductInventoryItem = {
   classificationId?: string;
 };
 
+type PancakeLinkSnapshot = Pick<CmsProductInventoryItem,
+  "pancakeProductId" | "pancakeVariationId" | "pancakeSku" | "pancakeQuantity" | "lastSyncedAt"
+>;
+
+function pancakeLinkKey(productId: string, rowKey: string) {
+  return `${productId}::${rowKey}`;
+}
+
+let pancakeLinkWriteQueue = Promise.resolve();
+
 export type CmsProduct = {
   id: string;
   name: string;
@@ -215,7 +225,10 @@ export const defaultSiteContent: SiteContent = {
 };
 
 export async function readSiteContent(): Promise<SiteContent> {
-  const saved = await readJsonStore<Partial<SiteContent>>("site-content.json", defaultSiteContent);
+  const [saved, pancakeLinks] = await Promise.all([
+    readJsonStore<Partial<SiteContent>>("site-content.json", defaultSiteContent),
+    readJsonStore<Record<string, PancakeLinkSnapshot>>("pancake-links.json", {})
+  ]);
   const defaultProductsById = new Map(defaultSiteContent.products.map((product) => [product.id, product]));
   const products = (saved.products || defaultSiteContent.products).map((product) => {
     const fallback = defaultProductsById.get(product.id) || {} as Partial<CmsProduct>;
@@ -245,7 +258,11 @@ export async function readSiteContent(): Promise<SiteContent> {
       genders: product.genders && product.genders.length ? product.genders : (fallback.genders || ["men", "women"]),
       isBestSeller: product.isBestSeller === undefined ? Boolean(fallback.isBestSeller || product.sold >= 650) : product.isBestSeller
     };
-    return { ...normalizedProduct, inventory: buildProductInventory(normalizedProduct as CmsProduct) };
+    const inventory = buildProductInventory(normalizedProduct as CmsProduct).map((row) => {
+      const persistedLink = pancakeLinks[pancakeLinkKey(product.id, row.key)];
+      return persistedLink ? { ...row, ...persistedLink } : row;
+    });
+    return { ...normalizedProduct, inventory };
   });
   return {
     ...defaultSiteContent,
@@ -271,6 +288,60 @@ export async function readSiteContent(): Promise<SiteContent> {
 
 export async function writeSiteContent(content: SiteContent) {
   return writeJsonStore("site-content.json", content);
+}
+
+export async function writePancakeProductLink(productId: string, rowKey: string, link: PancakeLinkSnapshot) {
+  const key = pancakeLinkKey(productId, rowKey);
+  let saved!: PancakeLinkSnapshot;
+  const operation = pancakeLinkWriteQueue.then(async () => {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const current = await readJsonStore<Record<string, PancakeLinkSnapshot>>("pancake-links.json", {});
+      await writeJsonStore("pancake-links.json", { ...current, [key]: link });
+      const verified = await readJsonStore<Record<string, PancakeLinkSnapshot>>("pancake-links.json", {});
+      const candidate = verified[key];
+      if (candidate
+        && String(candidate.pancakeVariationId || "") === String(link.pancakeVariationId || "")
+        && String(candidate.pancakeSku || "") === String(link.pancakeSku || "")) {
+        saved = candidate;
+        return;
+      }
+    }
+    throw new Error("PANCAKE_LINK_PERSIST_FAILED");
+  });
+  pancakeLinkWriteQueue = operation.catch(() => undefined);
+  await operation;
+  return saved;
+}
+
+export async function seedPancakeProductLinks(content: SiteContent) {
+  const snapshots = content.products.flatMap((product) => buildProductInventory(product)
+    .filter((row) => row.pancakeProductId || row.pancakeVariationId || row.pancakeSku)
+    .map((row) => ({
+      key: pancakeLinkKey(product.id, row.key),
+      link: {
+        pancakeProductId: row.pancakeProductId || "",
+        pancakeVariationId: row.pancakeVariationId || "",
+        pancakeSku: row.pancakeSku || "",
+        pancakeQuantity: row.pancakeQuantity || 0,
+        lastSyncedAt: row.lastSyncedAt
+      } satisfies PancakeLinkSnapshot
+    })));
+  if (!snapshots.length) return 0;
+
+  let added = 0;
+  const operation = pancakeLinkWriteQueue.then(async () => {
+    const current = await readJsonStore<Record<string, PancakeLinkSnapshot>>("pancake-links.json", {});
+    const next = { ...current };
+    for (const snapshot of snapshots) {
+      if (Object.prototype.hasOwnProperty.call(next, snapshot.key)) continue;
+      next[snapshot.key] = snapshot.link;
+      added += 1;
+    }
+    if (added) await writeJsonStore("pancake-links.json", next);
+  });
+  pancakeLinkWriteQueue = operation.catch(() => undefined);
+  await operation;
+  return added;
 }
 
 export async function writeSiteContentFromAdmin(content: SiteContent) {

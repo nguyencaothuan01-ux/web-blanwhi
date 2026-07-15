@@ -35,18 +35,24 @@ function value(payload: Record<string, unknown>, keys: string[]) {
 export class OrderSyncService {
   constructor(private readonly pancake = new PancakeService()) {}
 
+  async reconcileExisting(order: ShopOrder) {
+    const existing = await this.pancake.findOrder(order.code);
+    if (!existing) return order;
+    const existingId = externalId(existing);
+    const updated = await updateOrder(order.code, {
+      providerOrderId: existingId || order.providerOrderId,
+      externalSync: { ...order.externalSync, pancake: `Đã tồn tại trên Pancake${existingId ? ` #${existingId}` : ""}`, lastSyncedAt: new Date().toISOString() }
+    });
+    await PancakeLogger.write("info", "order.idempotency", "Đã nhận lại ID của đơn có sẵn trên Pancake.", order.code);
+    return updated || order;
+  }
+
   async create(order: ShopOrder, enqueueOnFailure = true) {
     if (order.providerOrderId || order.externalSync?.pancake?.startsWith("Đã tạo")) return order;
     try {
       const existing = enqueueOnFailure ? null : await this.pancake.findOrder(order.code);
       if (existing) {
-        const existingId = externalId(existing);
-        const updated = await updateOrder(order.code, {
-          providerOrderId: existingId || order.providerOrderId,
-          externalSync: { ...order.externalSync, pancake: `Đã tồn tại trên Pancake${existingId ? ` #${existingId}` : ""}`, lastSyncedAt: new Date().toISOString() }
-        });
-        await PancakeLogger.write("info", "order.idempotency", "Không tạo trùng vì đơn đã tồn tại trên Pancake.", order.code);
-        return updated || order;
+        return this.reconcileExisting(order);
       }
       const response = await this.pancake.createOrder(order);
       const providerOrderId = externalId(response);
@@ -62,6 +68,14 @@ export class OrderSyncService {
       return updated || order;
     } catch (error) {
       const message = ExceptionHandler.message(error);
+      if (/trùng|duplicate/i.test(message)) {
+        try {
+          const reconciled = await this.reconcileExisting(order);
+          if (reconciled.providerOrderId) return reconciled;
+        } catch {
+          // Tiếp tục ghi nhận lỗi gốc và đưa vào hàng đợi.
+        }
+      }
       await PancakeLogger.write("error", "order.create", message, order.code);
       await updateOrder(order.code, { externalSync: { ...order.externalSync, pancake: `Chờ gửi lại: ${message}`, lastSyncedAt: new Date().toISOString() } });
       if (enqueueOnFailure) {

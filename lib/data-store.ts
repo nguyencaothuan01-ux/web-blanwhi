@@ -27,7 +27,7 @@ function shouldUseBlobStore(filename: string) {
 }
 
 function shouldUseEncryptedBlobStore(filename: string) {
-  return ["orders.json", "integrations.json", "pancake-logs.json", "pancake-queue.json"].includes(filename)
+  return ["orders.json", "integrations.json", "pancake-logs.json", "pancake-queue.json", "pancake-links.json"].includes(filename)
     && hasBlobStore()
     && Boolean(process.env.DATA_ENCRYPTION_KEY || process.env.PANCAKE_WEBHOOK_SECRET || process.env.BLOB_READ_WRITE_TOKEN);
 }
