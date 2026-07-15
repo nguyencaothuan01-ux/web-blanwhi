@@ -947,7 +947,9 @@
             <div class="saved-address-box">
               <span>Địa chỉ giao hàng</span>
               <select id="savedAddressSelect" aria-label="Chọn địa chỉ đã lưu"></select>
-              <input id="checkoutAddress" name="customerAddress" required autocomplete="street-address" placeholder="Nhập địa chỉ giao hàng" />
+              <input id="checkoutProvince" name="customerProvince" required autocomplete="address-level1" placeholder="Tỉnh / Thành phố *" />
+              <input id="checkoutWard" name="customerWard" required autocomplete="address-level3" placeholder="Phường / Xã *" />
+              <input id="checkoutAddress" name="customerAddress" required autocomplete="street-address" placeholder="Số nhà, tên đường *" />
               <label class="save-address-check"><input id="saveCheckoutAddress" type="checkbox" checked /> <span>Lưu địa chỉ này cho lần mua sau trên thiết bị này</span></label>
             </div>
             <div class="custom-confirm-area" id="customConfirmArea"></div>
@@ -1662,6 +1664,8 @@
       const customerBankAccount = document.getElementById("customerBankAccount");
       const checkoutName = document.getElementById("checkoutName");
       const checkoutPhone = document.getElementById("checkoutPhone");
+      const checkoutProvince = document.getElementById("checkoutProvince");
+      const checkoutWard = document.getElementById("checkoutWard");
       const checkoutAddress = document.getElementById("checkoutAddress");
       const savedAddressSelect = document.getElementById("savedAddressSelect");
       const saveCheckoutAddress = document.getElementById("saveCheckoutAddress");
@@ -1713,6 +1717,9 @@
         const normalized = {
           name: String(customer.name || "").trim(),
           phone: String(customer.phone || "").trim(),
+          province: String(customer.province || "").trim(),
+          ward: String(customer.ward || "").trim(),
+          house: String(customer.house || "").trim(),
           address: String(customer.address || "").trim()
         };
         if (!normalized.address) return;
@@ -1724,15 +1731,19 @@
       };
       function applySavedAddress(index) {
         if (index === "new") {
+          checkoutProvince.value = "";
+          checkoutWard.value = "";
           checkoutAddress.value = "";
-          checkoutAddress.focus();
+          checkoutProvince.focus();
           return;
         }
         const selected = loadSavedAddresses()[Number(index)];
         if (!selected) return;
         checkoutName.value = selected.name || "";
         checkoutPhone.value = selected.phone || "";
-        checkoutAddress.value = selected.address || "";
+        checkoutProvince.value = selected.province || "";
+        checkoutWard.value = selected.ward || "";
+        checkoutAddress.value = selected.house || (!selected.province && !selected.ward ? selected.address || "" : "");
       }
       function renderSavedAddresses() {
         const addresses = loadSavedAddresses();
@@ -3368,7 +3379,7 @@
           customer: {
             name: checkoutName.value.trim(),
             phone: checkoutPhone.value.trim(),
-            address: checkoutAddress.value.trim()
+            address: [checkoutAddress.value, checkoutWard.value, checkoutProvince.value].map((value) => value.trim()).filter(Boolean).join(", ")
           },
           items: cart.map((item) => ({
             productId: item.id,
@@ -3421,7 +3432,12 @@
           if (!response.ok) throw new Error(result.error || "Không thể tạo giao dịch thanh toán.");
           order.code = result.order?.code || order.code;
           order.status = result.order?.status === "pending" ? "Chờ thanh toán" : result.order?.status === "paid" ? "Đã thanh toán" : order.status;
-          if (saveCheckoutAddress.checked) saveCustomerAddress(order.customer);
+          if (saveCheckoutAddress.checked) saveCustomerAddress({
+            ...order.customer,
+            province: checkoutProvince.value,
+            ward: checkoutWard.value,
+            house: checkoutAddress.value
+          });
           saveOrders([order, ...loadOrders()]);
           cart.length = 0;
           orderNote = "";
