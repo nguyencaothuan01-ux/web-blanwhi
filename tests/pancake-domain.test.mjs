@@ -22,7 +22,7 @@ test("mã chống tạo đơn trùng ổn định theo mã đơn website", () =>
 test("payload tạo đơn gửi đủ khách hàng, SKU, số lượng, giá và tổng tiền", () => {
   const payload = buildPancakeOrderPayload({
     code: "BLW-123",
-    customer: { name: "Khách", phone: "0900000000", email: "a@example.com", address: "TP.HCM", note: "Gọi trước" },
+    customer: { name: "Khách", phone: "0900000000", email: "a@example.com", address: "12 Đường A, Phường B, Quận C, TP.HCM", house: "12 Đường A", provinceId: "701", districtId: "70101", wardId: "7010101", note: "Gọi trước" },
     items: [{ name: "Áo", pancakeVariationId: "variation-1", pancakeProductId: "product-1", pancakeSku: "AO-DEN-M", quantity: 2, unitPrice: 300000 }],
     discount: 10000,
     shipping: 30000,
@@ -35,6 +35,9 @@ test("payload tạo đơn gửi đủ khách hàng, SKU, số lượng, giá và
   assert.equal(payload.items[0].variation_info.retail_price, 300000);
   assert.equal(payload.items[0].quantity, 2);
   assert.equal(payload.total_price, 620000);
+  assert.equal(payload.shipping_address.province_id, "701");
+  assert.equal(payload.shipping_address.district_id, "70101");
+  assert.equal(payload.shipping_address.commune_id, "7010101");
   assert.equal(payload.status, 12);
   assert.equal(payload.partner.partner_id, 3);
   assert.equal(payload.shop_partner_id, 10932);

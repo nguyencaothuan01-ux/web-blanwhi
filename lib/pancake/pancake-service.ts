@@ -63,6 +63,14 @@ export type PancakeShippingPartner = {
   accountName?: string;
 };
 
+export type PancakeGeoItem = {
+  id: string;
+  name: string;
+  provinceId?: string;
+  districtId?: string;
+  newId?: string;
+};
+
 function variationName(item: Record<string, unknown>) {
   const product = nestedRecord(item.product);
   const productName = text(product, ["name", "display_name"]);
@@ -172,6 +180,38 @@ export class PancakeService {
     const configuredPartnerId = Number(process.env.PANCAKE_VTP_PARTNER_ID || 0);
     return partners.find((partner) => configuredPartnerId > 0 && partner.id === configuredPartnerId)
       || partners.find((partner) => /(^|\b)(vtp|viettel\s*post)(\b|$)/i.test(partner.name));
+  }
+
+  async provinces(): Promise<PancakeGeoItem[]> {
+    const response = await this.client.request<unknown>("/geo/provinces", { query: { country_code: "84", is_new: "false" } });
+    return records(response).map((item) => ({
+      id: text(item, ["id"]),
+      name: text(item, ["name"]),
+      newId: text(item, ["new_id"])
+    })).filter((item) => item.id && item.name);
+  }
+
+  async districts(provinceId: string): Promise<PancakeGeoItem[]> {
+    const id = Validator.required(provinceId, "tỉnh/thành phố");
+    const response = await this.client.request<unknown>("/geo/districts", { query: { province_id: id } });
+    return records(response).map((item) => ({
+      id: text(item, ["id"]),
+      name: text(item, ["name"]),
+      provinceId: text(item, ["province_id"])
+    })).filter((item) => item.id && item.name);
+  }
+
+  async communes(provinceId: string, districtId: string): Promise<PancakeGeoItem[]> {
+    const province = Validator.required(provinceId, "tỉnh/thành phố");
+    const district = Validator.required(districtId, "quận/huyện");
+    const response = await this.client.request<unknown>("/geo/communes", { query: { province_id: province, district_id: district } });
+    return records(response).map((item) => ({
+      id: text(item, ["id"]),
+      name: text(item, ["name"]),
+      provinceId: text(item, ["province_id"]),
+      districtId: text(item, ["district_id"]),
+      newId: text(item, ["new_id"])
+    })).filter((item) => item.id && item.name);
   }
 
   async cancelOrder(providerOrderId: string) {

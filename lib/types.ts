@@ -68,6 +68,10 @@ export type OrderCustomer = {
   house?: string;
   ward?: string;
   province?: string;
+  provinceId?: string;
+  district?: string;
+  districtId?: string;
+  wardId?: string;
   note?: string;
 };
 

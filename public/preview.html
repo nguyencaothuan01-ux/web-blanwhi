@@ -948,8 +948,9 @@
             <div class="saved-address-box">
               <span>Địa chỉ giao hàng</span>
               <select id="savedAddressSelect" aria-label="Chọn địa chỉ đã lưu"></select>
-              <input id="checkoutProvince" name="customerProvince" required autocomplete="address-level1" placeholder="Tỉnh / Thành phố *" />
-              <input id="checkoutWard" name="customerWard" required autocomplete="address-level3" placeholder="Phường / Xã *" />
+              <select id="checkoutProvince" name="customerProvince" required autocomplete="address-level1"><option value="">Tỉnh / Thành phố *</option></select>
+              <select id="checkoutDistrict" name="customerDistrict" required autocomplete="address-level2" disabled><option value="">Quận / Huyện *</option></select>
+              <select id="checkoutWard" name="customerWard" required autocomplete="address-level3" disabled><option value="">Phường / Xã *</option></select>
               <input id="checkoutAddress" name="customerAddress" required autocomplete="street-address" placeholder="Số nhà, tên đường *" />
               <label class="save-address-check"><input id="saveCheckoutAddress" type="checkbox" checked /> <span>Lưu địa chỉ này cho lần mua sau trên thiết bị này</span></label>
             </div>
@@ -1674,6 +1675,7 @@
       const checkoutName = document.getElementById("checkoutName");
       const checkoutPhone = document.getElementById("checkoutPhone");
       const checkoutProvince = document.getElementById("checkoutProvince");
+      const checkoutDistrict = document.getElementById("checkoutDistrict");
       const checkoutWard = document.getElementById("checkoutWard");
       const checkoutAddress = document.getElementById("checkoutAddress");
       const savedAddressSelect = document.getElementById("savedAddressSelect");
@@ -1727,7 +1729,11 @@
           name: String(customer.name || "").trim(),
           phone: String(customer.phone || "").trim(),
           province: String(customer.province || "").trim(),
+          provinceId: String(customer.provinceId || "").trim(),
+          district: String(customer.district || "").trim(),
+          districtId: String(customer.districtId || "").trim(),
           ward: String(customer.ward || "").trim(),
+          wardId: String(customer.wardId || "").trim(),
           house: String(customer.house || "").trim(),
           address: String(customer.address || "").trim()
         };
@@ -1738,10 +1744,65 @@
         );
         localStorage.setItem("blanwhiSavedAddresses", JSON.stringify([normalized, ...previous].slice(0, 5)));
       };
-      function applySavedAddress(index) {
+      const geoCache = new Map();
+      const selectedGeoName = (select) => select.selectedOptions[0]?.dataset.name || select.selectedOptions[0]?.textContent || "";
+      function setGeoOptions(select, items, placeholder, selectedId = "") {
+        select.replaceChildren();
+        const placeholderOption = document.createElement("option");
+        placeholderOption.value = "";
+        placeholderOption.textContent = placeholder;
+        select.appendChild(placeholderOption);
+        items.forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item.id;
+          option.dataset.name = item.name;
+          option.textContent = item.name;
+          select.appendChild(option);
+        });
+        select.disabled = items.length === 0;
+        select.value = items.some((item) => item.id === selectedId) ? selectedId : "";
+      }
+      async function fetchGeo(level, params = {}) {
+        const query = new URLSearchParams({ level, ...params });
+        const cacheKey = query.toString();
+        if (geoCache.has(cacheKey)) return geoCache.get(cacheKey);
+        const request = fetch(`${paymentApiBase}/api/geo?${query}`, { cache: "force-cache" })
+          .then(async (response) => {
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || "Không tải được địa chỉ Pancake.");
+            return Array.isArray(result.data) ? result.data : [];
+          });
+        geoCache.set(cacheKey, request);
+        return request;
+      }
+      async function loadProvinces(selectedId = "") {
+        const items = await fetchGeo("provinces");
+        setGeoOptions(checkoutProvince, items, "Tỉnh / Thành phố *", selectedId);
+      }
+      async function loadDistricts(provinceId, selectedId = "") {
+        setGeoOptions(checkoutWard, [], "Phường / Xã *");
+        if (!provinceId) {
+          setGeoOptions(checkoutDistrict, [], "Quận / Huyện *");
+          return;
+        }
+        setGeoOptions(checkoutDistrict, [], "Đang tải Quận / Huyện...");
+        const items = await fetchGeo("districts", { provinceId });
+        setGeoOptions(checkoutDistrict, items, "Quận / Huyện *", selectedId);
+      }
+      async function loadWards(provinceId, districtId, selectedId = "") {
+        if (!provinceId || !districtId) {
+          setGeoOptions(checkoutWard, [], "Phường / Xã *");
+          return;
+        }
+        setGeoOptions(checkoutWard, [], "Đang tải Phường / Xã...");
+        const items = await fetchGeo("communes", { provinceId, districtId });
+        setGeoOptions(checkoutWard, items, "Phường / Xã *", selectedId);
+      }
+      async function applySavedAddress(index) {
         if (index === "new") {
           checkoutProvince.value = "";
-          checkoutWard.value = "";
+          setGeoOptions(checkoutDistrict, [], "Quận / Huyện *");
+          setGeoOptions(checkoutWard, [], "Phường / Xã *");
           checkoutAddress.value = "";
           checkoutProvince.focus();
           return;
@@ -1750,8 +1811,9 @@
         if (!selected) return;
         checkoutName.value = selected.name || "";
         checkoutPhone.value = selected.phone || "";
-        checkoutProvince.value = selected.province || "";
-        checkoutWard.value = selected.ward || "";
+        await loadProvinces(selected.provinceId || "");
+        await loadDistricts(selected.provinceId || "", selected.districtId || "");
+        await loadWards(selected.provinceId || "", selected.districtId || "", selected.wardId || "");
         checkoutAddress.value = selected.house || (!selected.province && !selected.ward ? selected.address || "" : "");
       }
       function renderSavedAddresses() {
@@ -2565,6 +2627,7 @@
       function openCheckout() {
         closeCart();
         renderSavedAddresses();
+        if (checkoutProvince.options.length <= 1) void loadProvinces().catch((error) => alert(error.message));
         document.querySelector(".checkout-card").classList.add("quick-checkout");
         checkoutModal.classList.add("open");
         renderCheckoutSummary();
@@ -3371,7 +3434,13 @@
         renderBankList();
       });
       document.getElementById("openCustomerBankApp").addEventListener("click", openSelectedBankApp);
-      savedAddressSelect.addEventListener("change", () => applySavedAddress(savedAddressSelect.value));
+      savedAddressSelect.addEventListener("change", () => void applySavedAddress(savedAddressSelect.value));
+      checkoutProvince.addEventListener("change", () => {
+        void loadDistricts(checkoutProvince.value).catch((error) => alert(error.message));
+      });
+      checkoutDistrict.addEventListener("change", () => {
+        void loadWards(checkoutProvince.value, checkoutDistrict.value).catch((error) => alert(error.message));
+      });
       document.getElementById("checkoutForm").addEventListener("submit", async (event) => {
         event.preventDefault();
         const checkoutForm = event.currentTarget;
@@ -3390,10 +3459,14 @@
           customer: {
             name: checkoutName.value.trim(),
             phone: checkoutPhone.value.trim(),
-            address: [checkoutAddress.value, checkoutWard.value, checkoutProvince.value].map((value) => value.trim()).filter(Boolean).join(", "),
+            address: [checkoutAddress.value, selectedGeoName(checkoutWard), selectedGeoName(checkoutDistrict), selectedGeoName(checkoutProvince)].map((value) => value.trim()).filter(Boolean).join(", "),
             house: checkoutAddress.value.trim(),
-            ward: checkoutWard.value.trim(),
-            province: checkoutProvince.value.trim()
+            ward: selectedGeoName(checkoutWard).trim(),
+            wardId: checkoutWard.value,
+            district: selectedGeoName(checkoutDistrict).trim(),
+            districtId: checkoutDistrict.value,
+            province: selectedGeoName(checkoutProvince).trim(),
+            provinceId: checkoutProvince.value
           },
           items: cart.map((item) => ({
             productId: item.id,
@@ -3449,8 +3522,6 @@
           order.status = result.order?.status === "pending" ? "Chờ thanh toán" : result.order?.status === "paid" ? "Đã thanh toán" : order.status;
           if (saveCheckoutAddress.checked) saveCustomerAddress({
             ...order.customer,
-            province: checkoutProvince.value,
-            ward: checkoutWard.value,
             house: checkoutAddress.value
           });
           saveOrders([order, ...loadOrders()]);

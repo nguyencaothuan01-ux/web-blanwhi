@@ -44,7 +44,7 @@ export function pancakeOrderKey(orderCode: string) {
 
 export function buildPancakeOrderPayload(order: {
   code: string;
-  customer: { name: string; phone: string; email?: string; address: string; house?: string; ward?: string; province?: string; note?: string };
+  customer: { name: string; phone: string; email?: string; address: string; house?: string; ward?: string; wardId?: string; district?: string; districtId?: string; province?: string; provinceId?: string; note?: string };
   items: Array<{ name: string; pancakeVariationId?: string; pancakeProductId?: string; pancakeSku?: string; sku?: string; quantity: number; unitPrice: number }>;
   discount: number;
   shipping: number;
@@ -63,7 +63,11 @@ export function buildPancakeOrderPayload(order: {
       full_address: order.customer.address,
       full_name: order.customer.name,
       phone_number: order.customer.phone,
+      ...(order.customer.provinceId ? { province_id: order.customer.provinceId } : {}),
+      ...(order.customer.districtId ? { district_id: order.customer.districtId } : {}),
+      ...(order.customer.wardId ? { commune_id: order.customer.wardId } : {}),
       ...(order.customer.ward ? { commune_name: order.customer.ward, ward_name: order.customer.ward } : {}),
+      ...(order.customer.district ? { district_name: order.customer.district } : {}),
       ...(order.customer.province ? { province_name: order.customer.province } : {})
     },
     note: order.customer.note || "",

@@ -18,6 +18,10 @@ type CheckoutPayload = {
     house?: string;
     ward?: string;
     province?: string;
+    provinceId?: string;
+    district?: string;
+    districtId?: string;
+    wardId?: string;
     note?: string;
     email?: string;
   };
@@ -166,6 +170,9 @@ export async function POST(request: Request) {
     if (!customer.name || !customer.phone || !customer.address) {
       return json({ error: "Vui lòng nhập đủ họ tên, số điện thoại và địa chỉ." }, { status: 400 });
     }
+    if (!customer.provinceId || !customer.districtId || !customer.wardId || !customer.house) {
+      return json({ error: "Vui lòng chọn đủ Tỉnh/Thành, Quận/Huyện, Phường/Xã và nhập số nhà để đồng bộ địa chỉ sang POS." }, { status: 400 });
+    }
     if (!items.length) {
       return json({ error: "Giỏ hàng đang trống." }, { status: 400 });
     }
@@ -212,6 +219,10 @@ export async function POST(request: Request) {
         house: customer.house,
         ward: customer.ward,
         province: customer.province,
+        provinceId: customer.provinceId,
+        district: customer.district,
+        districtId: customer.districtId,
+        wardId: customer.wardId,
         note: customer.note
       },
       items: orderItems,
