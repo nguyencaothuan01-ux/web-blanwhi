@@ -1170,7 +1170,8 @@
         if (!inventoryIsManaged(product)) return Infinity;
         const key = stockKey(classificationIdAt(product, classificationIndex), color, size);
         const item = Array.isArray(product.inventory) ? product.inventory.find((entry) => entry.key === key) : null;
-        return Math.max(0, Math.floor(Number(item?.quantity) || 0));
+        const quantity = item?.availableQuantity ?? item?.quantity ?? item?.pancakeQuantity ?? 0;
+        return Math.max(0, Math.floor(Number(quantity) || 0));
       };
       const hasStock = (product, options = {}) => stockFor(product, options) > 0;
       const colorHasStock = (product, color, classificationIndex = product.classificationIndex || 0) =>
@@ -2218,12 +2219,9 @@
       async function confirmVariant() {
         const product = productData.find((item) => item.id === variantState.productId);
         if (!product) return;
-        const confirmButton = document.getElementById("variantConfirm");
-        if (confirmButton) {
-          confirmButton.disabled = true;
-          confirmButton.textContent = "Đang kiểm tra...";
-        }
-        await refreshProductAvailability(product.id);
+        // Modal đã tải tồn kho ở nền khi vừa mở. Không khóa nút mua để chờ lại
+        // cùng một request; bước đặt hàng vẫn kiểm tra Pancake lần cuối ở server.
+        void refreshProductAvailability(product.id);
         const currentColor = variantSwatches(product, variantState.classificationIndex)[variantState.colorIndex];
         if (!hasStock(product, { classificationIndex: variantState.classificationIndex, color: currentColor, size: variantState.size })) {
           Object.assign(variantState, preferredVariantSelection({
@@ -2573,11 +2571,15 @@
       }
 
       async function buyNow(id, options = {}) {
-        if (await addToCart(id, options)) openCart();
+        const added = addToCart(id, options);
+        openCart();
+        if (!await added) closeCart();
       }
       function stockForCartItem(item) {
         const product = productData.find((entry) => entry.id === item.id);
         if (!product || item.wholesale) return Infinity;
+        const liveAvailable = availableFor(product, item.classificationId || "", item.color, item.size);
+        if (liveAvailable !== null) return liveAvailable;
         const classificationIndex = product.classifications?.findIndex((classification) => classification.id === item.classificationId);
         return stockFor(product, {
           classificationIndex: classificationIndex >= 0 ? classificationIndex : (product.classificationIndex || 0),
@@ -2888,7 +2890,8 @@
           const color = swatches[variantState.colorIndex] || swatches[0];
           const stock = product ? stockFor(product, { classificationIndex: variantState.classificationIndex, color, size: variantState.size }) : Infinity;
           variantState.qty = Math.min(stock === Infinity ? 999 : Math.max(1, stock), Math.max(1, variantState.qty + Number(qty.dataset.variantQty)));
-          renderVariantModal();
+          const input = document.getElementById("variantQtyInput");
+          if (input) input.value = variantState.qty;
           return;
         }
         const toggle = event.target.closest("[data-variant-toggle]");

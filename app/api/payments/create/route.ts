@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { jsonError } from "@/lib/api-errors";
 import { readIntegrationConfig } from "@/lib/integrations";
 import { createOrder, newOrderCode, updateOrder } from "@/lib/orders";
@@ -230,15 +230,23 @@ export async function POST(request: Request) {
 
     await createOrder(order);
     if (pancakeConfigured) {
-      await inventoryService.reserve(order.items, "decrease");
-      order.inventoryReservationApplied = true;
-      await updateOrder(order.code, { inventoryReservationApplied: true });
-      try {
-        const synced = await new OrderSyncService().create(order);
-        if (synced) Object.assign(order, synced);
-      } catch {
-        order.externalSync = { ...order.externalSync, pancake: "Đang chờ hệ thống gửi lại Pancake" };
-      }
+      order.externalSync = { ...order.externalSync, pancake: "Đang gửi Pancake" };
+      after(async () => {
+        try {
+          await inventoryService.reserve(order.items, "decrease");
+          order.inventoryReservationApplied = true;
+          await updateOrder(order.code, { inventoryReservationApplied: true });
+        } catch {
+          // Pancake vẫn là kho thật; lỗi cập nhật hạn mức web không được chặn gửi đơn POS.
+        }
+        try {
+          await new OrderSyncService().create(order);
+        } catch {
+          await updateOrder(order.code, {
+            externalSync: { ...order.externalSync, pancake: "Đang chờ hệ thống gửi lại Pancake", lastSyncedAt: new Date().toISOString() }
+          });
+        }
+      });
     }
 
     if (paymentMethod === "vnpay") {
