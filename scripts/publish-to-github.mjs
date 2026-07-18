@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 
 const mainRepo = process.env.BLANWHI_MAIN_REPO || "https://github.com/khaitamphatphap-bit/web-blanwhi";
 const backupRepo = process.env.BLANWHI_BACKUP_REPO || "https://github.com/nguyencaothuan01-ux/web-blanwhi";
-const shouldPushBackup = process.env.BLANWHI_PUSH_BACKUP !== "0";
+const shouldPushBackup = process.env.BLANWHI_PUSH_BACKUP === "1";
 const message = process.argv.slice(2).join(" ").trim() || `Update BLANWHI site ${new Date().toISOString()}`;
 
 function run(command, args, options = {}) {
@@ -18,20 +18,22 @@ function runVisible(command, args) {
   execFileSync(command, args, { stdio: "inherit" });
 }
 
-const status = run("git", ["status", "--porcelain"]);
-
-if (!status) {
-  console.log("No local changes to publish.");
-  process.exit(0);
-}
-
 const branch = run("git", ["branch", "--show-current"]);
 
 if (branch !== "main") {
   throw new Error(`Current branch is '${branch}'. Switch to main before publishing.`);
 }
 
-runVisible("git", ["fetch", "origin", "main"]);
+runVisible("git", ["pull", "--ff-only", "origin", "main"]);
+runVisible(process.execPath, ["scripts/preserve-live-site.mjs"]);
+runVisible(process.execPath, ["scripts/check-data-integrity.mjs"]);
+runVisible(process.execPath, ["node_modules/typescript/bin/tsc", "--noEmit"]);
+
+const status = run("git", ["status", "--porcelain"]);
+if (!status) {
+  console.log("No local changes to publish.");
+  process.exit(0);
+}
 runVisible("git", ["add", "-A"]);
 runVisible("git", ["commit", "-m", message]);
 runVisible("git", ["pull", "--rebase", "origin", "main"]);

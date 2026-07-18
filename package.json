@@ -5,6 +5,7 @@
     "start": "next start",
     "publish": "node scripts/publish-to-github.mjs",
     "preserve:live-site": "node scripts/preserve-live-site.mjs",
+    "check:data": "node scripts/check-data-integrity.mjs",
     "db:import-json": "node scripts/import-json-to-db.mjs",
     "lint": "next lint"
   },
