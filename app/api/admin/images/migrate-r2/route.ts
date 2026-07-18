@@ -54,6 +54,32 @@ function makeFilename(sourceUrl: string, index: number) {
   return `migrated-${String(index + 1).padStart(4, "0")}-${originalName || "image.png"}`;
 }
 
+async function downloadBlobImage(sourceUrl: string) {
+  const response = await fetch(sourceUrl, { cache: "no-store" });
+  if (response.ok) {
+    return {
+      bytes: Buffer.from(await response.arrayBuffer()),
+      contentType: response.headers.get("content-type") || inferContentType(sourceUrl)
+    };
+  }
+
+  try {
+    const { get } = await import("@vercel/blob");
+    const pathname = new URL(sourceUrl).pathname.replace(/^\/+/, "");
+    const result = await get(pathname, { access: "public", useCache: false });
+    if (result?.statusCode === 200 && result.stream) {
+      return {
+        bytes: Buffer.from(await new Response(result.stream).arrayBuffer()),
+        contentType: inferContentType(sourceUrl)
+      };
+    }
+  } catch {
+    // Fall through to the clearer public URL error below.
+  }
+
+  throw new Error(`Không tải được ảnh cũ từ Blob: ${response.status}`);
+}
+
 export async function POST(request: Request) {
   try {
     if (!hasR2ImageStorage()) {
@@ -74,12 +100,7 @@ export async function POST(request: Request) {
 
     const replacements = new Map<string, string>();
     for (const [index, sourceUrl] of batch.entries()) {
-      const response = await fetch(sourceUrl, { cache: "no-store" });
-      if (!response.ok) {
-        throw new Error(`Không tải được ảnh cũ từ Blob: ${response.status}`);
-      }
-      const bytes = Buffer.from(await response.arrayBuffer());
-      const contentType = response.headers.get("content-type") || inferContentType(sourceUrl);
+      const { bytes, contentType } = await downloadBlobImage(sourceUrl);
       const r2Url = await uploadImageToR2({
         bytes,
         contentType,
