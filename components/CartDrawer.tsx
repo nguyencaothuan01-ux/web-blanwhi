@@ -52,7 +52,7 @@ export function CartDrawer({
         </div>
         <div className="border-t border-neutral-200 bg-white p-4">
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span>Tạm tính</span><span>{money(totals.subtotal)}</span></div>
+            <div className="flex justify-between"><span>Giá trị đơn hàng</span><span>{money(totals.subtotal)}</span></div>
             <div className="flex justify-between text-neutral-500"><span>Giảm giá</span><span>-{money(totals.discount)}</span></div>
             <div className="flex justify-between text-neutral-500"><span>Ship</span><span>{money(totals.shipping)}</span></div>
             <div className="flex justify-between border-t border-neutral-200 pt-3 text-lg"><span>Tổng</span><span>{money(totals.total)}</span></div>

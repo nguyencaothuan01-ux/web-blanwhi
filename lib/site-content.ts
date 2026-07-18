@@ -41,6 +41,10 @@ export type CmsProduct = {
   originalPrice?: string;
   salePrice?: string;
   fit: string;
+  origin?: string;
+  material?: string;
+  colorDescription?: string;
+  usageAndCare?: string;
   kind: string;
   swatches: string[];
   sizes: string[];
@@ -174,7 +178,7 @@ export const defaultSiteContent: SiteContent = {
   ],
   payment: {
     bank: {
-      receiverName: "BLANWHI STORE",
+      receiverName: "HỘ KINH DOANH BLANWHI – BNW",
       accountNumber: "0123 456 789",
       bankName: "Vietcombank",
       bankCode: "vcb"
@@ -208,6 +212,10 @@ export const defaultSiteContent: SiteContent = {
     originalPrice: String(price),
     salePrice: "",
     fit: String(fit),
+    origin: "",
+    material: "",
+    colorDescription: "",
+    usageAndCare: "",
     kind: String(kind),
     swatches: swatches as string[],
     sizes: ["S", "M", "L", "XL"],
@@ -279,7 +287,10 @@ export async function readSiteContent(): Promise<SiteContent> {
     payment: {
       bank: {
         ...defaultSiteContent.payment.bank,
-        ...saved.payment?.bank
+        ...saved.payment?.bank,
+        receiverName: !saved.payment?.bank?.receiverName || saved.payment.bank.receiverName === "BLANWHI STORE"
+          ? defaultSiteContent.payment.bank.receiverName
+          : saved.payment.bank.receiverName
       }
     },
     products

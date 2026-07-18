@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createDeliveryService } from "@/lib/delivery/factory";
 import { deliveryConfigured, readDeliveryConfig } from "@/lib/delivery/config";
 import { providerLabel } from "@/lib/delivery/status";
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     fee: config.fallbackFee,
     currency: "VND",
     estimated: true,
-    message: "Phí tạm tính, sẽ cập nhật theo API khi tạo vận đơn."
+    message: "Phí giao hàng áp dụng cho lựa chọn hiện tại."
   };
   if (!deliveryConfigured(config) || !body.latitude || !body.longitude || !body.address) {
     return NextResponse.json(fallback);

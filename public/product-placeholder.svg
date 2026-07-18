@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1125" role="img" aria-labelledby="title desc">
+  <title id="title">Ảnh sản phẩm BLANWHI đang được cập nhật</title>
+  <desc id="desc">Hình dự phòng hiển thị khi ảnh sản phẩm tạm thời chưa tải được.</desc>
+  <rect width="900" height="1125" fill="#f4f4f2"/>
+  <path d="M300 292 390 230h120l90 62 132 64-72 168-72-28v358H312V496l-72 28-72-168 132-64Z" fill="#dedbd4" stroke="#111" stroke-width="5"/>
+  <path d="M390 230c0 61 120 61 120 0" fill="none" stroke="#111" stroke-width="5"/>
+  <text x="450" y="932" text-anchor="middle" font-family="Arial,sans-serif" font-size="34" font-weight="700" letter-spacing="8">BLANWHI</text>
+  <text x="450" y="985" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" fill="#666">ẢNH ĐANG ĐƯỢC CẬP NHẬT</text>
+</svg>

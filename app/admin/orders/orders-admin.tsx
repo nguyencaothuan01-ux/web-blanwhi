@@ -444,7 +444,7 @@ export function OrdersAdmin({
                   <section>
                     <h3 className="text-xs font-semibold uppercase text-neutral-500">Thanh toán & vận chuyển</h3>
                     <div className="mt-3 space-y-2 text-sm">
-                      <p><b>Tạm tính:</b> {money(order.subtotal)}</p>
+                      <p><b>Giá trị đơn hàng:</b> {money(order.subtotal)}</p>
                       <p><b>Giảm giá:</b> -{money(order.discount)}</p>
                       <p><b>Ship:</b> {order.shippingFeeLabel || money(order.shipping)}</p>
                       <p><b>Tổng:</b> {money(order.total)}</p>

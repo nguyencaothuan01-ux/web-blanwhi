@@ -746,7 +746,11 @@ function ProductForm({
         <Text label="Tên sản phẩm" value={product.name} onChange={(value) => set("name", value)} />
         <Text label="Giá gốc" value={originalPrice} onChange={setOriginalPrice} />
         <Text label="Giá sau giảm" value={salePrice} onChange={setSalePrice} />
-        <Text label="Mô tả form/chất liệu" value={product.fit} onChange={(value) => set("fit", value)} />
+        <Text label="Mô tả ngắn / form dáng" value={product.fit} onChange={(value) => set("fit", value)} />
+        <Text label="Xuất xứ" value={product.origin || ""} onChange={(value) => set("origin", value)} />
+        <Text label="Thành phần / Chất liệu" value={product.material || ""} onChange={(value) => set("material", value)} />
+        <Text label="Màu sắc" value={product.colorDescription || ""} onChange={(value) => set("colorDescription", value)} />
+        <Text label="Hướng dẫn sử dụng, hướng dẫn bảo quản" value={product.usageAndCare || ""} onChange={(value) => set("usageAndCare", value)} />
         <label className="text-sm">
           Loại sản phẩm
           <select value={product.kind} onChange={(event) => set("kind", event.target.value)} className="mt-1 h-10 w-full border px-3">

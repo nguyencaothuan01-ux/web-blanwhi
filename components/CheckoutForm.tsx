@@ -95,7 +95,7 @@ export function CheckoutForm({ items, onAddCombo }: { items: CartItem[]; onAddCo
             ))}
           </div>
           <div className="mt-5 space-y-2 border-t border-neutral-200 pt-4 text-sm">
-            <div className="flex justify-between"><span>Tạm tính</span><span>{money(totals.subtotal)}</span></div>
+            <div className="flex justify-between"><span>Giá trị đơn hàng</span><span>{money(totals.subtotal)}</span></div>
             <div className="flex justify-between text-neutral-500"><span>{totals.voucher?.title ?? "Voucher"}</span><span>-{money(totals.discount)}</span></div>
             <div className="flex justify-between text-neutral-500"><span>Ship</span><span>{money(totals.shipping)}</span></div>
             <div className="flex justify-between pt-2 text-xl"><span>Cần trả</span><span>{money(totals.total)}</span></div>

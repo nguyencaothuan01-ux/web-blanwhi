@@ -150,7 +150,8 @@
       .product-visual.image-unavailable { background: linear-gradient(145deg, #f7f7f5, #ececea); }
       .product-visual.image-unavailable::before { content: ""; width: 62px; height: 62px; background: url("/umbrella-logo.png") center / contain no-repeat; opacity: .3; }
       .product-visual.image-unavailable::after { content: "Hình ảnh đang được khôi phục"; position: absolute; left: 18px; right: 18px; top: calc(50% + 45px); color: #777; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-align: center; text-transform: uppercase; }
-      .product-visual.image-unavailable .product-photo { display: none; }
+      .product-visual.image-unavailable .product-photo { display: block; }
+      .product-visual.image-unavailable::before, .product-visual.image-unavailable::after { display: none; }
       .card:hover .product-visual { transform: scale(1.018); opacity: .94; }
       .color-arrow { position: absolute; top: 50%; z-index: 2; width: 30px; height: 30px; border: 1px solid rgba(0,0,0,.18); border-radius: 999px; background: rgba(255,255,255,.78); transform: translateY(-50%); display: grid; place-items: center; font-size: 18px; }
       .color-arrow.prev { left: 10px; }
@@ -498,7 +499,18 @@
       .split p { color: var(--muted); line-height: 1.8; max-width: 390px; font-size: 14px; }
       .footer-grid { border-top: 2px solid #111; margin-top: 36px; padding: 42px 0 70px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; font-size: 12px; }
       .footer-grid h3 { margin: 0 0 12px; font-size: 16px; color: #111; }
-      .footer-grid p { margin: 4px 0; color: var(--muted); }
+      .footer-grid p { margin: 4px 0; color: var(--muted); line-height: 1.6; }
+      .footer-grid a { color: inherit; text-decoration: none; }
+      .footer-grid a:hover { color: #111; text-decoration: underline; }
+      .footer-business { grid-column: span 1; }
+      .footer-business strong { display: block; margin-bottom: 10px; color: #111; font-size: 14px; line-height: 1.4; }
+      .footer-policies { grid-column: span 2; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px 22px; align-content: start; }
+      .footer-policies h3 { grid-column: 1 / -1; }
+      .terms-agreement { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid var(--line); font-size: 12px; line-height: 1.55; }
+      .terms-agreement input { width: 18px; min-height: 18px; margin: 1px 0 0; flex: 0 0 auto; }
+      .terms-agreement a { color: #111; font-weight: 800; }
+      .bank-transfer-summary { display: grid; gap: 5px; color: #333; font-size: 12px; line-height: 1.5; }
+      .pay-grid label[hidden] { display: none; }
       footer { border-top: 1px solid var(--line); padding: 42px 18px; text-align: center; color: var(--muted); font-size: 12px; text-transform: uppercase; }
       footer img { width: 52px; height: 52px; object-fit: contain; mix-blend-mode: multiply; display: block; margin: 0 auto 12px; }
       @media (max-width: 900px) {
@@ -569,6 +581,8 @@
         .benefit h3 { font-size: 10px; }
         .benefit p { font-size: 10px; line-height: 1.4; }
         .footer-grid { margin-top: 12px; padding: 30px 0 36px; gap: 24px; }
+        .footer-business, .footer-policies { grid-column: 1; }
+        .footer-policies { grid-template-columns: 1fr; }
         .footer-grid h3 { margin-bottom: 8px; font-size: 15px; }
         .footer-grid p { margin: 2px 0; line-height: 1.55; }
         footer { padding: 28px 18px; }
@@ -858,14 +872,10 @@
             </div>
           </div>
         </section>
-        <section class="footer-grid" id="footer">
-          <div><h3>Về BLANWHI</h3><p>Về chúng tôi</p><p>Tuyển dụng</p><p>Hệ thống cửa hàng</p></div>
-          <div><h3>Chăm sóc khách hàng</h3><p>Câu hỏi thường gặp</p><p>Chính sách đổi trả</p><p>Điều khoản khuyến mãi</p></div>
-          <div><h3>Kết nối<br />cùng BLANWHI</h3><p>Địa chỉ email</p><p>Khi đăng ký, bạn đồng ý với các điều khoản của BLANWHI.</p></div>
-        </section>
+        <section class="footer-grid" id="footer" aria-label="Thông tin pháp lý và chính sách"></section>
       </main>
 
-      <footer><img src="/umbrella-logo.png" alt="Biểu tượng chiếc ô BLANWHI" data-cms-logo /> <span data-cms-footer-text>BLANWHI · Thời trang tối giản, chất riêng</span></footer>
+      <footer><img src="/umbrella-logo.png" alt="Biểu tượng chiếc ô BLANWHI" data-cms-logo /> <span data-cms-footer-text>HỘ KINH DOANH BLANWHI – BNW</span></footer>
     </div>
     <div class="cart-overlay" id="cartOverlay"></div>
     <aside class="cart-drawer" id="cartDrawer" aria-label="Giỏ hàng">
@@ -883,7 +893,7 @@
           <div class="shipping-options" id="shippingOptions">
             <button class="shipping-option" type="button" data-shipping-method="express">
               <span class="shipping-logo">HT</span>
-              <span><strong>Giao hỏa tốc</strong><small>Ahamove / Lalamove · Hiển thị phí tạm tính trước khi đặt.<br />Phí thực tế được cập nhật khi tạo vận đơn.</small></span>
+              <span><strong>Giao hỏa tốc</strong><small>Ahamove / Lalamove · Phí giao hàng được xác định và hiển thị trước khi đặt.</small></span>
               <span class="shipping-check"></span>
             </button>
             <button class="shipping-option active" type="button" data-shipping-method="fast">
@@ -894,7 +904,7 @@
           </div>
         </div>
         <div class="voucher-note" id="voucherNote" hidden>Voucher sẽ tự gợi ý theo tổng đơn và số lượng sản phẩm.</div>
-        <div class="line"><span>Tạm tính</span><strong id="subtotalText">0đ</strong></div>
+        <div class="line"><span>Giá trị đơn hàng</span><strong id="subtotalText">0đ</strong></div>
         <div class="line"><span>Giảm giá</span><strong id="discountText">-0đ</strong></div>
         <div class="line"><span>Ship</span><strong id="shippingText">0đ</strong></div>
         <div class="line" style="font-size:18px"><span>Tổng</span><strong id="totalText">0đ</strong></div>
@@ -934,11 +944,11 @@
             </div>
             <div class="custom-confirm-area" id="customConfirmArea"></div>
             <div class="pay-grid">
-              <label><input type="radio" name="pay" checked /> COD</label>
-              <label><input type="radio" name="pay" value="card" /> Thẻ VNPAY</label>
-              <label><input type="radio" name="pay" value="transfer" /> Chuyển khoản</label>
-              <label><input type="radio" name="pay" value="wallet" /> MoMo</label>
-              <label><input type="radio" name="pay" value="zalopay" /> ZaloPay</label>
+              <label data-payment-option="cod"><input type="radio" name="pay" value="cod" checked /> COD</label>
+              <label data-payment-option="card" hidden><input type="radio" name="pay" value="card" /> Thẻ VNPAY</label>
+              <label data-payment-option="transfer" hidden><input type="radio" name="pay" value="transfer" /> Chuyển khoản</label>
+              <label data-payment-option="wallet" hidden><input type="radio" name="pay" value="wallet" /> MoMo</label>
+              <label data-payment-option="zalopay" hidden><input type="radio" name="pay" value="zalopay" /> ZaloPay</label>
             </div>
             <div class="payment-extra" id="cardPaymentFields">
               <span class="muted">Website sẽ chuyển khách sang cổng thanh toán VNPAY/OnePay/AlePay. BLANWHI không lưu số thẻ, CVV hoặc OTP của khách.</span>
@@ -947,10 +957,19 @@
               <span class="muted">Website sẽ tạo giao dịch MoMo và chuyển khách sang ứng dụng/cổng MoMo để xác nhận thanh toán.</span>
             </div>
             <div class="payment-extra" id="transferPaymentFields">
-              <span class="muted">Tài khoản nhận tiền</span>
-              <button class="bank-account-link" id="openBankTransfer" type="button">BLANWHI - 0123 456 789</button>
+              <span class="muted">Thông tin chuyển khoản</span>
+              <div class="bank-transfer-summary">
+                <span>Tên người thụ hưởng: <strong id="checkoutBankReceiver">HỘ KINH DOANH BLANWHI – BNW</strong></span>
+                <span>Số tài khoản: <strong id="checkoutBankAccount">Chưa cấu hình</strong></span>
+                <span>Ngân hàng: <strong id="checkoutBankName">Chưa cấu hình</strong></span>
+              </div>
+              <button class="bank-account-link" id="openBankTransfer" type="button">Xem hướng dẫn chuyển khoản</button>
             </div>
-            <button class="primary" type="submit">Đặt hàng</button>
+            <label class="terms-agreement">
+              <input id="policyAgreement" type="checkbox" required />
+              <span>Tôi đã đọc và đồng ý với <a href="/chinh-sach" target="_blank" rel="noopener">Chính sách hoạt động</a> của website</span>
+            </label>
+            <button class="primary" id="placeOrderButton" type="submit" disabled>Đặt hàng</button>
           </form>
           <div class="order-box" id="checkoutSummary"></div>
         </div>
@@ -969,7 +988,7 @@
           <button class="icon-button" id="closeBankTransfer" type="button" aria-label="Đóng trang chuyển khoản">×</button>
         </div>
         <div class="bank-info-grid">
-          <div class="bank-info-card"><span>Tên người nhận</span><strong id="bankReceiverName">BLANWHI STORE</strong></div>
+          <div class="bank-info-card"><span>Tên người nhận</span><strong id="bankReceiverName">HỘ KINH DOANH BLANWHI – BNW</strong></div>
           <div class="bank-info-card"><span>Số tiền</span><strong id="bankTransferAmount">0đ</strong></div>
           <div class="bank-info-card"><span>Nội dung</span><strong id="bankTransferContent">BLW-000000</strong></div>
         </div>
@@ -1009,8 +1028,11 @@
         const image = event.target;
         if (!(image instanceof HTMLImageElement)) return;
         if (image.classList.contains("product-photo")) {
-          image.hidden = true;
-          image.closest(".product-visual")?.classList.add("image-unavailable");
+          if (!image.dataset.fallbackApplied) {
+            image.dataset.fallbackApplied = "true";
+            image.src = "/product-placeholder.svg";
+            image.closest(".product-visual")?.classList.add("image-unavailable");
+          }
           return;
         }
         const swatch = image.closest(".swatches button");
@@ -1584,9 +1606,25 @@
         }
         if (Array.isArray(content.footerColumns)) {
           const footerGrid = document.querySelector(".footer-grid");
-          footerGrid.innerHTML = content.footerColumns.map((column) => `
-            <div><h3>${column.title || ""}</h3>${(column.lines || []).map((line) => `<p>${escapeMarkup(line)}</p>`).join("")}</div>
-          `).join("");
+          footerGrid.innerHTML = `
+            <div class="footer-business">
+              <h3>Thông tin hộ kinh doanh</h3>
+              <strong>HỘ KINH DOANH BLANWHI – BNW</strong>
+              <p>Địa chỉ: 282/19/6 Bùi Hữu Nghĩa, Phường 2, Quận Bình Thạnh, Thành phố Hồ Chí Minh</p>
+              <p>Mã số HKD: 079093030935 do UBND Quận Bình Thạnh cấp ngày 16/09/2022</p>
+              <p>Chủ hộ kinh doanh: Nguyễn Việt Thắng</p>
+              <p>Hotline: <a href="tel:0866561480">0866561480</a></p>
+            </div>
+            <div class="footer-policies">
+              <h3>Chính sách hoạt động</h3>
+              <a href="/chinh-sach#bao-mat">Chính sách bảo mật</a>
+              <a href="/chinh-sach#phan-anh-khieu-nai">Phương thức tiếp nhận và giải quyết phản ánh, yêu cầu, khiếu nại</a>
+              <a href="/chinh-sach#gia">Chính sách về giá</a>
+              <a href="/chinh-sach#thanh-toan">Chính sách về thanh toán</a>
+              <a href="/chinh-sach#giao-hang">Chính sách về giao hàng</a>
+              <a href="/chinh-sach#doi-tra-hoan-tien">Chính sách về đổi trả hàng và hoàn tiền</a>
+              <a href="/chinh-sach#quyen-nghia-vu">Quyền và nghĩa vụ của các bên</a>
+            </div>`;
         }
         if (content.payment?.bank) {
           shopBankReceiverName = content.payment.bank.receiverName || shopBankReceiverName;
@@ -1598,6 +1636,12 @@
           const accountNode = document.getElementById("bankAccountDisplay");
           if (receiverNode) receiverNode.textContent = shopBankReceiverName;
           if (accountNode) accountNode.textContent = `${shopBankAccountNumber} - ${shopBankName}`.trim();
+          document.getElementById("checkoutBankReceiver").textContent = shopBankReceiverName;
+          document.getElementById("checkoutBankAccount").textContent = shopBankAccountNumber;
+          document.getElementById("checkoutBankName").textContent = shopBankName;
+          const bankReady = Boolean(shopBankAccountNumber && shopBankName && !/0123\s*456\s*789/.test(shopBankAccountNumber));
+          const transferOption = document.querySelector('[data-payment-option="transfer"]');
+          if (transferOption) transferOption.hidden = !bankReady;
         }
         if (Array.isArray(content.products)) {
           productData = content.products
@@ -1676,11 +1720,11 @@
       let orderVoucherCode = "";
       let selectedVoucherCode = "";
       let selectedShippingMethod = "fast";
-      let expressShippingQuote = { fee: 50000, provider: "", providerName: "Hỏa tốc", estimated: true, quotationId: "", message: "Phí tạm tính" };
+      let expressShippingQuote = { fee: 50000, provider: "", providerName: "Hỏa tốc", estimated: false, quotationId: "", message: "Phí giao hàng" };
       let expressQuoteTimer = 0;
       let expressRecipientCoordinates = { latitude: "", longitude: "" };
       let selectedBank = "vcb";
-      let shopBankReceiverName = "BLANWHI STORE";
+      let shopBankReceiverName = "HỘ KINH DOANH BLANWHI – BNW";
       let shopBankAccountNumber = "0123 456 789";
       let shopBankName = "Vietcombank";
       let shopBankCode = "vcb";
@@ -1828,6 +1872,20 @@
         if (addresses.length) applySavedAddress("0");
       }
       const paymentMethodMap = { card: "vnpay", wallet: "momo", zalopay: "zalopay", transfer: "bank_transfer" };
+      async function loadAvailablePaymentMethods() {
+        try {
+          const response = await fetch(`${paymentApiBase}/api/payments/methods?t=${Date.now()}`, { cache: "no-store" });
+          if (!response.ok) return;
+          const methods = await response.json();
+          const mapping = { card: "vnpay", wallet: "momo", zalopay: "zalopay" };
+          Object.entries(mapping).forEach(([option, method]) => {
+            const label = document.querySelector(`[data-payment-option="${option}"]`);
+            if (label) label.hidden = !methods[method];
+          });
+        } catch {
+          // COD remains available when external gateways cannot be verified.
+        }
+      }
       const customerShippingLabels = {
         not_created: "Đơn mới đặt",
         awaiting_creation: "Chờ tạo vận đơn",
@@ -1985,7 +2043,7 @@
             expressShippingQuote = await response.json();
             if (selectedShippingMethod === "express") renderShippingMethod();
           } catch {
-            // Giữ phí tạm tính nếu API hỏa tốc chưa sẵn sàng.
+            // Giữ mức phí hiển thị nếu API hỏa tốc chưa sẵn sàng.
           }
         }, 250);
       }
@@ -1993,7 +2051,7 @@
       function renderShippingMethod() {
         const express = selectedShippingMethod === "express";
         shippingLogo.textContent = express ? (expressShippingQuote.provider === "ahamove" ? "AHA" : expressShippingQuote.provider === "lalamove" ? "LALA" : "HT") : "VTP";
-        shippingSelectedText.textContent = express ? `Hỏa tốc · ${expressShippingQuote.estimated ? "Tạm tính " : ""}${formatMoney(expressShippingQuote.fee || 50000)}` : "Viettel Post · Toàn quốc";
+        shippingSelectedText.textContent = express ? `Hỏa tốc · ${formatMoney(expressShippingQuote.fee || 50000)}` : "Viettel Post · Toàn quốc";
         shippingOptions.querySelectorAll("[data-shipping-method]").forEach((button) => {
           const active = button.dataset.shippingMethod === selectedShippingMethod;
           button.classList.toggle("active", active);
@@ -2136,9 +2194,12 @@
                 </div>
               </div>
               <div class="detail-section">
-                <button data-detail-toggle="material">Chất liệu <span>+</span></button>
+                <button data-detail-toggle="material">Thông tin sản phẩm <span>+</span></button>
                 <div class="detail-panel" id="detail-material">
-                  <p>${escapeMarkup(product.fit || productDescription(product))}</p>
+                  <p><strong>Xuất xứ:</strong> ${escapeMarkup(product.origin || "Đang cập nhật")}</p>
+                  <p><strong>Thành phần/Chất liệu:</strong> ${escapeMarkup(product.material || product.fit || "Đang cập nhật")}</p>
+                  <p><strong>Màu sắc:</strong> ${escapeMarkup(product.colorDescription || variantSwatches(product).map((color) => colorLabel(color, product)).join(", ") || "Đang cập nhật")}</p>
+                  <p><strong>Hướng dẫn sử dụng, hướng dẫn bảo quản:</strong> ${escapeMarkup(product.usageAndCare || "Giặt cùng màu, lộn trái sản phẩm trước khi giặt, không dùng chất tẩy mạnh và bảo quản nơi khô thoáng.")}</p>
                 </div>
               </div>`}
             </div>
@@ -2431,9 +2492,9 @@
         checkoutSummary.innerHTML = `
           <h3 style="margin:0 0 8px">Đơn hàng</h3>
           ${cart.length ? cart.map((item) => `<div class="line"><span class="checkout-item-copy"><b>${item.qty}× ${escapeMarkup(item.name)}</b><small>${item.classificationName ? `${escapeMarkup(item.classificationName)} · ` : ""}${escapeMarkup(colorLabel(item.color, item, item.classificationIndex || 0))}${item.kind.startsWith("gift-") ? "" : ` · Size ${escapeMarkup(item.size)}`}</small></span><strong>${formatMoney(item.amount * item.qty)}</strong></div>`).join("") : `<p class="muted">Chưa có sản phẩm.</p>`}
-          <div class="line"><span>Tạm tính</span><strong>${formatMoney(next.sub)}</strong></div>
+          <div class="line"><span>Giá trị đơn hàng</span><strong>${formatMoney(next.sub)}</strong></div>
           <div class="line"><span>${next.voucher.title}</span><strong>-${formatMoney(next.discount)}</strong></div>
-          <div class="line"><span>Vận chuyển · ${selectedShippingMethod === "express" ? "Hỏa tốc" : "Viettel Post"}</span><strong>${next.shippingEstimated ? `Tạm tính ${formatMoney(next.shipping)}` : formatMoney(next.shipping)}</strong></div>
+          <div class="line"><span>Vận chuyển · ${selectedShippingMethod === "express" ? "Hỏa tốc" : "Viettel Post"}</span><strong>${formatMoney(next.shipping)}</strong></div>
           <div class="line" style="font-size:18px"><span>Tổng</span><strong>${formatMoney(next.total)}</strong></div>
         `;
       }
@@ -3491,6 +3552,10 @@
         event.preventDefault();
         const checkoutForm = event.currentTarget;
         const next = totals();
+        if (!document.getElementById("policyAgreement").checked) {
+          alert("Vui lòng đồng ý với Chính sách hoạt động của website trước khi đặt hàng.");
+          return;
+        }
         const selectedPay = document.querySelector("input[name='pay']:checked")?.value || "cod";
         const paymentMethod = paymentMethodMap[selectedPay] || "cod";
         const submitButton = checkoutForm.querySelector("button[type='submit']");
@@ -3557,7 +3622,7 @@
               },
               shipping: {
                 method: selectedShippingMethod === "express" ? "Giao hỏa tốc" : "Giao tiêu chuẩn",
-                feeLabel: next.shippingEstimated ? "Tạm tính " + formatMoney(next.shipping) : formatMoney(next.shipping),
+                feeLabel: formatMoney(next.shipping),
                 carrier: selectedShippingMethod === "express" ? (expressShippingQuote.providerName || "Hỏa tốc") : "Viettel Post",
                 type: selectedShippingMethod === "express" ? "express" : "standard",
                 provider: expressShippingQuote.provider || undefined,
@@ -3582,7 +3647,7 @@
           orderVoucherCode = "";
           selectedVoucherCode = "";
           selectedShippingMethod = "fast";
-          expressShippingQuote = { fee: 50000, provider: "", providerName: "Hỏa tốc", estimated: true, quotationId: "", message: "Phí tạm tính" };
+          expressShippingQuote = { fee: 50000, provider: "", providerName: "Hỏa tốc", estimated: false, quotationId: "", message: "Phí giao hàng" };
           expressRecipientCoordinates = { latitude: "", longitude: "" };
           cartNote.value = "";
           voucherCode.value = "";
@@ -3597,7 +3662,7 @@
         } catch (error) {
           alert(error.message || "Không thể tạo giao dịch thanh toán.");
         } finally {
-          submitButton.disabled = false;
+          submitButton.disabled = !document.getElementById("policyAgreement").checked;
           submitButton.textContent = "Đặt hàng";
         }
       });
@@ -3609,6 +3674,12 @@
           document.getElementById("transferPaymentFields").classList.toggle("open", selectedPay === "transfer");
         });
       });
+      const policyAgreement = document.getElementById("policyAgreement");
+      const placeOrderButton = document.getElementById("placeOrderButton");
+      policyAgreement.addEventListener("change", () => {
+        placeOrderButton.disabled = !policyAgreement.checked;
+      });
+      loadAvailablePaymentMethods();
       renderCart();
       renderShippingMethod();
       syncCustomerOrderStatuses().then(renderOrders);
